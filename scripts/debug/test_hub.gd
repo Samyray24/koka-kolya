@@ -1,0 +1,17 @@
+extends Control
+
+# Test Hub Controller for Development Builds
+
+@onready var btn_graybox: Button = $MarginContainer/VBoxContainer/BtnGraybox
+@onready var btn_back: Button = $MarginContainer/VBoxContainer/BtnBack
+
+func _ready() -> void:
+	if btn_graybox:
+		btn_graybox.pressed.connect(func() -> void:
+			get_tree().change_scene_to_file("res://scenes/testlabs/foundation_graybox.tscn")
+		)
+		btn_graybox.grab_focus()
+	if btn_back:
+		btn_back.pressed.connect(func() -> void:
+			get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
+		)

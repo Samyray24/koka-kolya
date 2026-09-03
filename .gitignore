@@ -1,0 +1,22 @@
+# Godot 4.x specific ignores
+.godot/
+*.translation
+
+# OS and Editor ignores
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Large binary exports
+builds/
+dist/
+
+tools/godot/
+*.exe
+*.dll
+*.so
+*.dylib

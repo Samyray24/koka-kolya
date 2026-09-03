@@ -1,0 +1,171 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/foundation_graybox.gd" id="1_graybox"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.18, 0.28, 0.44, 1)
+sky_horizon_color = Color(0.48, 0.58, 0.68, 1)
+ground_bottom_color = Color(0.12, 0.14, 0.18, 1)
+
+[sub_resource type="Sky" id="Sky_env"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_env"]
+background_mode = 2
+sky = SubResource("Sky_env")
+ambient_light_source = 2
+ambient_light_color = Color(0.65, 0.72, 0.85, 1)
+ambient_light_energy = 1.2
+tonemap_mode = 3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.35, 0.4, 0.48, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = SubResource("StandardMaterial3D_floor")
+size = Vector3(60, 1, 60)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ramp"]
+size = Vector3(6, 0.5, 12)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ramp"]
+albedo_color = Color(0.85, 0.25, 0.25, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_ramp"]
+material = SubResource("StandardMaterial3D_ramp")
+size = Vector3(6, 0.5, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_crate"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crate"]
+albedo_color = Color(0.95, 0.7, 0.2, 1)
+metallic = 0.2
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_crate"]
+material = SubResource("StandardMaterial3D_crate")
+size = Vector3(1, 1, 1)
+
+[node name="FoundationGraybox" type="Node3D"]
+script = ExtResource("1_graybox")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 20, 10)
+light_color = Color(1, 0.98, 0.92, 1)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+collision_mask = 6
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="Ramp" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.94, 0.342, 0, -0.342, 0.94, 0, 1.8, -12)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp"]
+shape = SubResource("BoxShape3D_ramp")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ramp"]
+mesh = SubResource("BoxMesh_ramp")
+
+[node name="Crate1" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5)
+collision_layer = 4
+collision_mask = 7
+mass = 25.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Crate1"]
+shape = SubResource("BoxShape3D_crate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Crate1"]
+mesh = SubResource("BoxMesh_crate")
+
+[node name="Crate2" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, -5)
+collision_layer = 4
+collision_mask = 7
+mass = 25.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Crate2"]
+shape = SubResource("BoxShape3D_crate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Crate2"]
+mesh = SubResource("BoxMesh_crate")
+
+[node name="Crate3" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1, -5)
+collision_layer = 4
+collision_mask = 7
+mass = 25.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Crate3"]
+shape = SubResource("BoxShape3D_crate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Crate3"]
+mesh = SubResource("BoxMesh_crate")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 4)
+
+[node name="DebugUI" type="CanvasLayer" parent="."]
+
+[node name="MarginContainer" type="MarginContainer" parent="DebugUI"]
+offset_right = 420.0
+offset_bottom = 220.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+
+[node name="Panel" type="Panel" parent="DebugUI/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DebugUI/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "«КОКА-КОЛЯ» • FOUNDATION GRAYBOX"
+
+[node name="LblPhysics" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "Физика: Jolt Physics 3D"
+
+[node name="LblFPS" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "FPS: 60"
+
+[node name="LblPos" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Позиция: X: 0 | Y: 0 | Z: 0"
+
+[node name="LblSpeed" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Скорость: 0.0 км/ч"
+
+[node name="Controls" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "Управление: WASD — Ход | Shift — Спринт | Пробел — Прыжок | F1 / ~ — В хаб"

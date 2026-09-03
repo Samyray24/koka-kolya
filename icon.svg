@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="24" fill="#dc2626"/>
+  <circle cx="64" cy="64" r="44" fill="#ffffff" opacity="0.15"/>
+  <path d="M32 40 C48 30, 80 50, 96 40 C104 36, 110 44, 96 60 C80 76, 48 56, 32 68 Z" fill="#ffffff"/>
+  <text x="64" y="96" font-family="sans-serif" font-weight="900" font-size="22" fill="#ffffff" text-anchor="middle">КОЛЯ</text>
+</svg>

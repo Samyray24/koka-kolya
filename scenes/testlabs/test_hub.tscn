@@ -1,0 +1,80 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/debug/test_hub.gd" id="1_testhub"]
+
+[node name="TestHub" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_testhub")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.06, 0.08, 0.12, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 60
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "TEST HUB — Лаборатории тестирования"
+
+[node name="Desc" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
+theme_override_font_sizes/font_size = 15
+text = "Изолированные стенды для проверки физики, AI, графики и контроллеров (доступны только в dev-сборках)"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="BtnGraybox" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "1. FOUNDATION GRAYBOX (Передвижение, Камера, Физика Jolt)"
+
+[node name="BtnPhysics" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+disabled = true
+text = "2. PHYSICS LAB (Двери, стекло, разрушения) [Этап 2]"
+
+[node name="BtnAI" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+disabled = true
+text = "3. AI ARENA (Зрение, слух, координация) [Этап 2]"
+
+[node name="BtnVehicle" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+disabled = true
+text = "4. VEHICLE LAB (Подвеска, сцепление, телеметрия) [Этап 2]"
+
+[node name="BtnBack" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "< НАЗАД В ГЛАВНОЕ МЕНЮ"
