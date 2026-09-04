@@ -59,8 +59,7 @@ text = "1. FOUNDATION GRAYBOX (Передвижение, Камера, Физи�
 [node name="BtnPhysics" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-disabled = true
-text = "2. PHYSICS LAB (Двери, стекло, разрушения) [Этап 2]"
+text = "2. PHYSICS LAB (Конвейер, двери на петлях Jolt, стекло)"
 
 [node name="BtnAI" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)

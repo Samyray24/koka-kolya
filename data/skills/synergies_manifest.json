@@ -1,0 +1,581 @@
+{
+  "total_synergies": 64,
+  "synergies": [
+    {
+      "id": "syn_01",
+      "name": "Grapple + Shock Baton #1",
+      "branch_a": "branch_01",
+      "branch_b": "branch_02",
+      "description": "Электрический воздушный удар с прыжком на цель",
+      "unlocked": true,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_02",
+      "name": "Foam + Magnetic Launcher #2",
+      "branch_a": "branch_02",
+      "branch_b": "branch_05",
+      "description": "Временная физическая направляющая и ловушка",
+      "unlocked": true,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_03",
+      "name": "Drone Hack + EMP #3",
+      "branch_a": "branch_03",
+      "branch_b": "branch_08",
+      "description": "BUBBLE излучает локальную EMP-волну перегрузки",
+      "unlocked": true,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_04",
+      "name": "Vehicle Hack + Nitro #4",
+      "branch_a": "branch_04",
+      "branch_b": "branch_11",
+      "description": "Удаленный импульс ускорения беспилотного транспорта",
+      "unlocked": true,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_05",
+      "name": "Parkour + Stealth #5",
+      "branch_a": "branch_05",
+      "branch_b": "branch_14",
+      "description": "Бесшумное скоростное преодоление препятствий",
+      "unlocked": true,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_06",
+      "name": "Rain Analysis + Shock #6",
+      "branch_a": "branch_06",
+      "branch_b": "branch_01",
+      "description": "Расширенная проводящая электрическая зона лужи",
+      "unlocked": true,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_07",
+      "name": "Cargo Stabilizer + Off-road Grip #7",
+      "branch_a": "branch_07",
+      "branch_b": "branch_04",
+      "description": "Безопасная скоростная доставка по гравию и снегу",
+      "unlocked": true,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_08",
+      "name": "Social Access + Network Ghost #8",
+      "branch_a": "branch_08",
+      "branch_b": "branch_07",
+      "description": "Легальный цифровой пропуск на закрытые терминалы",
+      "unlocked": true,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_09",
+      "name": "Cola Collider + Magnetic Pull #9",
+      "branch_a": "branch_09",
+      "branch_b": "branch_10",
+      "description": "Столкновение банок Колы с индукцией вихревого поля",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_10",
+      "name": "Bubble Light + Visor Filter #10",
+      "branch_a": "branch_10",
+      "branch_b": "branch_13",
+      "description": "Сквозное сканирование скрытых электрических цепей",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_11",
+      "name": "Grapple + Shock Baton #11",
+      "branch_a": "branch_11",
+      "branch_b": "branch_16",
+      "description": "Электрический воздушный удар с прыжком на цель",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_12",
+      "name": "Foam + Magnetic Launcher #12",
+      "branch_a": "branch_12",
+      "branch_b": "branch_03",
+      "description": "Временная физическая направляющая и ловушка",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_13",
+      "name": "Drone Hack + EMP #13",
+      "branch_a": "branch_13",
+      "branch_b": "branch_06",
+      "description": "BUBBLE излучает локальную EMP-волну перегрузки",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_14",
+      "name": "Vehicle Hack + Nitro #14",
+      "branch_a": "branch_14",
+      "branch_b": "branch_09",
+      "description": "Удаленный импульс ускорения беспилотного транспорта",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_15",
+      "name": "Parkour + Stealth #15",
+      "branch_a": "branch_15",
+      "branch_b": "branch_12",
+      "description": "Бесшумное скоростное преодоление препятствий",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_16",
+      "name": "Rain Analysis + Shock #16",
+      "branch_a": "branch_16",
+      "branch_b": "branch_15",
+      "description": "Расширенная проводящая электрическая зона лужи",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_17",
+      "name": "Cargo Stabilizer + Off-road Grip #17",
+      "branch_a": "branch_01",
+      "branch_b": "branch_02",
+      "description": "Безопасная скоростная доставка по гравию и снегу",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_18",
+      "name": "Social Access + Network Ghost #18",
+      "branch_a": "branch_02",
+      "branch_b": "branch_05",
+      "description": "Легальный цифровой пропуск на закрытые терминалы",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_19",
+      "name": "Cola Collider + Magnetic Pull #19",
+      "branch_a": "branch_03",
+      "branch_b": "branch_08",
+      "description": "Столкновение банок Колы с индукцией вихревого поля",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_20",
+      "name": "Bubble Light + Visor Filter #20",
+      "branch_a": "branch_04",
+      "branch_b": "branch_11",
+      "description": "Сквозное сканирование скрытых электрических цепей",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_21",
+      "name": "Grapple + Shock Baton #21",
+      "branch_a": "branch_05",
+      "branch_b": "branch_14",
+      "description": "Электрический воздушный удар с прыжком на цель",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_22",
+      "name": "Foam + Magnetic Launcher #22",
+      "branch_a": "branch_06",
+      "branch_b": "branch_01",
+      "description": "Временная физическая направляющая и ловушка",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_23",
+      "name": "Drone Hack + EMP #23",
+      "branch_a": "branch_07",
+      "branch_b": "branch_04",
+      "description": "BUBBLE излучает локальную EMP-волну перегрузки",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_24",
+      "name": "Vehicle Hack + Nitro #24",
+      "branch_a": "branch_08",
+      "branch_b": "branch_07",
+      "description": "Удаленный импульс ускорения беспилотного транспорта",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_25",
+      "name": "Parkour + Stealth #25",
+      "branch_a": "branch_09",
+      "branch_b": "branch_10",
+      "description": "Бесшумное скоростное преодоление препятствий",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_26",
+      "name": "Rain Analysis + Shock #26",
+      "branch_a": "branch_10",
+      "branch_b": "branch_13",
+      "description": "Расширенная проводящая электрическая зона лужи",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_27",
+      "name": "Cargo Stabilizer + Off-road Grip #27",
+      "branch_a": "branch_11",
+      "branch_b": "branch_16",
+      "description": "Безопасная скоростная доставка по гравию и снегу",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_28",
+      "name": "Social Access + Network Ghost #28",
+      "branch_a": "branch_12",
+      "branch_b": "branch_03",
+      "description": "Легальный цифровой пропуск на закрытые терминалы",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_29",
+      "name": "Cola Collider + Magnetic Pull #29",
+      "branch_a": "branch_13",
+      "branch_b": "branch_06",
+      "description": "Столкновение банок Колы с индукцией вихревого поля",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_30",
+      "name": "Bubble Light + Visor Filter #30",
+      "branch_a": "branch_14",
+      "branch_b": "branch_09",
+      "description": "Сквозное сканирование скрытых электрических цепей",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_31",
+      "name": "Grapple + Shock Baton #31",
+      "branch_a": "branch_15",
+      "branch_b": "branch_12",
+      "description": "Электрический воздушный удар с прыжком на цель",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_32",
+      "name": "Foam + Magnetic Launcher #32",
+      "branch_a": "branch_16",
+      "branch_b": "branch_15",
+      "description": "Временная физическая направляющая и ловушка",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_33",
+      "name": "Drone Hack + EMP #33",
+      "branch_a": "branch_01",
+      "branch_b": "branch_02",
+      "description": "BUBBLE излучает локальную EMP-волну перегрузки",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_34",
+      "name": "Vehicle Hack + Nitro #34",
+      "branch_a": "branch_02",
+      "branch_b": "branch_05",
+      "description": "Удаленный импульс ускорения беспилотного транспорта",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_35",
+      "name": "Parkour + Stealth #35",
+      "branch_a": "branch_03",
+      "branch_b": "branch_08",
+      "description": "Бесшумное скоростное преодоление препятствий",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_36",
+      "name": "Rain Analysis + Shock #36",
+      "branch_a": "branch_04",
+      "branch_b": "branch_11",
+      "description": "Расширенная проводящая электрическая зона лужи",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_37",
+      "name": "Cargo Stabilizer + Off-road Grip #37",
+      "branch_a": "branch_05",
+      "branch_b": "branch_14",
+      "description": "Безопасная скоростная доставка по гравию и снегу",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_38",
+      "name": "Social Access + Network Ghost #38",
+      "branch_a": "branch_06",
+      "branch_b": "branch_01",
+      "description": "Легальный цифровой пропуск на закрытые терминалы",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_39",
+      "name": "Cola Collider + Magnetic Pull #39",
+      "branch_a": "branch_07",
+      "branch_b": "branch_04",
+      "description": "Столкновение банок Колы с индукцией вихревого поля",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_40",
+      "name": "Bubble Light + Visor Filter #40",
+      "branch_a": "branch_08",
+      "branch_b": "branch_07",
+      "description": "Сквозное сканирование скрытых электрических цепей",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_41",
+      "name": "Grapple + Shock Baton #41",
+      "branch_a": "branch_09",
+      "branch_b": "branch_10",
+      "description": "Электрический воздушный удар с прыжком на цель",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_42",
+      "name": "Foam + Magnetic Launcher #42",
+      "branch_a": "branch_10",
+      "branch_b": "branch_13",
+      "description": "Временная физическая направляющая и ловушка",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_43",
+      "name": "Drone Hack + EMP #43",
+      "branch_a": "branch_11",
+      "branch_b": "branch_16",
+      "description": "BUBBLE излучает локальную EMP-волну перегрузки",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_44",
+      "name": "Vehicle Hack + Nitro #44",
+      "branch_a": "branch_12",
+      "branch_b": "branch_03",
+      "description": "Удаленный импульс ускорения беспилотного транспорта",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_45",
+      "name": "Parkour + Stealth #45",
+      "branch_a": "branch_13",
+      "branch_b": "branch_06",
+      "description": "Бесшумное скоростное преодоление препятствий",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_46",
+      "name": "Rain Analysis + Shock #46",
+      "branch_a": "branch_14",
+      "branch_b": "branch_09",
+      "description": "Расширенная проводящая электрическая зона лужи",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_47",
+      "name": "Cargo Stabilizer + Off-road Grip #47",
+      "branch_a": "branch_15",
+      "branch_b": "branch_12",
+      "description": "Безопасная скоростная доставка по гравию и снегу",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_48",
+      "name": "Social Access + Network Ghost #48",
+      "branch_a": "branch_16",
+      "branch_b": "branch_15",
+      "description": "Легальный цифровой пропуск на закрытые терминалы",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_49",
+      "name": "Cola Collider + Magnetic Pull #49",
+      "branch_a": "branch_01",
+      "branch_b": "branch_02",
+      "description": "Столкновение банок Колы с индукцией вихревого поля",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_50",
+      "name": "Bubble Light + Visor Filter #50",
+      "branch_a": "branch_02",
+      "branch_b": "branch_05",
+      "description": "Сквозное сканирование скрытых электрических цепей",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_51",
+      "name": "Grapple + Shock Baton #51",
+      "branch_a": "branch_03",
+      "branch_b": "branch_08",
+      "description": "Электрический воздушный удар с прыжком на цель",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_52",
+      "name": "Foam + Magnetic Launcher #52",
+      "branch_a": "branch_04",
+      "branch_b": "branch_11",
+      "description": "Временная физическая направляющая и ловушка",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_53",
+      "name": "Drone Hack + EMP #53",
+      "branch_a": "branch_05",
+      "branch_b": "branch_14",
+      "description": "BUBBLE излучает локальную EMP-волну перегрузки",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_54",
+      "name": "Vehicle Hack + Nitro #54",
+      "branch_a": "branch_06",
+      "branch_b": "branch_01",
+      "description": "Удаленный импульс ускорения беспилотного транспорта",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_55",
+      "name": "Parkour + Stealth #55",
+      "branch_a": "branch_07",
+      "branch_b": "branch_04",
+      "description": "Бесшумное скоростное преодоление препятствий",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_56",
+      "name": "Rain Analysis + Shock #56",
+      "branch_a": "branch_08",
+      "branch_b": "branch_07",
+      "description": "Расширенная проводящая электрическая зона лужи",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_57",
+      "name": "Cargo Stabilizer + Off-road Grip #57",
+      "branch_a": "branch_09",
+      "branch_b": "branch_10",
+      "description": "Безопасная скоростная доставка по гравию и снегу",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_58",
+      "name": "Social Access + Network Ghost #58",
+      "branch_a": "branch_10",
+      "branch_b": "branch_13",
+      "description": "Легальный цифровой пропуск на закрытые терминалы",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_59",
+      "name": "Cola Collider + Magnetic Pull #59",
+      "branch_a": "branch_11",
+      "branch_b": "branch_16",
+      "description": "Столкновение банок Колы с индукцией вихревого поля",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_60",
+      "name": "Bubble Light + Visor Filter #60",
+      "branch_a": "branch_12",
+      "branch_b": "branch_03",
+      "description": "Сквозное сканирование скрытых электрических цепей",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    },
+    {
+      "id": "syn_61",
+      "name": "Grapple + Shock Baton #61",
+      "branch_a": "branch_13",
+      "branch_b": "branch_06",
+      "description": "Электрический воздушный удар с прыжком на цель",
+      "unlocked": false,
+      "effect_multiplier": 1.25
+    },
+    {
+      "id": "syn_62",
+      "name": "Foam + Magnetic Launcher #62",
+      "branch_a": "branch_14",
+      "branch_b": "branch_09",
+      "description": "Временная физическая направляющая и ловушка",
+      "unlocked": false,
+      "effect_multiplier": 1.35
+    },
+    {
+      "id": "syn_63",
+      "name": "Drone Hack + EMP #63",
+      "branch_a": "branch_15",
+      "branch_b": "branch_12",
+      "description": "BUBBLE излучает локальную EMP-волну перегрузки",
+      "unlocked": false,
+      "effect_multiplier": 1.45
+    },
+    {
+      "id": "syn_64",
+      "name": "Vehicle Hack + Nitro #64",
+      "branch_a": "branch_16",
+      "branch_b": "branch_15",
+      "description": "Удаленный импульс ускорения беспилотного транспорта",
+      "unlocked": false,
+      "effect_multiplier": 1.55
+    }
+  ]
+}
