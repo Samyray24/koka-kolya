@@ -64,8 +64,7 @@ text = "2. PHYSICS LAB (Конвейер, двери на петлях Jolt, с�
 [node name="BtnAI" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-disabled = true
-text = "3. AI ARENA (Зрение, слух, координация) [Этап 2]"
+text = "3. AI ARENA (Честное зрение, слух, патрулирование)"
 
 [node name="BtnVehicle" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)

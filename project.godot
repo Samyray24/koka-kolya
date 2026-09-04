@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 LogManager="*res://scripts/core/log_manager.gd"
 SettingsManager="*res://scripts/core/settings_manager.gd"
 InputManager="*res://scripts/core/input_manager.gd"
+NoiseManager="*res://scripts/ai/noise_manager.gd"
 
 [display]
 

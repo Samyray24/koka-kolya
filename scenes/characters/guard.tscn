@@ -1,0 +1,64 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/guard_ai.gd" id="1_guard"]
+[ext_resource type="Script" path="res://scripts/ai/ai_sensor_vision.gd" id="2_vision"]
+[ext_resource type="Script" path="res://scripts/ai/ai_sensor_hearing.gd" id="3_hearing"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_guard"]
+radius = 0.45
+height = 1.85
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
+albedo_color = Color(0.18, 0.22, 0.28, 1)
+roughness = 0.6
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+material = SubResource("StandardMaterial3D_body")
+radius = 0.45
+height = 1.85
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_visor"]
+albedo_color = Color(0.9, 0.3, 0.1, 1)
+emission_enabled = true
+emission = Color(0.9, 0.3, 0.1, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_visor"]
+material = SubResource("StandardMaterial3D_visor")
+size = Vector3(0.4, 0.15, 0.2)
+
+[node name="GuardAI" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_guard")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, 0)
+shape = SubResource("CapsuleShape3D_guard")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="VisorMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, -0.38)
+mesh = SubResource("BoxMesh_visor")
+
+[node name="AISensorVision" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0)
+script = ExtResource("2_vision")
+
+[node name="RayCast3D" type="RayCast3D" parent="AISensorVision"]
+target_position = Vector3(0, 0, -16)
+collision_mask = 3
+
+[node name="AISensorHearing" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0)
+script = ExtResource("3_hearing")
+
+[node name="StateIndicator" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 0)
+billboard = 1
+font_size = 48
+outline_size = 8
+text = "?"
