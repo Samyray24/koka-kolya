@@ -39,3 +39,15 @@ func _on_handle_interacted(instigator: Node) -> void:
 	else:
 		door_closed.emit()
 	LogManager.debug("Дверь активирована (импульс: %.1f)" % (push_direction * open_impulse), "DOOR")
+
+func unlock_and_open() -> void:
+	is_locked = false
+	if door_leaf:
+		door_leaf.apply_torque_impulse(Vector3(0, open_impulse, 0))
+	is_open = true
+	door_opened.emit()
+	LogManager.info("Дверь взломана и открыта.", "DOOR")
+
+func hack_bypass() -> void:
+	unlock_and_open()
+

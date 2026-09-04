@@ -31,6 +31,11 @@ func _ready() -> void:
 		btn_vehicle.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/testlabs/vehicle_lab.tscn")
 		)
+	if has_node("MarginContainer/VBoxContainer/BtnTools"):
+		var btn_tools: Button = get_node("MarginContainer/VBoxContainer/BtnTools")
+		btn_tools.pressed.connect(func() -> void:
+			get_tree().change_scene_to_file("res://scenes/testlabs/tools_lab.tscn")
+		)
 	if btn_back:
 		btn_back.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")

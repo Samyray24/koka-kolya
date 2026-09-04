@@ -4,7 +4,7 @@ extends CharacterBody3D
 # Охранник сети MERIDIAN с честным AI и конечным автоматом (FSM)
 # Состояния: IDLE -> SUSPICIOUS -> INVESTIGATING -> ALERT -> SEARCHING
 
-enum AIState { IDLE, SUSPICIOUS, INVESTIGATING, ALERT, SEARCHING }
+enum AIState { IDLE, SUSPICIOUS, INVESTIGATING, ALERT, SEARCHING, STUNNED }
 
 @export var walk_speed: float = 2.4
 @export var run_speed: float = 4.8
@@ -16,6 +16,7 @@ var target_pos: Vector3 = Vector3.ZERO
 var last_known_pos: Vector3 = Vector3.ZERO
 var target_player: Node3D = null
 var search_timer: float = 0.0
+var stun_timer: float = 0.0
 var patrol_target_b: bool = true
 
 @onready var vision_sensor: Node3D = get_node_or_null("AISensorVision")
@@ -51,6 +52,8 @@ func _physics_process(delta: float) -> void:
 			_process_alert(delta)
 		AIState.SEARCHING:
 			_process_searching(delta)
+		AIState.STUNNED:
+			_process_stunned(delta)
 
 	move_and_slide()
 
@@ -103,6 +106,20 @@ func _process_searching(delta: float) -> void:
 		LogManager.info("Охранник не обнаружил целей и вернулся к патрулю.", "AI")
 		_transition_to(AIState.IDLE)
 
+func _process_stunned(delta: float) -> void:
+	velocity.x = move_toward(velocity.x, 0.0, 15.0 * delta)
+	velocity.z = move_toward(velocity.z, 0.0, 15.0 * delta)
+	stun_timer -= delta
+	if stun_timer <= 0.0:
+		LogManager.info("AI оправился от электрошока.", "AI")
+		_transition_to(AIState.SEARCHING)
+		search_timer = 4.0
+
+func apply_stun(duration: float) -> void:
+	stun_timer = duration
+	_transition_to(AIState.STUNNED)
+	LogManager.warn("AI оглушён электрошоком на %.1f с!" % duration, "AI")
+
 func _move_towards(dir: Vector3, speed: float, delta: float) -> void:
 	velocity.x = move_toward(velocity.x, dir.x * speed, 18.0 * delta)
 	velocity.z = move_toward(velocity.z, dir.z * speed, 18.0 * delta)
@@ -140,9 +157,12 @@ func _update_state_indicator() -> void:
 		AIState.SEARCHING:
 			state_label.text = "?"
 			state_label.modulate = Color.CYAN
+		AIState.STUNNED:
+			state_label.text = "*_*⚡"
+			state_label.modulate = Color.PURPLE
 
 func _on_awareness_changed(pct: float) -> void:
-	if current_state == AIState.ALERT:
+	if current_state == AIState.ALERT or current_state == AIState.STUNNED:
 		return
 	if pct >= 100.0:
 		_transition_to(AIState.ALERT)
@@ -150,19 +170,23 @@ func _on_awareness_changed(pct: float) -> void:
 		_transition_to(AIState.SUSPICIOUS)
 
 func _on_target_spotted(target: Node3D, pos: Vector3) -> void:
+	if current_state == AIState.STUNNED:
+		return
 	target_player = target
 	last_known_pos = pos
 	_transition_to(AIState.ALERT)
 	LogManager.warn("AI обнаружил игрока в прямой видимости!", "AI")
 
 func _on_target_lost(pos: Vector3) -> void:
+	if current_state == AIState.STUNNED:
+		return
 	last_known_pos = pos
 	search_timer = 5.5
 	_transition_to(AIState.SEARCHING)
 	LogManager.info("AI потерял цель из вида, начат секторный поиск.", "AI")
 
 func _on_noise_heard(origin: Vector3, _intensity: float, noise_type: String) -> void:
-	if current_state == AIState.ALERT:
+	if current_state == AIState.ALERT or current_state == AIState.STUNNED:
 		return
 	last_known_pos = origin
 	LogManager.info("AI среагировал на акустический стимул [%s] и идет на проверку." % noise_type, "AI")

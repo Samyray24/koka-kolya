@@ -76,7 +76,13 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "5. VEHICLE LAB (Физика фургона Jolt, подвеска, груз)"
 
+[node name="BtnTools" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "6. COMBAT & TOOLS LAB (Электродубинка, пена, кибер-взлом, арсенал)"
+
 [node name="BtnBack" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "< НАЗАД В ГЛАВНОЕ МЕНЮ"
+

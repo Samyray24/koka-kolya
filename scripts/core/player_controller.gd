@@ -15,7 +15,9 @@ extends CharacterBody3D
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var prompt_label: Label = $HUD/PromptLabel
+@onready var inventory_label: Label = get_node_or_null("HUD/InventoryLabel")
 @onready var grabber: Node3D = $Head/Camera3D/PhysicsGrabber
+@onready var inventory_manager: Node = get_node_or_null("InventoryManager")
 
 # Physics state
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
@@ -33,6 +35,12 @@ func _ready() -> void:
 		grabber.connect("prompt_updated", func(txt: String) -> void:
 			prompt_label.text = txt
 		)
+	if inventory_manager:
+		inventory_manager.call("setup", self, camera, grabber)
+		if inventory_label:
+			inventory_manager.connect("slot_changed", func(slot_idx: int, slot_name: String) -> void:
+				inventory_label.text = "Слот [%d]: %s" % [slot_idx + 1, slot_name]
+			)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and mouse_captured:
