@@ -29,6 +29,10 @@ var jump_buffer_timer: float = 0.0
 const COYOTE_TIME: float = 0.15
 const JUMP_BUFFER_TIME: float = 0.12
 
+var was_on_floor: bool = true
+var footstep_distance: float = 0.0
+const FOOTSTEP_INTERVAL: float = 2.2
+
 func _ready() -> void:
 	capture_mouse(true)
 	if grabber and prompt_label and grabber.has_signal("prompt_updated"):
@@ -48,7 +52,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		head.rotate_x(-event.relative.y * mouse_sensitivity)
 		head.rotation.x = clampf(head.rotation.x, deg_to_rad(-88.0), deg_to_rad(88.0))
 
-	if event.is_action_pressed("ui_cancel"):
+	if event.is_action_just_pressed("ui_cancel"):
 		capture_mouse(not mouse_captured)
 
 func capture_mouse(captured: bool) -> void:
@@ -62,9 +66,14 @@ func _physics_process(delta: float) -> void:
 	# 1. Gravity and Grounding
 	if is_on_floor():
 		coyote_timer = COYOTE_TIME
+		if not was_on_floor:
+			if has_node("/root/AudioManager"):
+				var am: Node = get_node("/root/AudioManager")
+				am.call("play_sfx", "land", -6.0)
 	else:
 		coyote_timer = maxf(0.0, coyote_timer - delta)
 		velocity.y -= gravity * delta
+	was_on_floor = is_on_floor()
 
 	# 2. Jump input buffering
 	if Input.is_action_just_pressed("jump"):
@@ -76,6 +85,21 @@ func _physics_process(delta: float) -> void:
 		velocity.y = jump_velocity
 		coyote_timer = 0.0
 		jump_buffer_timer = 0.0
+		if has_node("/root/AudioManager"):
+			var am: Node = get_node("/root/AudioManager")
+			am.call("play_sfx", "jump", -4.0)
+
+	# Footsteps audio
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	if is_on_floor() and horizontal_speed > 0.5:
+		footstep_distance += horizontal_speed * delta
+		if footstep_distance >= FOOTSTEP_INTERVAL:
+			footstep_distance = 0.0
+			if has_node("/root/AudioManager"):
+				var am: Node = get_node("/root/AudioManager")
+				am.call("play_sfx", "footstep", -10.0, randf_range(0.9, 1.1))
+	else:
+		footstep_distance = minf(footstep_distance, FOOTSTEP_INTERVAL * 0.5)
 
 	# 3. Gamepad look handling
 	if mouse_captured:

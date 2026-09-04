@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://scripts/interaction/automation_terminal.gd" id="9_terminal"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="10_interactable"]
 [ext_resource type="Script" path="res://scripts/physics/conveyor_belt.gd" id="11_conveyor"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="12_pause"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.18, 0.22, 0.35, 1)
@@ -409,3 +410,5 @@ theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 13
 text = "[F1 / ~] — Test Hub | Esc — Главное меню"
 horizontal_alignment = 1
+
+[node name="PauseMenu" parent="HUD" instance=ExtResource("12_pause")]

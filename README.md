@@ -4,9 +4,9 @@
 > **Жанр**: First-Person 3D Action RPG / Immersive Sim  
 > **Движок**: Godot Engine 4.6.3-stable (Jolt Physics 3D)  
 > **Скриптовый язык**: Typed GDScript  
-> **Версия**: v0.5.0 (Vertical Slice Completed)  
+> **Версия**: v0.6.0 (Production Core & System Integration)  
 > **Общий вес проекта**: ~0.245 GB (Лимит: строго <= 20.0 GB)  
-> **Статус автотестов**: 11/11 Сьютов PASS (100% Успех, 0 Ошибок)  
+> **Статус автотестов**: 12/12 Сьютов PASS (100% Успех, 0 Ошибок)  
 
 ---
 
@@ -15,21 +15,24 @@
 Главный герой — обычный, находчивый и самоироничный техник-водитель Коля, который вместе со своей напарницей СашейV вступает в противостояние с корпорацией **MERIDIAN**, монополизировавшей логистику и производство напитков в городе Красноград.
 
 ### Ключевые системы игры:
-- **Отзывчивое передвижение**: first-person ходьба, спринт, прыжки с Coyote Time и буферизацией ввода.
-- **Jolt Physics 3D**: взаимодействие с физическими телами, пружинно-демпферный захват, двери на шарнирах, бьющееся стекло, конвейеры.
+- **Отзывчивое передвижение**: first-person ходьба, спринт, прыжки с Coyote Time, буферизацией ввода и звуками шагов/приземления.
+- **Jolt Physics 3D**: взаимодействие с физическими телами, пружинно-демпферный захват со звуком, двери на шарнирах, бьющееся стекло, конвейеры.
 - **Честный AI (MERIDIAN Security)**: поле зрения (FOV 80°), проверка преград лучами, акустический слух (`NoiseManager`), патрулирование, тревога и реакция на шум.
 - **Дрон-компаньон BUBBLE**: автономное следование, 6-DOF полет, сканер окружения, фонарик.
 - **Физический транспорт (Колямобиль)**: 4-колесный фургон доставки на Jolt `VehicleBody3D`, влияние массы груза на управляемость.
 - **Арсенал и инструменты**:
-  - `[1]` Физический захват / Руки
-  - `[2]` Шоковая электродубинка (оглушение охранников)
-  - `[3]` Пеногенератор BUBBLE-BLOC (создание временных твердых платформ и ослепление камер)
-  - `[4]` Кибер-дека взлома (радиоэлектронный взлом замков, камер и терминалов)
+  - `[1]` Физический захват / Руки (звуки взятия и броска)
+  - `[2]` Шоковая электродубинка (звуковой разряд, оглушение охраны)
+  - `[3]` Пеногенератор BUBBLE-BLOC (звук шипения пены, создание временных твердых платформ и ослепление камер)
+  - `[4]` Кибер-дека взлома (звук перегрузки систем, радиоэлектронный взлом замков, камер и терминалов)
 - **Глубокая RPG система**: SkillGraph из 416 узлов (16 веток по 26 узлов) + 64 синергии с активными рантайм модификаторами.
+- **Система сохранений (`SaveManager`)**: атомарная запись прогресса в JSON (`F5` — быстрое сохранение, `F9` — быстрая загрузка).
+- **Процедурный звук (`AudioManager`)**: генерация 12 PCM-семплов в реальном времени с нулевым оверхедом на диск.
+- **Меню паузы (`PauseMenu`)**: внутриигровое меню настроек и управления состоянием по клавише `Esc`.
 - **Сюжетные миссии**:
   - **Миссия 1: «Операция: Шипучка»** (Старый Район, доставка ящиков Коли, взлом терминала №4 MERIDIAN, похищение чипа рецептуры).
   - **Миссия 2: «Операция: Красная Линия»** (Синтез сиропа на верстаке, доставка на завод, обход CCTV-камер, заправка сиропной башни, перехват автоматики и запуск розлива).
-- **Test Hub (Лаборатории)**: 7 изолированных стендов для тестирования физики, AI, транспорта, дрона, графики, оружия и масштабируемости.
+- **Test Hub (Лаборатории)**: изолированные стенды для тестирования физики, AI, транспорта, дрона, графики, оружия и масштабируемости.
 
 ---
 
@@ -42,7 +45,7 @@
 .\run_game.bat
 ```
 
-### Запуск полного набора автотестов (11 тестовых сьютов):
+### Запуск полного набора автотестов (12 тестовых сьютов):
 - Дважды кликните по файлу **`run_tests.bat`**.
 - Либо через терминал PowerShell:
 ```powershell
@@ -61,6 +64,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\tools\run_all_tests.ps1
 | Спринт (бег) | `Shift` | Нажатие `L3` |
 | Взаимодействие / Взять / Бросить | `E` | Кнопка `X` / `Square` |
 | Бросить с силой | `ЛКМ` | Правый триггер `RT` |
+| Быстрое сохранение | `F5` | — |
+| Быстрая загрузка | `F9` | — |
+| Пауза / Меню настроек | `Esc` | Кнопка `Start` |
 | Слот 1 (Руки / Захват) | `1` | `D-Pad Вверх` |
 | Слот 2 (Электродубинка) | `2` | `D-Pad Вправо` |
 | Слот 3 (Пеногенератор) | `3` | `D-Pad Вниз` |
@@ -68,26 +74,26 @@ powershell -ExecutionPolicy Bypass -File .\scripts\tools\run_all_tests.ps1
 | Дрон BUBBLE: Сканировать | `F` | Кнопка `Y` / `Triangle` |
 | Дрон BUBBLE: Фонарик | `B` | `D-Pad Вверх` |
 | Выход в Test Hub | `F1` или `~` (Тильда) | Кнопка `Select` |
-| Пауза / Курсор мыши | `Esc` | Кнопка `Start` |
 
 ---
 
 ## 📊 Результаты автотестирования (Quality Gate)
 
 ```
-Test                                            Status
-----                                            ------
-res://tests/scenes/headless_smoke_test.gd       PASS  
-res://tests/integration/test_core_foundation.gd PASS  
-res://tests/integration/test_physics_lab.gd     PASS  
-res://tests/integration/test_ai_arena.gd        PASS  
-res://tests/integration/test_bubble_drone.gd    PASS  
-res://tests/integration/test_vehicle_lab.gd     PASS  
-res://tests/integration/test_tools.gd           PASS  
-res://tests/integration/test_graphics_lab.gd    PASS  
-res://tests/integration/test_skill_manager.gd   PASS  
-res://tests/integration/test_first_playable.gd  PASS  
-res://tests/integration/test_vertical_slice.gd  PASS  
+Test                                               Status
+----                                               ------
+res://tests/scenes/headless_smoke_test.gd          PASS  
+res://tests/integration/test_core_foundation.gd    PASS  
+res://tests/integration/test_physics_lab.gd        PASS  
+res://tests/integration/test_ai_arena.gd           PASS  
+res://tests/integration/test_bubble_drone.gd       PASS  
+res://tests/integration/test_vehicle_lab.gd        PASS  
+res://tests/integration/test_tools.gd              PASS  
+res://tests/integration/test_graphics_lab.gd       PASS  
+res://tests/integration/test_skill_manager.gd      PASS  
+res://tests/integration/test_first_playable.gd     PASS  
+res://tests/integration/test_vertical_slice.gd     PASS  
+res://tests/integration/test_save_audio_systems.gd PASS  
 
-STATUS: 100% SUCCESS (11/11 PASSED, 0 ERRORS)
+STATUS: 100% SUCCESS (12/12 PASSED, 0 ERRORS)
 ```

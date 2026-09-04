@@ -72,6 +72,10 @@ func use(camera: Camera3D) -> Dictionary:
 		if has_node("/root/NoiseManager"):
 			var noise_mgr: Node = get_node("/root/NoiseManager")
 			noise_mgr.call("emit_noise", hit_pos, 12.0, self, "electro_shock")
+
+		if has_node("/root/AudioManager"):
+			var audio_mgr: Node = get_node("/root/AudioManager")
+			audio_mgr.call("play_sfx", "stun", -3.0)
 			
 		# Проверка на охранника (GuardAI)
 		if collider is Node and (collider as Node).has_method("apply_stun"):

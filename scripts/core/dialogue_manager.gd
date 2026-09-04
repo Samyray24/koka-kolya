@@ -30,6 +30,9 @@ func _process_next() -> void:
 	var item: Dictionary = queue.pop_front()
 	message_displayed.emit(item["speaker"], item["text"], item["color"])
 	LogManager.info("[%s]: %s" % [item["speaker"], item["text"]], "RADIO")
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "radio_chime", -3.0)
 	
 	active_timer = get_tree().create_timer(item["duration"])
 	active_timer.timeout.connect(_process_next)

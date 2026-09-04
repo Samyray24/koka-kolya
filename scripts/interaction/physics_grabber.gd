@@ -85,6 +85,9 @@ func grab_object(rb: RigidBody3D) -> void:
 	held_body = rb
 	original_angular_damp = rb.angular_damp
 	rb.angular_damp = 12.0
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "grab", -4.0)
 
 func drop_object() -> void:
 	if not held_body:
@@ -101,6 +104,9 @@ func throw_object() -> void:
 	held_body.apply_central_impulse(forward * throw_impulse)
 	held_body = null
 	prompt_updated.emit("")
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "throw", -4.0)
 
 func _process_held_body(_delta: float) -> void:
 	if not is_instance_valid(held_body):

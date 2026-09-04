@@ -69,6 +69,10 @@ func use(camera: Camera3D) -> Dictionary:
 	energy -= energy_cost
 	hack_started.emit(node as Node3D)
 	_pulse_screen_color(Color(0.2, 1.0, 0.4))
+
+	if has_node("/root/AudioManager"):
+		var audio_mgr: Node = get_node("/root/AudioManager")
+		audio_mgr.call("play_sfx", "hack", -3.0)
 	
 	# 1. Проверка на дверь или узел с unlock_and_open
 	var target_door: Node = null

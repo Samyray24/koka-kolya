@@ -48,6 +48,10 @@ func use(camera: Camera3D) -> Dictionary:
 	ammo -= 1
 	
 	_play_recoil_animation()
+
+	if has_node("/root/AudioManager"):
+		var audio_mgr: Node = get_node("/root/AudioManager")
+		audio_mgr.call("play_sfx", "foam", -4.0)
 	
 	var space_state := camera.get_world_3d().direct_space_state
 	var from := camera.global_position
