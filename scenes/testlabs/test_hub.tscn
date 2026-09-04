@@ -96,6 +96,11 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "9. ЗАВОД «КРАСНАЯ ЛИНИЯ» — МИССИЯ 2 (ВЕРТИКАЛЬНЫЙ СРЕЗ v0.5.0)"
 
+[node name="BtnCityHighway" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "10. ШОССЕ КРАСНОГРАДА — МИССИЯ 3 (ОТКРЫТЫЙ МИР v0.7.0)"
+
 [node name="BtnBack" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2

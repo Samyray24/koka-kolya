@@ -1,0 +1,345 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/city_highway.gd" id="1_highway"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/vehicles/delivery_van.tscn" id="3_van"]
+[ext_resource type="PackedScene" path="res://scenes/characters/bubble_drone.tscn" id="4_drone"]
+[ext_resource type="PackedScene" path="res://scenes/characters/guard.tscn" id="5_guard"]
+[ext_resource type="Script" path="res://scripts/ai/security_camera.gd" id="6_camera"]
+[ext_resource type="Script" path="res://scripts/interaction/automation_terminal.gd" id="7_terminal"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="8_interactable"]
+[ext_resource type="Script" path="res://scripts/physics/physical_door.gd" id="9_door"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="10_pause"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_top_color = Color(0.12, 0.16, 0.28, 1)
+sky_horizon_color = Color(0.45, 0.4, 0.55, 1)
+ground_bottom_color = Color(0.12, 0.14, 0.18, 1)
+ground_horizon_color = Color(0.35, 0.38, 0.5, 1)
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.6, 0.72, 1)
+ambient_light_energy = 0.95
+tonemap_mode = 3
+glow_enabled = true
+glow_bloom = 0.35
+ssao_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(300, 1, 300)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.28, 0.3, 0.35, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("StandardMaterial3D_ground")
+size = Vector3(300, 1, 300)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_road"]
+size = Vector3(16, 0.2, 220)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_road"]
+albedo_color = Color(0.15, 0.16, 0.18, 1)
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="BoxMesh_road"]
+material = SubResource("StandardMaterial3D_road")
+size = Vector3(16, 0.2, 220)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_barrier"]
+size = Vector3(10, 0.8, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_barrier"]
+albedo_color = Color(0.95, 0.75, 0.15, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_barrier"]
+material = SubResource("StandardMaterial3D_barrier")
+size = Vector3(10, 0.8, 0.3)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_tower"]
+height = 28.0
+radius = 2.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tower"]
+albedo_color = Color(0.85, 0.12, 0.18, 1)
+metallic = 0.85
+roughness = 0.2
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tower"]
+material = SubResource("StandardMaterial3D_tower")
+top_radius = 0.8
+bottom_radius = 2.5
+height = 28.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(20, 8, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_term"]
+size = Vector3(1.2, 1.2, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_term"]
+albedo_color = Color(0.12, 0.14, 0.18, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_term"]
+material = SubResource("StandardMaterial3D_term")
+size = Vector3(1.2, 1.2, 0.8)
+
+[node name="CityHighway" type="Node3D"]
+script = ExtResource("1_highway")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="MoonLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 40, 0)
+light_color = Color(0.85, 0.9, 1.0, 1)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="Highway" type="Node3D" parent="."]
+
+[node name="RoadBed" type="StaticBody3D" parent="Highway"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Highway/RoadBed"]
+shape = SubResource("BoxShape3D_road")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Highway/RoadBed"]
+mesh = SubResource("BoxMesh_road")
+
+[node name="CheckpointTrigger" type="Area3D" parent="Highway"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 15)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Highway/CheckpointTrigger"]
+shape = SubResource("BoxShape3D_trigger")
+
+[node name="SecurityBarrier" type="Node3D" parent="Highway"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("9_door")
+is_locked = true
+
+[node name="DoorFrame" type="StaticBody3D" parent="Highway/SecurityBarrier"]
+
+[node name="DoorLeaf" type="RigidBody3D" parent="Highway/SecurityBarrier"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+collision_layer = 5
+mass = 200.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Highway/SecurityBarrier/DoorLeaf"]
+shape = SubResource("BoxShape3D_barrier")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Highway/SecurityBarrier/DoorLeaf"]
+mesh = SubResource("BoxMesh_barrier")
+
+[node name="HingeJoint3D" type="HingeJoint3D" parent="Highway/SecurityBarrier"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.2, 0)
+node_a = NodePath("../DoorFrame")
+node_b = NodePath("../DoorLeaf")
+
+[node name="BarrierTerminal" type="StaticBody3D" parent="Highway/SecurityBarrier"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.0, 0)
+collision_layer = 4
+collision_mask = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Highway/SecurityBarrier/BarrierTerminal"]
+shape = SubResource("BoxShape3D_term")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Highway/SecurityBarrier/BarrierTerminal"]
+mesh = SubResource("BoxMesh_term")
+
+[node name="Interactable" type="Node" parent="Highway/SecurityBarrier/BarrierTerminal"]
+script = ExtResource("8_interactable")
+prompt_message = "Электронный терминал КПП №2 (Взлом [4])"
+
+[node name="CCTV_Checkpoint" type="Node3D" parent="Highway"]
+transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, 5, 5, 4)
+script = ExtResource("6_camera")
+
+[node name="CityPlaza" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -80)
+
+[node name="BroadcastTower" type="StaticBody3D" parent="CityPlaza"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CityPlaza/BroadcastTower"]
+shape = SubResource("CylinderShape3D_tower")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CityPlaza/BroadcastTower"]
+mesh = SubResource("CylinderMesh_tower")
+
+[node name="TowerLabel" type="Label3D" parent="CityPlaza/BroadcastTower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, 0)
+text = "ЦЕНТРАЛЬНАЯ МЕДИА-БАШНЯ КРАСНОГРАДА"
+font_size = 32
+modulate = Color(1, 0.2, 0.25, 1)
+
+[node name="BroadcastTerminal" type="Node3D" parent="CityPlaza/BroadcastTower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -13, 3)
+script = ExtResource("7_terminal")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="CityPlaza/BroadcastTower/BroadcastTerminal"]
+collision_layer = 4
+collision_mask = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CityPlaza/BroadcastTower/BroadcastTerminal/StaticBody3D"]
+shape = SubResource("BoxShape3D_term")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CityPlaza/BroadcastTower/BroadcastTerminal/StaticBody3D"]
+mesh = SubResource("BoxMesh_term")
+
+[node name="Interactable" type="Node" parent="CityPlaza/BroadcastTower/BroadcastTerminal"]
+script = ExtResource("8_interactable")
+prompt_message = "Запустить общегородскую трансляцию «Кока-Коля» [E / Взлом 4]"
+
+[node name="StatusLight" type="OmniLight3D" parent="CityPlaza/BroadcastTower/BroadcastTerminal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+light_color = Color(0.2, 0.8, 1.0, 1)
+light_energy = 3.0
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.2, 80)
+
+[node name="BubbleDrone" parent="." instance=ExtResource("4_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.8, 80.5)
+
+[node name="DeliveryVan" parent="." instance=ExtResource("3_van")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.8, 76)
+
+[node name="GuardAI" parent="." instance=ExtResource("5_guard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 8)
+patrol_point_a = Vector3(-4, 0, 8)
+patrol_point_b = Vector3(4, 0, 8)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="QuestPanel" type="PanelContainer" parent="HUD"]
+offset_left = 30.0
+offset_top = 25.0
+offset_right = 480.0
+offset_bottom = 160.0
+
+[node name="Margin" type="MarginContainer" parent="HUD/QuestPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/QuestPanel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "ОПЕРАЦИЯ: СВОБОДНЫЙ КРАСНОГРАД (МИССИЯ 3)"
+
+[node name="ObjectiveLabel" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "[ ] Добраться на фургоне до КПП №2"
+
+[node name="RadioPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = -140.0
+offset_right = 350.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="HUD/RadioPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/RadioPanel/Margin"]
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
+theme_override_font_sizes/font_size = 14
+text = "[РАДИО: СашаV]"
+
+[node name="MessageLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Коля, завод наш..."
+autowrap_mode = 2
+
+[node name="VictoryPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -140.0
+offset_right = 340.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/VictoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="VBox" type="VBoxContainer" parent="HUD/VictoryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1.0, 0.4, 1)
+theme_override_font_sizes/font_size = 28
+text = "КРАСНОГРАД ОСВОБОЖДЕН!"
+horizontal_alignment = 1
+
+[node name="Sub" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Манифест «Кока-Коля» прогремел по всем частотам города!
+Монополия MERIDIAN полностью ликвидирована.
+Кампания игры (v0.7.0) победоносно завершена на 100%!"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "[F1 / ~] — Test Hub | Esc — Главное меню"
+horizontal_alignment = 1
+
+[node name="PauseMenu" parent="HUD" instance=ExtResource("10_pause")]

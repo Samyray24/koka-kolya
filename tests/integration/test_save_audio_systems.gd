@@ -57,7 +57,8 @@ func _test_2_save_manager_load_and_data_integrity() -> void:
 
 	var test_slot: int = 99
 	var loaded_data: Dictionary = sm.call("load_game", test_slot)
-	var has_version: bool = loaded_data.get("version") == "0.6.0"
+	var expected_ver: String = str(ProjectSettings.get_setting("application/config/version", "0.7.0"))
+	var has_version: bool = loaded_data.get("version") == expected_ver
 	var custom_data: Dictionary = loaded_data.get("custom", {})
 	var custom_ok: bool = custom_data.get("tester") == "Antigravity" and custom_data.get("score") == 1000
 

@@ -4,9 +4,9 @@
 > **Жанр**: First-Person 3D Action RPG / Immersive Sim  
 > **Движок**: Godot Engine 4.6.3-stable (Jolt Physics 3D)  
 > **Скриптовый язык**: Typed GDScript  
-> **Версия**: v0.6.0 (Production Core & System Integration)  
+> **Версия**: v0.7.0 (Open World District Hub, Dynamic Environment & Campaign Flow)  
 > **Общий вес проекта**: ~0.245 GB (Лимит: строго <= 20.0 GB)  
-> **Статус автотестов**: 12/12 Сьютов PASS (100% Успех, 0 Ошибок)  
+> **Статус автотестов**: 13/13 Сьютов PASS (100% Успех, 0 Ошибок)  
 
 ---
 
@@ -20,6 +20,9 @@
 - **Честный AI (MERIDIAN Security)**: поле зрения (FOV 80°), проверка преград лучами, акустический слух (`NoiseManager`), патрулирование, тревога и реакция на шум.
 - **Дрон-компаньон BUBBLE**: автономное следование, 6-DOF полет, сканер окружения, фонарик.
 - **Физический транспорт (Колямобиль)**: 4-колесный фургон доставки на Jolt `VehicleBody3D`, влияние массы груза на управляемость.
+- **Автомобильное радио (`VehicleRadio`)**: бортовой приемник с 4 радиостанциями Краснограда и переключением на клавишу `[R]`.
+- **Глобальная кампания и экономика (`GameManager`)**: управление межрайонными переходами, кошельком Коли (Коля-рубли), репутацией и историей квестов.
+- **Динамическое окружение (`EnvironmentManager`)**: суточный цикл времени и переключение атмосферных погодных профилей (Ясно, Индустриальный смог, Неоновый дождь).
 - **Арсенал и инструменты**:
   - `[1]` Физический захват / Руки (звуки взятия и броска)
   - `[2]` Шоковая электродубинка (звуковой разряд, оглушение охраны)
@@ -32,6 +35,7 @@
 - **Сюжетные миссии**:
   - **Миссия 1: «Операция: Шипучка»** (Старый Район, доставка ящиков Коли, взлом терминала №4 MERIDIAN, похищение чипа рецептуры).
   - **Миссия 2: «Операция: Красная Линия»** (Синтез сиропа на верстаке, доставка на завод, обход CCTV-камер, заправка сиропной башни, перехват автоматики и запуск розлива).
+  - **Миссия 3: «Операция: Свободный Красноград»** (Скоростной прорыв по шоссе Краснограда, взлом блокпоста КПП №2, трансляция манифеста свободы с Центральной Медиа-Башни).
 - **Test Hub (Лаборатории)**: изолированные стенды для тестирования физики, AI, транспорта, дрона, графики, оружия и масштабируемости.
 
 ---
@@ -71,6 +75,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\tools\run_all_tests.ps1
 | Слот 2 (Электродубинка) | `2` | `D-Pad Вправо` |
 | Слот 3 (Пеногенератор) | `3` | `D-Pad Вниз` |
 | Слот 4 (Кибер-взломщик) | `4` | `D-Pad Влево` |
+| Автомобильное радио (в фургоне) | `R` | — |
 | Дрон BUBBLE: Сканировать | `F` | Кнопка `Y` / `Triangle` |
 | Дрон BUBBLE: Фонарик | `B` | `D-Pad Вверх` |
 | Выход в Test Hub | `F1` или `~` (Тильда) | Кнопка `Select` |
@@ -80,20 +85,21 @@ powershell -ExecutionPolicy Bypass -File .\scripts\tools\run_all_tests.ps1
 ## 📊 Результаты автотестирования (Quality Gate)
 
 ```
-Test                                               Status
-----                                               ------
-res://tests/scenes/headless_smoke_test.gd          PASS  
-res://tests/integration/test_core_foundation.gd    PASS  
-res://tests/integration/test_physics_lab.gd        PASS  
-res://tests/integration/test_ai_arena.gd           PASS  
-res://tests/integration/test_bubble_drone.gd       PASS  
-res://tests/integration/test_vehicle_lab.gd        PASS  
-res://tests/integration/test_tools.gd              PASS  
-res://tests/integration/test_graphics_lab.gd       PASS  
-res://tests/integration/test_skill_manager.gd      PASS  
-res://tests/integration/test_first_playable.gd     PASS  
-res://tests/integration/test_vertical_slice.gd     PASS  
-res://tests/integration/test_save_audio_systems.gd PASS  
+Test                                                 Status
+----                                                 ------
+res://tests/scenes/headless_smoke_test.gd            PASS  
+res://tests/integration/test_core_foundation.gd      PASS  
+res://tests/integration/test_physics_lab.gd          PASS  
+res://tests/integration/test_ai_arena.gd             PASS  
+res://tests/integration/test_bubble_drone.gd         PASS  
+res://tests/integration/test_vehicle_lab.gd          PASS  
+res://tests/integration/test_tools.gd                PASS  
+res://tests/integration/test_graphics_lab.gd         PASS  
+res://tests/integration/test_skill_manager.gd        PASS  
+res://tests/integration/test_first_playable.gd       PASS  
+res://tests/integration/test_vertical_slice.gd       PASS  
+res://tests/integration/test_save_audio_systems.gd   PASS  
+res://tests/integration/test_campaign_and_highway.gd PASS  
 
-STATUS: 100% SUCCESS (12/12 PASSED, 0 ERRORS)
+STATUS: 100% SUCCESS (13/13 PASSED, 0 ERRORS)
 ```

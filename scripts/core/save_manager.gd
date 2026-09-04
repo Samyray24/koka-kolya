@@ -21,8 +21,9 @@ func has_save(slot: int = 0) -> bool:
 	return FileAccess.file_exists(get_save_path(slot))
 
 func save_game(slot: int = 0, custom_data: Dictionary = {}) -> bool:
+	var current_ver: String = str(ProjectSettings.get_setting("application/config/version", "0.7.0"))
 	var save_data := {
-		"version": "0.6.0",
+		"version": current_ver,
 		"timestamp": Time.get_datetime_string_from_system(),
 		"player": {},
 		"inventory": {},

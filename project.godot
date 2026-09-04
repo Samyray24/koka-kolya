@@ -7,7 +7,7 @@ config_version=5
 [application]
 
 config/name="Кока-Коля"
-config/version="0.6.0"
+config/version="0.7.0"
 run/main_scene="res://scenes/boot/boot.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
@@ -20,6 +20,8 @@ InputManager="*res://scripts/core/input_manager.gd"
 NoiseManager="*res://scripts/ai/noise_manager.gd"
 SaveManager="*res://scripts/core/save_manager.gd"
 AudioManager="*res://scripts/core/audio_manager.gd"
+GameManager="*res://scripts/core/game_manager.gd"
+EnvironmentManager="*res://scripts/core/environment_manager.gd"
 
 [display]
 

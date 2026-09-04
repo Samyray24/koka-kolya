@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/vehicle/delivery_van.gd" id="1_van"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/vehicles/vehicle_radio.gd" id="3_radio"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_chassis"]
 size = Vector3(1.9, 1.6, 4.4)
@@ -142,3 +143,6 @@ prompt_message = "Сесть за руль фургона"
 
 [node name="ExitMarker3D" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 0.5, -0.6)
+
+[node name="VehicleRadio" type="Node3D" parent="."]
+script = ExtResource("3_radio")

@@ -23,6 +23,7 @@ var current_cargo_mass: float = 0.0
 @onready var chase_camera: Camera3D = get_node_or_null("SpringArm3D/ChaseCamera3D")
 @onready var cargo_area: Area3D = get_node_or_null("CargoArea3D")
 @onready var exit_marker: Marker3D = get_node_or_null("ExitMarker3D")
+@onready var vehicle_radio: Node3D = get_node_or_null("VehicleRadio")
 @onready var door_interactable: Node = get_node_or_null("DoorInteractable/Interactable")
 
 func _ready() -> void:
@@ -132,4 +133,12 @@ func get_cargo_crates() -> Array[RigidBody3D]:
 		if b is RigidBody3D and b != self and (b.name.begins_with("ColaCrate") or b.is_in_group("cargo")):
 			crates.append(b as RigidBody3D)
 	return crates
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_driven:
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_R:
+			if vehicle_radio and vehicle_radio.has_method("cycle_station"):
+				vehicle_radio.call("cycle_station")
 
