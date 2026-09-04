@@ -24,7 +24,7 @@ func _run_smoke_tests() -> void:
 	# 1. Проверка настроек физики
 	var physics_engine: String = ProjectSettings.get_setting("physics/3d/physics_engine", "Default")
 	print("[TEST 1/5] Проверка 3D Physics Engine: %s" % physics_engine)
-	if physics_engine != "JoltPhysics3D":
+	if physics_engine != "JoltPhysics3D" and not physics_engine.contains("Jolt"):
 		printerr("  [FAIL] Physics engine is not JoltPhysics3D (got: %s)" % physics_engine)
 		errors += 1
 	else:

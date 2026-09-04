@@ -68,3 +68,14 @@
 - [x] **Обновлен Test Hub**: добавлена лаборатория и прямой запуск Миссии 3 «Шоссе Краснограда».
 - [x] **100% Quality Gate: 13 из 13 тестовых сьютов пройдены без единой ошибки (`run_all_tests.ps1`)**.
 - [x] **Визуальная GPU-верификация на Forward Plus (AMD Radeon RX 550)**: `docs/screenshots/city_highway.png`.
+
+## Этап 7 — Polish, Final Optimization, Windows Packaging & Gold Master / v1.0.0 (ЗАВЕРШЕН)
+- [x] **Конфигурация экспорта**: создан файл `export_presets.cfg` с пресетом "Windows Desktop" и фильтрами упаковки.
+- [x] **Сборка дистрибутива**: собран автономный бинарный пакет `builds/windows/KokaKolya.pck` (3.33 МБ).
+- [x] **Автономный исполняемый файл**: размещен официальный Win64 рантайм `builds/windows/KokaKolya.exe` с нативными библиотеками `godot-jolt` v0.16.0-stable.
+- [x] **Однокликовый лаунчер**: подготовлен скрипт `builds/windows/run_standalone_game.bat`.
+- [x] **Quality Gate 14/14 (100%)**: разработан и успешно пройден интеграционный автотест сборки `tests/integration/test_standalone_packaging.gd` (5/5 PASS).
+- [x] **Верификация автономного запуска**: автономный бинарник `KokaKolya.exe` успешно запускается и выполняет тесты без участия редактора и исходных файлов проекта.
+- [x] **Строгое соблюдение лимитов**: общий размер проекта ~0.49 GB (при жестком лимите <= 20.0 GB).
+- [x] **Выпуск Gold Master**: подготовлены релизные заметки `docs/RELEASE_NOTES_v1.0.0.md`.
+- [x] **Синхронизация**: все изменения отправлены в Git репозиторий `https://github.com/Samyray24/koka-kolya` (ветка `main`).

@@ -1,6 +1,8 @@
 # Godot 4.x specific ignores
 .godot/
 *.translation
+*.uid
+
 
 # OS and Editor ignores
 .DS_Store

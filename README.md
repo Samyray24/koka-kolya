@@ -4,9 +4,9 @@
 > **Жанр**: First-Person 3D Action RPG / Immersive Sim  
 > **Движок**: Godot Engine 4.6.3-stable (Jolt Physics 3D)  
 > **Скриптовый язык**: Typed GDScript  
-> **Версия**: v0.7.0 (Open World District Hub, Dynamic Environment & Campaign Flow)  
-> **Общий вес проекта**: ~0.245 GB (Лимит: строго <= 20.0 GB)  
-> **Статус автотестов**: 13/13 Сьютов PASS (100% Успех, 0 Ошибок)  
+> **Версия**: v1.0.0 (Gold Master Release)  
+> **Общий вес проекта**: ~0.49 GB (Лимит: строго <= 20.0 GB)  
+> **Статус автотестов**: 14/14 Сьютов PASS (100% Успех, 0 Ошибок) — GOLD MASTER READY  
 
 ---
 
@@ -43,13 +43,14 @@
 ## 🚀 Быстрый запуск
 
 ### Запуск игры в один клик:
-- Дважды кликните по файлу **`run_game.bat`** в корне проекта.
+- **Разработческий запуск**: дважды кликните по файлу **`run_game.bat`** в корне проекта.
+- **Автономный Gold Master релиз**: запустите **`builds/windows/run_standalone_game.bat`** (или напрямую `builds/windows/KokaKolya.exe`).
 - Либо через терминал PowerShell:
 ```powershell
 .\run_game.bat
 ```
 
-### Запуск полного набора автотестов (12 тестовых сьютов):
+### Запуск полного набора автотестов (14 тестовых сьютов):
 - Дважды кликните по файлу **`run_tests.bat`**.
 - Либо через терминал PowerShell:
 ```powershell
@@ -100,6 +101,7 @@ res://tests/integration/test_first_playable.gd       PASS
 res://tests/integration/test_vertical_slice.gd       PASS  
 res://tests/integration/test_save_audio_systems.gd   PASS  
 res://tests/integration/test_campaign_and_highway.gd PASS  
+res://tests/integration/test_standalone_packaging.gd PASS  
 
-STATUS: 100% SUCCESS (13/13 PASSED, 0 ERRORS)
+STATUS: 100% SUCCESS (14/14 PASSED, 0 ERRORS) - GOLD MASTER READY
 ```
