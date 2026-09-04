@@ -1,4 +1,4 @@
-﻿class_name InventoryManager
+class_name InventoryManager
 extends Node
 
 # Менеджер снаряжения и селектор инструментов игрока (Hotbar 1-4)
@@ -64,7 +64,7 @@ func _init_tools() -> void:
 	
 	_update_tool_visibilities()
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_1:

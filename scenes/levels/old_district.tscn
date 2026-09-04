@@ -2,33 +2,60 @@
 
 [ext_resource type="Script" path="res://scripts/gameplay/old_district.gd" id="1_olddistrict"]
 [ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="Material" path="res://assets/materials/mat_asphalt.tres" id="2_qe0q8"]
 [ext_resource type="PackedScene" path="res://scenes/vehicles/delivery_van.tscn" id="3_van"]
+[ext_resource type="Script" path="res://scripts/core/player_controller.gd" id="4_1cgmy"]
 [ext_resource type="PackedScene" path="res://scenes/characters/bubble_drone.tscn" id="4_drone"]
 [ext_resource type="PackedScene" path="res://scenes/characters/guard.tscn" id="5_guard"]
 [ext_resource type="Script" path="res://scripts/interaction/cola_crate.gd" id="6_crate"]
+[ext_resource type="Script" path="res://scripts/drone/bubble_drone.gd" id="6_nxx57"]
 [ext_resource type="Script" path="res://scripts/interaction/secret_formula.gd" id="7_formula"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="8_interactable"]
+[ext_resource type="Script" path="res://scripts/vehicle/delivery_van.gd" id="8_uarrq"]
 [ext_resource type="Script" path="res://scripts/physics/physical_door.gd" id="9_door"]
-[ext_resource type="Script" path="res://scripts/physics/conveyor_belt.gd" id="10_conveyor"]
+[ext_resource type="Material" path="res://assets/materials/mat_wood.tres" id="10_mnpt1"]
+[ext_resource type="Material" path="res://assets/materials/mat_concrete.tres" id="11_2mo38"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="11_pause"]
+[ext_resource type="Material" path="res://assets/materials/mat_metal.tres" id="13_mrjb0"]
+[ext_resource type="Script" path="res://scripts/ai/guard_ai.gd" id="16_c1ctt"]
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="19_7lkbf"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/road-straight-lightposts.tscn" id="20_g050w"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/road-straight.tscn" id="21_nb33p"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/pavement.tscn" id="22_84ocj"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/road-intersection.tscn" id="22_mrjb0"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-a.tscn" id="22_n3i75"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-b.tscn" id="23_oj0ah"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/pavement-fountain.tscn" id="24_c1ctt"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-c.tscn" id="24_i5ioe"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/grass-trees-tall.tscn" id="25_7lkbf"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-d.tscn" id="25_khiet"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/grass.tscn" id="27_g050w"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/grass-trees.tscn" id="27_mjhq2"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/vehicle-motorcycle.tscn" id="32_nb33p"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/vehicle-truck-yellow.tscn" id="33_n3i75"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/vehicle-truck-green.tscn" id="34_oj0ah"]
+[ext_resource type="PackedScene" path="res://assets/scenes_3d/character.tscn" id="35_i5ioe"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
-sky_top_color = Color(0.2, 0.28, 0.42, 1)
-sky_horizon_color = Color(0.85, 0.55, 0.35, 1)
-ground_bottom_color = Color(0.12, 0.14, 0.18, 1)
-ground_horizon_color = Color(0.85, 0.55, 0.35, 1)
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mrjb0"]
+sky_top_color = Color(0.28, 0.48, 0.78, 1)
+sky_horizon_color = Color(0.72, 0.8, 0.88, 1)
+ground_bottom_color = Color(0.2, 0.22, 0.25, 1)
+ground_horizon_color = Color(0.65, 0.72, 0.8, 1)
 
-[sub_resource type="Sky" id="Sky_1"]
-sky_material = SubResource("ProceduralSkyMaterial_1")
+[sub_resource type="Sky" id="Sky_c1ctt"]
+sky_material = SubResource("ProceduralSkyMaterial_mrjb0")
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 2
-sky = SubResource("Sky_1")
-ambient_light_source = 3
-ambient_light_color = Color(0.65, 0.6, 0.55, 1)
-tonemap_mode = 2
-glow_enabled = true
+sky = SubResource("Sky_c1ctt")
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.7, 0.8, 1)
+ambient_light_sky_contribution = 0.85
+ambient_light_energy = 0.65
+tonemap_mode = 3
+tonemap_exposure = 0.95
 ssao_enabled = true
+glow_bloom = 0.05
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(180, 1, 180)
@@ -41,6 +68,17 @@ roughness = 0.85
 material = SubResource("StandardMaterial3D_asphalt")
 size = Vector3(180, 1, 180)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_garage"]
+size = Vector3(12, 5, 14)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_garage"]
+albedo_color = Color(0.4, 0.35, 0.32, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_garage"]
+material = SubResource("StandardMaterial3D_garage")
+size = Vector3(12, 5, 14)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_crate"]
 size = Vector3(0.6, 0.45, 0.8)
 
@@ -52,9 +90,6 @@ roughness = 0.7
 material = SubResource("StandardMaterial3D_crate")
 size = Vector3(0.6, 0.45, 0.8)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
-size = Vector3(20, 8, 20)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_building"]
 size = Vector3(18, 7, 24)
 
@@ -65,17 +100,6 @@ roughness = 0.9
 [sub_resource type="BoxMesh" id="BoxMesh_building"]
 material = SubResource("StandardMaterial3D_concrete")
 size = Vector3(18, 7, 24)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_garage"]
-size = Vector3(12, 5, 14)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_garage"]
-albedo_color = Color(0.4, 0.35, 0.32, 1)
-roughness = 0.8
-
-[sub_resource type="BoxMesh" id="BoxMesh_garage"]
-material = SubResource("StandardMaterial3D_garage")
-size = Vector3(12, 5, 14)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gate"]
 size = Vector3(3.5, 3.5, 0.1)
@@ -89,21 +113,8 @@ roughness = 0.3
 material = SubResource("StandardMaterial3D_gate")
 size = Vector3(3.5, 3.5, 0.1)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_chip"]
-size = Vector3(0.2, 0.05, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chip"]
-albedo_color = Color(0.1, 0.9, 0.3, 1)
-emission_enabled = true
-emission = Color(0.1, 1.0, 0.4, 1)
-emission_energy_multiplier = 3.0
-
-[sub_resource type="BoxMesh" id="BoxMesh_chip"]
-material = SubResource("StandardMaterial3D_chip")
-size = Vector3(0.2, 0.05, 0.3)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_pedestal"]
-size = Vector3(0.8, 1.0, 0.8)
+size = Vector3(0.8, 1, 0.8)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pedestal"]
 albedo_color = Color(0.15, 0.16, 0.2, 1)
@@ -111,224 +122,263 @@ metallic = 0.7
 
 [sub_resource type="BoxMesh" id="BoxMesh_pedestal"]
 material = SubResource("StandardMaterial3D_pedestal")
-size = Vector3(0.8, 1.0, 0.8)
+size = Vector3(0.8, 1, 0.8)
 
-[node name="OldDistrict" type="Node3D"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chip"]
+albedo_color = Color(0.1, 0.9, 0.3, 1)
+emission_enabled = true
+emission = Color(0.1, 1, 0.4, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_chip"]
+material = SubResource("StandardMaterial3D_chip")
+size = Vector3(0.2, 0.05, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chip"]
+size = Vector3(0.2, 0.05, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(20, 8, 20)
+
+[node name="OldDistrict" type="Node3D" unique_id=275422331]
 script = ExtResource("1_olddistrict")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=11087478]
 environment = SubResource("Environment_1")
 
-[node name="SunLight" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 30, 0)
-light_color = Color(1.0, 0.92, 0.82, 1)
-light_energy = 1.4
+[node name="SunLight" type="DirectionalLight3D" parent="." unique_id=717283926]
+transform = Transform3D(0.7070912, -0.47313377, 0.52547985, 0, 0.74312437, 0.6691269, -0.7070912, -0.47313377, 0.52547985, 0, 30, 0)
+light_color = Color(1, 0.96, 0.9, 1)
+light_energy = 1.15
 shadow_enabled = true
+shadow_bias = 0.05
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1684222167]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=134417029]
 shape = SubResource("BoxShape3D_ground")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=386604595]
+material_override = ExtResource("2_qe0q8")
 mesh = SubResource("BoxMesh_ground")
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
-transform = Transform3D(0.342, 0, 0.940, 0, 1, 0, -0.940, 0, 0.342, -2.5, 0.1, 46.5)
+[node name="Player" type="CharacterBody3D" parent="." unique_id=1343354716 instance=ExtResource("2_player")]
+transform = Transform3D(1.0002819, 0, 0, 0, 1, 0, 0, 0, 1.0002819, 0, 1.4, 45)
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("4_1cgmy")
 
-[node name="BubbleDrone" parent="." instance=ExtResource("4_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1.8, 47.5)
+[node name="BubbleDrone" type="CharacterBody3D" parent="." unique_id=991856211 instance=ExtResource("4_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.5, 42)
+collision_layer = 8
+script = ExtResource("6_nxx57")
 
-[node name="DeliveryVan" parent="." instance=ExtResource("3_van")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.8, 45)
+[node name="DeliveryVan" type="VehicleBody3D" parent="." unique_id=1662884912 instance=ExtResource("3_van")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 38)
+collision_layer = 4
+collision_mask = 7
+mass = 1400.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -0.2, 0)
+script = ExtResource("8_uarrq")
 
-[node name="GarageBuilding" type="StaticBody3D" parent="."]
+[node name="GarageBuilding" type="StaticBody3D" parent="." unique_id=720792437]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 58)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GarageBuilding"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GarageBuilding" unique_id=1059253808]
 shape = SubResource("BoxShape3D_garage")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GarageBuilding"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GarageBuilding" unique_id=1846144526]
 mesh = SubResource("BoxMesh_garage")
 
-[node name="GarageLight" type="OmniLight3D" parent="GarageBuilding"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -8.0)
-light_color = Color(1.0, 0.9, 0.7, 1)
-light_energy = 5.0
+[node name="GarageLight" type="OmniLight3D" parent="GarageBuilding" unique_id=1572531088]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -8)
+light_color = Color(1, 0.92, 0.75, 1)
+light_energy = 0.4
 shadow_enabled = true
-omni_range = 22.0
+omni_range = 8.0
 
-[node name="GarageLabel" type="Label3D" parent="GarageBuilding"]
+[node name="GarageLabel" type="Label3D" parent="GarageBuilding" unique_id=1386001548]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -7.1)
+modulate = Color(1, 0.8, 0.2, 1)
 text = "ГАРАЖ КОЛИ — БАЗА «КОКА-КОЛЯ»"
 font_size = 24
-modulate = Color(1, 0.8, 0.2, 1)
 
-[node name="ColaCrate1" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.3, 49)
+[node name="ColaCrate1" type="RigidBody3D" parent="." unique_id=1171362787]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.35, 41.8)
 script = ExtResource("6_crate")
-crate_id = 1
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate1"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate1" unique_id=1649040103]
 shape = SubResource("BoxShape3D_crate")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate1"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate1" unique_id=110105289]
+material_override = ExtResource("10_mnpt1")
 mesh = SubResource("BoxMesh_crate")
 
-[node name="ColaCrate2" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0.3, 49.2)
+[node name="ColaCrate2" type="RigidBody3D" parent="." unique_id=172082378]
+transform = Transform3D(0.9659258, 0, 0.25881904, 0, 1, 0, -0.25881904, 0, 0.9659258, 0.6, 0.35, 41.8)
 script = ExtResource("6_crate")
 crate_id = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate2"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate2" unique_id=41074036]
 shape = SubResource("BoxShape3D_crate")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate2"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate2" unique_id=1835139269]
+material_override = ExtResource("10_mnpt1")
 mesh = SubResource("BoxMesh_crate")
 
-[node name="ColaCrate3" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.3, 50.5)
+[node name="ColaCrate3" type="RigidBody3D" parent="." unique_id=1028538993]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, 0, 0.35, 42.8)
 script = ExtResource("6_crate")
 crate_id = 3
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate3"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate3" unique_id=52020260]
 shape = SubResource("BoxShape3D_crate")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate3"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate3" unique_id=1907929626]
+material_override = ExtResource("10_mnpt1")
 mesh = SubResource("BoxMesh_crate")
 
-[node name="Warehouse" type="Node3D" parent="."]
+[node name="Warehouse" type="Node3D" parent="." unique_id=1542977507]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -45)
 
-[node name="Building" type="StaticBody3D" parent="Warehouse"]
+[node name="Building" type="StaticBody3D" parent="Warehouse" unique_id=1532146587]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Building"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Building" unique_id=812592257]
 shape = SubResource("BoxShape3D_building")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Building"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Building" unique_id=1236521878]
+material_override = ExtResource("11_2mo38")
 mesh = SubResource("BoxMesh_building")
 
-[node name="Sign" type="Label3D" parent="Warehouse"]
+[node name="Sign" type="Label3D" parent="Warehouse" unique_id=796764385]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.5, 12.1)
+modulate = Color(0.2, 0.7, 1, 1)
 text = "MERIDIAN CORP — ТЕРМИНАЛ ЛОГИСТИКИ №4"
 font_size = 28
-modulate = Color(0.2, 0.7, 1.0, 1)
 
-[node name="SecurityGate" type="Node3D" parent="Warehouse"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12.0)
+[node name="SecurityGate" type="Node3D" parent="Warehouse" unique_id=848222391]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
 script = ExtResource("9_door")
 is_locked = true
 
-[node name="DoorFrame" type="StaticBody3D" parent="Warehouse/SecurityGate"]
+[node name="DoorFrame" type="StaticBody3D" parent="Warehouse/SecurityGate" unique_id=1602373606]
 
-[node name="DoorLeaf" type="RigidBody3D" parent="Warehouse/SecurityGate"]
+[node name="DoorLeaf" type="RigidBody3D" parent="Warehouse/SecurityGate" unique_id=400678243]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, 1.75, 0)
 collision_layer = 5
 mass = 60.0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/SecurityGate/DoorLeaf"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/SecurityGate/DoorLeaf" unique_id=511434759]
 shape = SubResource("BoxShape3D_gate")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/SecurityGate/DoorLeaf"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/SecurityGate/DoorLeaf" unique_id=2118992469]
+material_override = ExtResource("13_mrjb0")
 mesh = SubResource("BoxMesh_gate")
 
-[node name="HingeJoint3D" type="HingeJoint3D" parent="Warehouse/SecurityGate"]
+[node name="HingeJoint3D" type="HingeJoint3D" parent="Warehouse/SecurityGate" unique_id=329057975]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
 node_a = NodePath("../DoorFrame")
 node_b = NodePath("../DoorLeaf")
 
-[node name="GateTerminal" type="StaticBody3D" parent="Warehouse/SecurityGate"]
+[node name="GateTerminal" type="StaticBody3D" parent="Warehouse/SecurityGate" unique_id=1297151395]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 1.2, 0.3)
 
-[node name="Interactable" type="Node" parent="Warehouse/SecurityGate/GateTerminal"]
+[node name="Interactable" type="Node" parent="Warehouse/SecurityGate/GateTerminal" unique_id=986120801]
 script = ExtResource("8_interactable")
 prompt_message = "Электронный замок ворот (Требуется взлом [4])"
 
-[node name="GuardAI" parent="Warehouse" instance=ExtResource("5_guard")]
+[node name="GuardAI" type="CharacterBody3D" parent="Warehouse" unique_id=158052903 instance=ExtResource("5_guard")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, 15)
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("16_c1ctt")
 patrol_point_a = Vector3(-8, 0, 16)
 patrol_point_b = Vector3(8, 0, 16)
 
-[node name="Vault" type="Node3D" parent="Warehouse"]
+[node name="Vault" type="Node3D" parent="Warehouse" unique_id=423845356]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
 
-[node name="Pedestal" type="StaticBody3D" parent="Warehouse/Vault"]
+[node name="Pedestal" type="StaticBody3D" parent="Warehouse/Vault" unique_id=900279294]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Vault/Pedestal"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Vault/Pedestal" unique_id=1968702661]
 shape = SubResource("BoxShape3D_pedestal")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Vault/Pedestal"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Vault/Pedestal" unique_id=2138666076]
 mesh = SubResource("BoxMesh_pedestal")
 
-[node name="SecretFormula" type="Node3D" parent="Warehouse/Vault"]
+[node name="SecretFormula" type="Node3D" parent="Warehouse/Vault" unique_id=1600615583]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 script = ExtResource("7_formula")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Vault/SecretFormula"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Vault/SecretFormula" unique_id=920133879]
 mesh = SubResource("BoxMesh_chip")
 
-[node name="Area3D" type="Area3D" parent="Warehouse/Vault/SecretFormula"]
+[node name="Area3D" type="Area3D" parent="Warehouse/Vault/SecretFormula" unique_id=1916801851]
 collision_layer = 4
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Vault/SecretFormula/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Vault/SecretFormula/Area3D" unique_id=1766566868]
 shape = SubResource("BoxShape3D_chip")
 
-[node name="Interactable" type="Node" parent="Warehouse/Vault/SecretFormula"]
+[node name="Interactable" type="Node" parent="Warehouse/Vault/SecretFormula" unique_id=1145120961]
 script = ExtResource("8_interactable")
 prompt_message = "Забрать секретный рецептурный чип"
 
-[node name="OmniLight3D" type="OmniLight3D" parent="Warehouse/Vault/SecretFormula"]
-light_color = Color(0.2, 1.0, 0.4, 1)
+[node name="OmniLight3D" type="OmniLight3D" parent="Warehouse/Vault/SecretFormula" unique_id=506759634]
+light_color = Color(0.2, 1, 0.4, 1)
 light_energy = 2.0
 omni_range = 4.0
 
-[node name="Triggers" type="Node3D" parent="."]
+[node name="Triggers" type="Node3D" parent="." unique_id=1912767079]
 
-[node name="WarehouseArrivalArea" type="Area3D" parent="Triggers"]
+[node name="WarehouseArrivalArea" type="Area3D" parent="Triggers" unique_id=401681061]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -25)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Triggers/WarehouseArrivalArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Triggers/WarehouseArrivalArea" unique_id=1899367787]
 shape = SubResource("BoxShape3D_trigger")
 
-[node name="GarageReturnArea" type="Area3D" parent="Triggers"]
+[node name="GarageReturnArea" type="Area3D" parent="Triggers" unique_id=1012543293]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 45)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Triggers/GarageReturnArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Triggers/GarageReturnArea" unique_id=1007324444]
 shape = SubResource("BoxShape3D_trigger")
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=727401678]
 
-[node name="QuestPanel" type="PanelContainer" parent="HUD"]
+[node name="QuestPanel" type="PanelContainer" parent="HUD" unique_id=1632484694]
 offset_left = 30.0
 offset_top = 25.0
 offset_right = 450.0
 offset_bottom = 145.0
+mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="HUD/QuestPanel"]
+[node name="Margin" type="MarginContainer" parent="HUD/QuestPanel" unique_id=1275484760]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="HUD/QuestPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="HUD/QuestPanel/Margin" unique_id=1493686573]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="Title" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+[node name="Title" type="Label" parent="HUD/QuestPanel/Margin/VBox" unique_id=872338928]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
 theme_override_font_sizes/font_size = 15
 text = "ОПЕРАЦИЯ: ШИПУЧКА (МИССИЯ 1)"
 
-[node name="ObjectiveLabel" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+[node name="ObjectiveLabel" type="Label" parent="HUD/QuestPanel/Margin/VBox" unique_id=422938640]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "[ ] Загрузить 3 ящика «Кока-Коля» в кузов (0/3)"
 
-[node name="RadioPanel" type="PanelContainer" parent="HUD"]
+[node name="RadioPanel" type="PanelContainer" parent="HUD" unique_id=1647020847]
 visible = false
 anchors_preset = 7
 anchor_left = 0.5
@@ -341,30 +391,31 @@ offset_right = 350.0
 offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="HUD/RadioPanel"]
+[node name="Margin" type="MarginContainer" parent="HUD/RadioPanel" unique_id=2027161145]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="HUD/RadioPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="HUD/RadioPanel/Margin" unique_id=713160292]
 layout_mode = 2
 
-[node name="SpeakerLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+[node name="SpeakerLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox" unique_id=1021962960]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
 theme_override_font_sizes/font_size = 14
 text = "[РАДИО: СашаV]"
 
-[node name="MessageLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+[node name="MessageLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox" unique_id=1782222629]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "Коля, рация работает! Заводи фургон..."
 autowrap_mode = 2
 
-[node name="MissionCompletePanel" type="PanelContainer" parent="HUD"]
+[node name="MissionCompletePanel" type="PanelContainer" parent="HUD" unique_id=2077005500]
 visible = false
 anchors_preset = 8
 anchor_left = 0.5
@@ -378,25 +429,25 @@ offset_bottom = 110.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="HUD/MissionCompletePanel"]
+[node name="Margin" type="MarginContainer" parent="HUD/MissionCompletePanel" unique_id=331990431]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 20
 
-[node name="VBox" type="VBoxContainer" parent="HUD/MissionCompletePanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="HUD/MissionCompletePanel/Margin" unique_id=646600077]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox"]
+[node name="Title" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox" unique_id=911041284]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 1.0, 0.4, 1)
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
 theme_override_font_sizes/font_size = 24
 text = "МИССИЯ 1 ВЫПОЛНЕНА!"
 horizontal_alignment = 1
 
-[node name="Sub" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox"]
+[node name="Sub" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox" unique_id=25303776]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "Партия «Кока-Коля» защищена!
@@ -404,11 +455,423 @@ text = "Партия «Кока-Коля» защищена!
 Первый вертикальный срез игры успешно пройден."
 horizontal_alignment = 1
 
-[node name="Hint" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox"]
+[node name="Hint" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox" unique_id=837852936]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 13
 text = "[F1 / ~] — Меню лабораторий / Выход"
 horizontal_alignment = 1
 
-[node name="PauseMenu" parent="HUD" instance=ExtResource("11_pause")]
+[node name="PauseMenu" type="Control" parent="HUD" unique_id=85588750 instance=ExtResource("11_pause")]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("19_7lkbf")
+
+[node name="CityArchitecture" type="Node3D" parent="." unique_id=536715625]
+
+[node name="road-straight2" type="Node3D" parent="CityArchitecture" unique_id=1154364187 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 52)
+
+[node name="@Node3D@2" type="Node3D" parent="CityArchitecture" unique_id=1493635628 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 48)
+
+[node name="road-straight-lightposts2" type="Node3D" parent="CityArchitecture" unique_id=1412783524 instance=ExtResource("20_g050w")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 44)
+
+[node name="@Node3D@3" type="Node3D" parent="CityArchitecture" unique_id=2121814082 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 40)
+
+[node name="@Node3D@4" type="Node3D" parent="CityArchitecture" unique_id=1167833434 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 36)
+
+[node name="@Node3D@5" type="Node3D" parent="CityArchitecture" unique_id=648202710 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 32)
+
+[node name="@Node3D@6" type="Node3D" parent="CityArchitecture" unique_id=2021818535 instance=ExtResource("20_g050w")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 28)
+
+[node name="@Node3D@7" type="Node3D" parent="CityArchitecture" unique_id=1606288217 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 24)
+
+[node name="@Node3D@8" type="Node3D" parent="CityArchitecture" unique_id=1137728851 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 20)
+
+[node name="road-intersection2" type="Node3D" parent="CityArchitecture" unique_id=275901952 instance=ExtResource("22_mrjb0")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 16)
+
+[node name="@Node3D@9" type="Node3D" parent="CityArchitecture" unique_id=421218334 instance=ExtResource("21_nb33p")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4, 0, -4, 0, -1.7484555e-07, -4, 0.02, 16)
+
+[node name="@Node3D@10" type="Node3D" parent="CityArchitecture" unique_id=136127276 instance=ExtResource("21_nb33p")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4, 0, -4, 0, -1.7484555e-07, -8, 0.02, 16)
+
+[node name="@Node3D@11" type="Node3D" parent="CityArchitecture" unique_id=404523218 instance=ExtResource("21_nb33p")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4, 0, -4, 0, -1.7484555e-07, 4, 0.02, 16)
+
+[node name="@Node3D@12" type="Node3D" parent="CityArchitecture" unique_id=188127418 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 12)
+
+[node name="@Node3D@13" type="Node3D" parent="CityArchitecture" unique_id=1284223689 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 8)
+
+[node name="@Node3D@14" type="Node3D" parent="CityArchitecture" unique_id=409746835 instance=ExtResource("20_g050w")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 4)
+
+[node name="@Node3D@15" type="Node3D" parent="CityArchitecture" unique_id=305482596 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 0)
+
+[node name="@Node3D@16" type="Node3D" parent="CityArchitecture" unique_id=861132461 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -4)
+
+[node name="@Node3D@17" type="Node3D" parent="CityArchitecture" unique_id=396191049 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -8)
+
+[node name="@Node3D@18" type="Node3D" parent="CityArchitecture" unique_id=1757415869 instance=ExtResource("20_g050w")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -12)
+
+[node name="@Node3D@19" type="Node3D" parent="CityArchitecture" unique_id=2066468875 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -16)
+
+[node name="@Node3D@20" type="Node3D" parent="CityArchitecture" unique_id=981995760 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -20)
+
+[node name="@Node3D@21" type="Node3D" parent="CityArchitecture" unique_id=1405384685 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -24)
+
+[node name="@Node3D@22" type="Node3D" parent="CityArchitecture" unique_id=516081224 instance=ExtResource("20_g050w")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -28)
+
+[node name="@Node3D@23" type="Node3D" parent="CityArchitecture" unique_id=1943845776 instance=ExtResource("21_nb33p")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -32)
+
+[node name="pavement2" type="Node3D" parent="CityArchitecture" unique_id=740585745 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 52)
+
+[node name="@Node3D@24" type="Node3D" parent="CityArchitecture" unique_id=1646266960 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 52)
+
+[node name="@Node3D@25" type="Node3D" parent="CityArchitecture" unique_id=2142659301 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 48)
+
+[node name="@Node3D@26" type="Node3D" parent="CityArchitecture" unique_id=505510988 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 48)
+
+[node name="@Node3D@27" type="Node3D" parent="CityArchitecture" unique_id=18080254 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 44)
+
+[node name="@Node3D@28" type="Node3D" parent="CityArchitecture" unique_id=910509619 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 44)
+
+[node name="@Node3D@29" type="Node3D" parent="CityArchitecture" unique_id=1012772506 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 40)
+
+[node name="@Node3D@30" type="Node3D" parent="CityArchitecture" unique_id=2103578219 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 40)
+
+[node name="@Node3D@31" type="Node3D" parent="CityArchitecture" unique_id=1255321729 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 36)
+
+[node name="@Node3D@32" type="Node3D" parent="CityArchitecture" unique_id=1380341523 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 36)
+
+[node name="@Node3D@33" type="Node3D" parent="CityArchitecture" unique_id=328455905 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 32)
+
+[node name="@Node3D@34" type="Node3D" parent="CityArchitecture" unique_id=1288829284 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 32)
+
+[node name="@Node3D@35" type="Node3D" parent="CityArchitecture" unique_id=1482467200 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 28)
+
+[node name="@Node3D@36" type="Node3D" parent="CityArchitecture" unique_id=84928069 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 28)
+
+[node name="@Node3D@37" type="Node3D" parent="CityArchitecture" unique_id=1574434451 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 24)
+
+[node name="@Node3D@38" type="Node3D" parent="CityArchitecture" unique_id=1022055952 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 24)
+
+[node name="@Node3D@39" type="Node3D" parent="CityArchitecture" unique_id=1651891345 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 20)
+
+[node name="@Node3D@40" type="Node3D" parent="CityArchitecture" unique_id=588802151 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 20)
+
+[node name="@Node3D@41" type="Node3D" parent="CityArchitecture" unique_id=571546260 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 12)
+
+[node name="@Node3D@42" type="Node3D" parent="CityArchitecture" unique_id=625565978 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 12)
+
+[node name="@Node3D@43" type="Node3D" parent="CityArchitecture" unique_id=544408922 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 8)
+
+[node name="@Node3D@44" type="Node3D" parent="CityArchitecture" unique_id=442108072 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 8)
+
+[node name="@Node3D@45" type="Node3D" parent="CityArchitecture" unique_id=1809465058 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 4)
+
+[node name="@Node3D@46" type="Node3D" parent="CityArchitecture" unique_id=1425852725 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 4)
+
+[node name="@Node3D@47" type="Node3D" parent="CityArchitecture" unique_id=693637890 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, 0)
+
+[node name="@Node3D@48" type="Node3D" parent="CityArchitecture" unique_id=328397551 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, 0)
+
+[node name="@Node3D@49" type="Node3D" parent="CityArchitecture" unique_id=1979167384 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -4)
+
+[node name="@Node3D@50" type="Node3D" parent="CityArchitecture" unique_id=1835404923 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -4)
+
+[node name="@Node3D@51" type="Node3D" parent="CityArchitecture" unique_id=63697849 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -8)
+
+[node name="@Node3D@52" type="Node3D" parent="CityArchitecture" unique_id=1049144923 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -8)
+
+[node name="@Node3D@53" type="Node3D" parent="CityArchitecture" unique_id=743988059 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -12)
+
+[node name="@Node3D@54" type="Node3D" parent="CityArchitecture" unique_id=1706952985 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -12)
+
+[node name="@Node3D@55" type="Node3D" parent="CityArchitecture" unique_id=1868521355 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -16)
+
+[node name="@Node3D@56" type="Node3D" parent="CityArchitecture" unique_id=1375552191 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -16)
+
+[node name="@Node3D@57" type="Node3D" parent="CityArchitecture" unique_id=1599787484 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -20)
+
+[node name="@Node3D@58" type="Node3D" parent="CityArchitecture" unique_id=1540787843 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -20)
+
+[node name="@Node3D@59" type="Node3D" parent="CityArchitecture" unique_id=522140621 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -24)
+
+[node name="@Node3D@60" type="Node3D" parent="CityArchitecture" unique_id=1973066538 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -24)
+
+[node name="@Node3D@61" type="Node3D" parent="CityArchitecture" unique_id=344634045 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -28)
+
+[node name="@Node3D@62" type="Node3D" parent="CityArchitecture" unique_id=1769777909 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -28)
+
+[node name="@Node3D@63" type="Node3D" parent="CityArchitecture" unique_id=1514197688 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -4, 0.12, -32)
+
+[node name="@Node3D@64" type="Node3D" parent="CityArchitecture" unique_id=690260989 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 4, 0.12, -32)
+
+[node name="@Node3D@65" type="Node3D" parent="CityArchitecture" unique_id=806092358 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 8, 0.12, 4)
+
+[node name="@Node3D@66" type="Node3D" parent="CityArchitecture" unique_id=642083544 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 8, 0.12, 8)
+
+[node name="@Node3D@67" type="Node3D" parent="CityArchitecture" unique_id=1574703774 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 8, 0.12, 12)
+
+[node name="@Node3D@68" type="Node3D" parent="CityArchitecture" unique_id=419260083 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 8, 0.12, 20)
+
+[node name="@Node3D@69" type="Node3D" parent="CityArchitecture" unique_id=1443354624 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 12, 0.12, 4)
+
+[node name="@Node3D@70" type="Node3D" parent="CityArchitecture" unique_id=1511841372 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 12, 0.12, 8)
+
+[node name="pavement-fountain2" type="Node3D" parent="CityArchitecture" unique_id=823072512 instance=ExtResource("24_c1ctt")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 12, 0.12, 12)
+
+[node name="@Node3D@71" type="Node3D" parent="CityArchitecture" unique_id=886447074 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 12, 0.12, 16)
+
+[node name="@Node3D@72" type="Node3D" parent="CityArchitecture" unique_id=87223474 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 12, 0.12, 20)
+
+[node name="@Node3D@73" type="Node3D" parent="CityArchitecture" unique_id=1561597483 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 16, 0.12, 4)
+
+[node name="@Node3D@74" type="Node3D" parent="CityArchitecture" unique_id=1858598243 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 16, 0.12, 8)
+
+[node name="@Node3D@75" type="Node3D" parent="CityArchitecture" unique_id=1198959657 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 16, 0.12, 12)
+
+[node name="@Node3D@76" type="Node3D" parent="CityArchitecture" unique_id=1191092907 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 16, 0.12, 16)
+
+[node name="@Node3D@77" type="Node3D" parent="CityArchitecture" unique_id=1076337828 instance=ExtResource("22_84ocj")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 16, 0.12, 20)
+
+[node name="grass-trees-tall2" type="Node3D" parent="CityArchitecture" unique_id=186730842 instance=ExtResource("25_7lkbf")]
+transform = Transform3D(3.8637033, 0, 1.0352762, 0, 4, 0, -1.0352762, 0, 3.8637033, 20, 0.12, 20)
+
+[node name="grass-trees2" type="Node3D" parent="CityArchitecture" unique_id=1449056378 instance=ExtResource("27_mjhq2")]
+transform = Transform3D(2.828427, 0, 2.828427, 0, 4, 0, -2.828427, 0, 2.828427, 20, 0.12, 16)
+
+[node name="@Node3D@78" type="Node3D" parent="CityArchitecture" unique_id=664173253 instance=ExtResource("25_7lkbf")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4, 0, -4, 0, -1.7484555e-07, 20, 0.12, 12)
+
+[node name="grass2" type="Node3D" parent="CityArchitecture" unique_id=312698019 instance=ExtResource("27_g050w")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 20, 0.12, 8)
+
+[node name="@Node3D@79" type="Node3D" parent="CityArchitecture" unique_id=1779249162 instance=ExtResource("27_mjhq2")]
+transform = Transform3D(3.4641016, 0, -2, 0, 4, 0, 2, 0, 3.4641016, 20, 0.12, 4)
+
+[node name="@Node3D@80" type="Node3D" parent="CityArchitecture" unique_id=83146262 instance=ExtResource("27_mjhq2")]
+transform = Transform3D(1.9999999, 0, 3.4641018, 0, 4, 0, -3.4641018, 0, 1.9999999, -8, 0.12, 32)
+
+[node name="@Node3D@81" type="Node3D" parent="CityArchitecture" unique_id=837309813 instance=ExtResource("25_7lkbf")]
+transform = Transform3D(2.828427, 0, -2.828427, 0, 4, 0, 2.828427, 0, 2.828427, -8, 0.12, 8)
+
+[node name="@Node3D@82" type="Node3D" parent="CityArchitecture" unique_id=31805232 instance=ExtResource("27_mjhq2")]
+transform = Transform3D(-2.0000002, 0, 3.4641016, 0, 4, 0, -3.4641016, 0, -2.0000002, -8, 0.12, -4)
+
+[node name="@Node3D@83" type="Node3D" parent="CityArchitecture" unique_id=1618762312 instance=ExtResource("25_7lkbf")]
+transform = Transform3D(3.8637033, 0, 1.0352762, 0, 4, 0, -1.0352762, 0, 3.8637033, -8, 0.12, -20)
+
+[node name="@Node3D@84" type="Node3D" parent="CityArchitecture" unique_id=1665046125 instance=ExtResource("27_mjhq2")]
+transform = Transform3D(2.3492315, 0, 0.8550503, 0, 2.5, 0, -0.8550503, 0, 2.3492315, -4, 0.12, 44)
+
+[node name="@Node3D@85" type="Node3D" parent="CityArchitecture" unique_id=185768117 instance=ExtResource("27_mjhq2")]
+transform = Transform3D(0.8550504, 0, 2.3492315, 0, 2.5, 0, -2.3492315, 0, 0.8550504, 4, 0.12, 32)
+
+[node name="@Node3D@86" type="Node3D" parent="CityArchitecture" unique_id=1775736419 instance=ExtResource("27_mjhq2")]
+transform = Transform3D(1.9151111, 0, 1.6069689, 0, 2.5, 0, -1.6069689, 0, 1.9151111, 4, 0.12, -8)
+
+[node name="building-small-a2" type="Node3D" parent="CityArchitecture" unique_id=1540575637 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, 52)
+
+[node name="building-small-b2" type="Node3D" parent="CityArchitecture" unique_id=1093362067 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6, 0, -4, 0, -1.7484555e-07, -8, 0.12, 48)
+
+[node name="building-small-c2" type="Node3D" parent="CityArchitecture" unique_id=282446265 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 7.2, 0, -4, 0, -1.7484555e-07, -8, 0.12, 44)
+
+[node name="building-small-d2" type="Node3D" parent="CityArchitecture" unique_id=1771953189 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5, 0, -4, 0, -1.7484555e-07, -8, 0.12, 40)
+
+[node name="@Node3D@87" type="Node3D" parent="CityArchitecture" unique_id=1079940480 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, 36)
+
+[node name="@Node3D@88" type="Node3D" parent="CityArchitecture" unique_id=1744917128 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, 28)
+
+[node name="@Node3D@89" type="Node3D" parent="CityArchitecture" unique_id=1924811706 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, 24)
+
+[node name="@Node3D@90" type="Node3D" parent="CityArchitecture" unique_id=208650033 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 7, 0, -4, 0, -1.7484555e-07, -8, 0.12, 20)
+
+[node name="@Node3D@91" type="Node3D" parent="CityArchitecture" unique_id=1776178735 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5.2, 0, -4, 0, -1.7484555e-07, -8, 0.12, 12)
+
+[node name="@Node3D@92" type="Node3D" parent="CityArchitecture" unique_id=750385996 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6.2, 0, -4, 0, -1.7484555e-07, -8, 0.12, 4)
+
+[node name="@Node3D@93" type="Node3D" parent="CityArchitecture" unique_id=1077954386 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, 0)
+
+[node name="@Node3D@94" type="Node3D" parent="CityArchitecture" unique_id=1226593109 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, -8)
+
+[node name="@Node3D@95" type="Node3D" parent="CityArchitecture" unique_id=1449069762 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5, 0, -4, 0, -1.7484555e-07, -8, 0.12, -12)
+
+[node name="@Node3D@96" type="Node3D" parent="CityArchitecture" unique_id=1595201176 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6, 0, -4, 0, -1.7484555e-07, -8, 0.12, -16)
+
+[node name="@Node3D@97" type="Node3D" parent="CityArchitecture" unique_id=1660792704 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 7.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, -24)
+
+[node name="@Node3D@98" type="Node3D" parent="CityArchitecture" unique_id=660948917 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, -28)
+
+[node name="@Node3D@99" type="Node3D" parent="CityArchitecture" unique_id=783835139 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6, 0, 4, 0, -1.7484555e-07, 8, 0.12, 52)
+
+[node name="@Node3D@100" type="Node3D" parent="CityArchitecture" unique_id=236284546 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5, 0, 4, 0, -1.7484555e-07, 8, 0.12, 48)
+
+[node name="@Node3D@101" type="Node3D" parent="CityArchitecture" unique_id=240155302 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7, 0, 4, 0, -1.7484555e-07, 8, 0.12, 44)
+
+[node name="@Node3D@102" type="Node3D" parent="CityArchitecture" unique_id=743148841 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 4.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, 40)
+
+[node name="@Node3D@103" type="Node3D" parent="CityArchitecture" unique_id=1789112921 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.2, 0, 4, 0, -1.7484555e-07, 8, 0.12, 36)
+
+[node name="@Node3D@104" type="Node3D" parent="CityArchitecture" unique_id=1792230185 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.5, 0, 4, 0, -1.7484555e-07, 8, 0.12, 32)
+
+[node name="@Node3D@105" type="Node3D" parent="CityArchitecture" unique_id=1339237970 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, 28)
+
+[node name="@Node3D@106" type="Node3D" parent="CityArchitecture" unique_id=1008546015 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.2, 0, 4, 0, -1.7484555e-07, 8, 0.12, 0)
+
+[node name="@Node3D@107" type="Node3D" parent="CityArchitecture" unique_id=1888858840 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 8, 0.12, -4)
+
+[node name="@Node3D@108" type="Node3D" parent="CityArchitecture" unique_id=254244315 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 4.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, -8)
+
+[node name="@Node3D@109" type="Node3D" parent="CityArchitecture" unique_id=1689158748 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6, 0, 4, 0, -1.7484555e-07, 8, 0.12, -12)
+
+[node name="@Node3D@110" type="Node3D" parent="CityArchitecture" unique_id=738616221 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7.2, 0, 4, 0, -1.7484555e-07, 8, 0.12, -16)
+
+[node name="@Node3D@111" type="Node3D" parent="CityArchitecture" unique_id=1482756095 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5, 0, 4, 0, -1.7484555e-07, 8, 0.12, -20)
+
+[node name="@Node3D@112" type="Node3D" parent="CityArchitecture" unique_id=1187653204 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 8, 0.12, -24)
+
+[node name="@Node3D@113" type="Node3D" parent="CityArchitecture" unique_id=54118285 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 4.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, -28)
+
+[node name="@Node3D@114" type="Node3D" parent="CityArchitecture" unique_id=1511915814 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 24)
+
+[node name="@Node3D@115" type="Node3D" parent="CityArchitecture" unique_id=1936552978 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 20)
+
+[node name="@Node3D@116" type="Node3D" parent="CityArchitecture" unique_id=154109165 instance=ExtResource("25_khiet")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 16)
+
+[node name="@Node3D@117" type="Node3D" parent="CityArchitecture" unique_id=48430367 instance=ExtResource("22_n3i75")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 12)
+
+[node name="@Node3D@118" type="Node3D" parent="CityArchitecture" unique_id=848123212 instance=ExtResource("23_oj0ah")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 8)
+
+[node name="@Node3D@119" type="Node3D" parent="CityArchitecture" unique_id=680892022 instance=ExtResource("24_i5ioe")]
+transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 4)
+
+[node name="vehicle-motorcycle" type="Node3D" parent="CityArchitecture" unique_id=1188093945 instance=ExtResource("32_nb33p")]
+transform = Transform3D(1.1468129, 0, 0.803007, 0, 1.4, 0, -0.803007, 0, 1.1468129, -3.2, 0.15, 36)
+
+[node name="vehicle-truck-yellow" type="Node3D" parent="CityArchitecture" unique_id=1187115801 instance=ExtResource("33_n3i75")]
+transform = Transform3D(-6.119594e-08, 0, 1.4, 0, 1.4, 0, -1.4, 0, -6.119594e-08, -8, 0.15, 16)
+
+[node name="vehicle-truck-green" type="Node3D" parent="CityArchitecture" unique_id=162757831 instance=ExtResource("34_oj0ah")]
+transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 16, 0.15, 0)
+
+[node name="character2" type="Node3D" parent="CityArchitecture" unique_id=1452094512 instance=ExtResource("35_i5ioe")]
+transform = Transform3D(-1.8, 0, -1.57361e-07, 0, 1.8, 0, 1.57361e-07, 0, -1.8, 10, 0.12, 14)

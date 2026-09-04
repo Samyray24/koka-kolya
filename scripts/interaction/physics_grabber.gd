@@ -47,7 +47,7 @@ func _process_raycast() -> void:
 	else:
 		prompt_updated.emit("")
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event.is_action_just_pressed("interact"):
 		if held_body:
 			drop_object()

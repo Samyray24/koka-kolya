@@ -25,11 +25,14 @@ var current_cargo_mass: float = 0.0
 @onready var exit_marker: Marker3D = get_node_or_null("ExitMarker3D")
 @onready var vehicle_radio: Node3D = get_node_or_null("VehicleRadio")
 @onready var door_interactable: Node = get_node_or_null("DoorInteractable/Interactable")
+@onready var interactable_node: Node = get_node_or_null("Interactable")
 
 func _ready() -> void:
 	LogManager.info("Фургон доставки инициализирован. Масса шасси: %.1f кг" % mass, "VEHICLE")
 	if door_interactable and door_interactable.has_signal("interacted"):
 		door_interactable.connect("interacted", _on_door_interacted)
+	if interactable_node and interactable_node.has_signal("interacted") and interactable_node != door_interactable:
+		interactable_node.connect("interacted", _on_door_interacted)
 
 func _on_door_interacted(instigator: Node) -> void:
 	if not is_driven and instigator is CharacterBody3D:

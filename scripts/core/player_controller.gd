@@ -46,11 +46,15 @@ func _ready() -> void:
 				inventory_label.text = "Слот [%d]: %s" % [slot_idx + 1, slot_name]
 			)
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and mouse_captured:
 		rotate_y(-event.relative.x * mouse_sensitivity)
 		head.rotate_x(-event.relative.y * mouse_sensitivity)
 		head.rotation.x = clampf(head.rotation.x, deg_to_rad(-88.0), deg_to_rad(88.0))
+
+	if event is InputEventMouseButton and event.pressed:
+		if not mouse_captured:
+			capture_mouse(true)
 
 	if event.is_action_just_pressed("ui_cancel"):
 		capture_mouse(not mouse_captured)

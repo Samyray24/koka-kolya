@@ -9,7 +9,7 @@ signal weather_changed(new_weather: String)
 enum WeatherType { CLEAR, INDUSTRIAL_SMOG, NEON_RAIN }
 
 var current_weather: WeatherType = WeatherType.CLEAR
-var time_of_day: float = 21.5 # 21:30 — атмосферная неоновая ночь по умолчанию
+var time_of_day: float = 14.0 # 21:30 — атмосферная неоновая ночь по умолчанию
 var time_scale: float = 0.05 # 1 игровой час за ~20 реальных секунд (если включена симуляция)
 var simulate_time: bool = false
 
