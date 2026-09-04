@@ -74,8 +74,7 @@ text = "4. BUBBLE LAB (Дрон-спутник, 6-DOF полет, сканер, 
 [node name="BtnVehicle" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-disabled = true
-text = "5. VEHICLE LAB (Подвеска, сцепление, телеметрия) [Этап 2]"
+text = "5. VEHICLE LAB (Физика фургона Jolt, подвеска, груз)"
 
 [node name="BtnBack" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)

@@ -1,0 +1,191 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/vehicle_lab.gd" id="1_vehiclelab"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/vehicles/delivery_van.tscn" id="3_van"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.2, 0.32, 0.48, 1)
+sky_horizon_color = Color(0.55, 0.65, 0.75, 1)
+
+[sub_resource type="Sky" id="Sky_env"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_env"]
+background_mode = 2
+sky = SubResource("Sky_env")
+ambient_light_source = 2
+ambient_light_color = Color(0.7, 0.76, 0.86, 1)
+ambient_light_energy = 1.2
+tonemap_mode = 3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(140, 1, 100)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_asphalt"]
+albedo_color = Color(0.18, 0.2, 0.24, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("StandardMaterial3D_asphalt")
+size = Vector3(140, 1, 100)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ramp"]
+size = Vector3(10, 0.6, 20)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ramp"]
+albedo_color = Color(0.4, 0.45, 0.55, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="BoxMesh_ramp"]
+material = SubResource("StandardMaterial3D_ramp")
+size = Vector3(10, 0.6, 20)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_cone"]
+height = 1.0
+radius = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cone"]
+albedo_color = Color(1, 0.45, 0.1, 1)
+roughness = 0.4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cone"]
+material = SubResource("StandardMaterial3D_cone")
+top_radius = 0.05
+bottom_radius = 0.3
+height = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_crate"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crate"]
+albedo_color = Color(0.9, 0.65, 0.2, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_crate"]
+material = SubResource("StandardMaterial3D_crate")
+size = Vector3(0.8, 0.8, 0.8)
+
+[node name="VehicleLab" type="Node3D"]
+script = ExtResource("1_vehiclelab")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 25, 15)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+collision_mask = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="InclineRamp" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 25, 2.2, -10)
+collision_mask = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InclineRamp"]
+shape = SubResource("BoxShape3D_ramp")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="InclineRamp"]
+mesh = SubResource("BoxMesh_ramp")
+
+[node name="Cone1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -10)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cone1"]
+shape = SubResource("CylinderShape3D_cone")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Cone1"]
+mesh = SubResource("CylinderMesh_cone")
+
+[node name="Cone2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -20)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cone2"]
+shape = SubResource("CylinderShape3D_cone")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Cone2"]
+mesh = SubResource("CylinderMesh_cone")
+
+[node name="Cone3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -30)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cone3"]
+shape = SubResource("CylinderShape3D_cone")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Cone3"]
+mesh = SubResource("CylinderMesh_cone")
+
+[node name="DeliveryVan" parent="." instance=ExtResource("3_van")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.6, 0)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(0.707, 0, -0.707, 0, 1, 0, 0.707, 0, 0.707, -7.5, 0.5, 0.5)
+
+[node name="CargoCrate" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 5)
+collision_layer = 4
+collision_mask = 7
+mass = 20.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CargoCrate"]
+shape = SubResource("BoxShape3D_crate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CargoCrate"]
+mesh = SubResource("BoxMesh_crate")
+
+[node name="DebugUI" type="CanvasLayer" parent="."]
+
+[node name="MarginContainer" type="MarginContainer" parent="DebugUI"]
+offset_right = 460.0
+offset_bottom = 240.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+
+[node name="Panel" type="Panel" parent="DebugUI/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DebugUI/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "«КОКА-КОЛЯ» • VEHICLE LAB (v0.2.0)"
+
+[node name="LblStatus" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Статус: ПЕШЕХОД (Нажмите [E] у двери водителя)"
+
+[node name="LblSpeed" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Скорость фургона: 0.0 км/ч (Паркинг)"
+
+[node name="LblCargo" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.7, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "Масса груза в кузове: 0.0 кг"
+
+[node name="LblFPS" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "FPS: 60"
+
+[node name="Controls" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 12
+text = "E: Сесть/Выйти | W/S: Газ/Тормоз | A/D: Руль | Пробел: Ручник | F1: Хаб"

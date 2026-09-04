@@ -1,0 +1,144 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/vehicle/delivery_van.gd" id="1_van"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chassis"]
+size = Vector3(1.9, 1.6, 4.4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
+albedo_color = Color(0.85, 0.15, 0.18, 1)
+metallic = 0.5
+roughness = 0.35
+
+[sub_resource type="BoxMesh" id="BoxMesh_body"]
+material = SubResource("StandardMaterial3D_body")
+size = Vector3(1.9, 1.6, 4.4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cabin"]
+albedo_color = Color(0.15, 0.2, 0.28, 1)
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_cabin"]
+material = SubResource("StandardMaterial3D_cabin")
+size = Vector3(1.85, 0.7, 1.6)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_wheel"]
+height = 0.25
+radius = 0.38
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tire"]
+albedo_color = Color(0.12, 0.12, 0.14, 1)
+roughness = 0.8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tire"]
+material = SubResource("StandardMaterial3D_tire")
+top_radius = 0.38
+bottom_radius = 0.38
+height = 0.25
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cargo"]
+size = Vector3(1.7, 1.4, 2.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_door_trigger"]
+size = Vector3(1.0, 1.8, 1.2)
+
+[node name="DeliveryVan" type="VehicleBody3D"]
+collision_layer = 4
+collision_mask = 7
+mass = 1400.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -0.2, 0)
+script = ExtResource("1_van")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("BoxShape3D_chassis")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("BoxMesh_body")
+
+[node name="CabinGlass" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -0.9)
+mesh = SubResource("BoxMesh_cabin")
+
+[node name="WheelFL" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0, 0.38, -1.4)
+use_as_traction = true
+use_as_steering = true
+wheel_radius = 0.38
+wheel_friction_slip = 3.0
+suspension_travel = 0.25
+suspension_stiffness = 40.0
+
+[node name="MeshFL" type="MeshInstance3D" parent="WheelFL"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_tire")
+
+[node name="WheelFR" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0, 0.38, -1.4)
+use_as_traction = true
+use_as_steering = true
+wheel_radius = 0.38
+wheel_friction_slip = 3.0
+suspension_travel = 0.25
+suspension_stiffness = 40.0
+
+[node name="MeshFR" type="MeshInstance3D" parent="WheelFR"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_tire")
+
+[node name="WheelRL" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0, 0.38, 1.4)
+use_as_traction = true
+wheel_radius = 0.38
+wheel_friction_slip = 3.0
+suspension_travel = 0.25
+suspension_stiffness = 45.0
+
+[node name="MeshRL" type="MeshInstance3D" parent="WheelRL"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_tire")
+
+[node name="WheelRR" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0, 0.38, 1.4)
+use_as_traction = true
+wheel_radius = 0.38
+wheel_friction_slip = 3.0
+suspension_travel = 0.25
+suspension_stiffness = 45.0
+
+[node name="MeshRR" type="MeshInstance3D" parent="WheelRR"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_tire")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.94, 0.342, 0, -0.342, 0.94, 0, 2.5, 0)
+spring_length = 6.0
+
+[node name="ChaseCamera3D" type="Camera3D" parent="SpringArm3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+fov = 80.0
+
+[node name="CargoArea3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0.8)
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CargoArea3D"]
+shape = SubResource("BoxShape3D_cargo")
+
+[node name="DoorInteractable" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0.9, -0.6)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorInteractable"]
+shape = SubResource("BoxShape3D_door_trigger")
+
+[node name="Interactable" type="Node" parent="DoorInteractable"]
+script = ExtResource("2_interactable")
+prompt_message = "Сесть за руль фургона"
+
+[node name="ExitMarker3D" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 0.5, -0.6)
