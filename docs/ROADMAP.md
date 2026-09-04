@@ -2,36 +2,47 @@
 
 ---
 
-## Этап 0 — Discovery / v0.0.1 (Текущий)
+## Этап 0 — Discovery / v0.0.1 (ЗАВЕРШЕН)
 - [x] Аудит аппаратной среды и доступного ПО (`docs/ENVIRONMENT_AUDIT.md`).
 - [x] Проверка официального стабильного релиза Godot 4.6.3 и Jolt Physics.
 - [x] Определение Project Charter, Architecture, Budgets, Toolchain, ADRs.
 - [x] Создание структуры каталогов (Section 26) и `project.godot`.
 - [x] Установка `godot-jolt` v0.16.0 в `addons/`.
-- [ ] Разработка минимальных сцен: `Boot`, `MainMenu`, `TestHub`, `FoundationGraybox`.
-- [ ] Разработка первого контроллера игрока (First-Person Jolt Controller).
-- [ ] Проведение Headless Smoke Test.
-- [ ] Проверка запуска графической сцены.
+- [x] Разработка минимальных сцен: `Boot`, `MainMenu`, `TestHub`, `FoundationGraybox`.
+- [x] Разработка первого контроллера игрока (First-Person Jolt Controller).
+- [x] Проведение Headless Smoke Test.
+- [x] Проверка запуска графической сцены.
 
-## Этап 1 — Core Foundation / v0.1.0
-- Абстракция ввода (мышь/клавиатура + геймпад).
-- Взаимодействие с физическими предметами (raycast, pick up, throw).
-- Базовый UI настроек графики, звука, управления и доступности (Accessibility).
-- Менеджер сохранений (семантическое сохранение прогресса).
+## Этап 1 — Core Foundation / v0.1.0 (ЗАВЕРШЕН)
+- [x] Абстракция ввода (мышь/клавиатура + геймпад).
+- [x] Взаимодействие с физическими предметами (raycast, pick up, throw).
+- [x] Базовый UI настроек графики, звука, управления и доступности (Accessibility).
+- [x] Менеджер сохранений (семантическое сохранение прогресса).
+- [x] Автоматический интеграционный тест `tests/integration/test_core_foundation.gd` (5/5 PASS).
 
-## Этап 2 — System Prototypes / v0.2.0
-- Physics Lab (двери, конвейеры, платформы, разрушение).
-- AI Arena (честный AI с конусом зрения, слухом, blackboard).
-- Дрон BUBBLE (разведка, сканер, подсветка).
-- Модель вождения «Колямобиля» (Raycast suspension + telemetry).
-- Реализация первых 24-32 навыков из 416.
+## Этап 2 — System Prototypes / v0.2.0 (ЗАВЕРШЕН)
+- [x] **Physics Lab**: конвейеры, двери на петлях Jolt, бьющееся стекло (6/6 PASS).
+- [x] **SkillGraph Architecture**: 416 узлов, 64 синергии, DAG валидатор.
+- [x] **Fair AI & AI Arena**: `NoiseManager`, зрение, слух, координация охраны (5/5 PASS).
+- [x] **BUBBLE Companion Drone**: следование, 6-DOF полет, сканирование, фонарь (5/5 PASS).
+- [x] **Delivery Van & Vehicle Lab**: Jolt `VehicleBody3D`, 4 колеса, штраф за груз (6/6 PASS).
+- [x] **Combat & Tools Arsenal**: электродубинка, пена BUBBLE-BLOC, кибер-дека взлома (5/5 PASS).
+- [x] **Graphics Lab & Scalability Profiles**: LOW (60+ FPS FSR 77%), MEDIUM, HIGH (5/5 PASS).
+- [x] **SkillGraph Runtime Modifiers**: активные рантайм модификаторы для 28 узлов (5/5 PASS).
 
-## Этап 3 — First Playable / v0.3.0
-- 20-30 минут сквозного геймплея.
-- Старый район (дом Коли, двор, мастерская, склад-база).
-- Первая полноценная физическая доставка.
+## Этап 3 — First Playable / v0.3.0 (ЗАВЕРШЕН)
+- [x] 20-30 минут сквозного геймплея в Старом Районе (`scenes/levels/old_district.tscn`).
+- [x] `MissionManager` и `DialogueManager` (радиопереговоры СашиV и Коли).
+- [x] Погрузка физических ящиков «Кока-Коля» в кузов фургона.
+- [x] Проникновение в терминал MERIDIAN и кража чипа секретной рецептуры.
+- [x] Автоматический тест `tests/integration/test_first_playable.gd` (5/5 PASS).
 
-## Этап 4 — Vertical Slice / v0.5.0
-- 45-60 минут полированного контента (Старый район + Завод Красная Линия).
-- Полный цикл Immersive Sim.
-- Gate Review перед масштабированием.
+## Этап 4 — Vertical Slice / v0.5.0 (ЗАВЕРШЕН)
+- [x] 45-60 минут полированного контента: Завод «Красная Линия» (`scenes/levels/red_line_plant.tscn`).
+- [x] Камеры безопасности MERIDIAN (`SecurityCamera3D`) с панорамным обзором, взломом и ослеплением пеной.
+- [x] Рецептурный верстак (`CraftingStation`) для синтеза концентрата Коли.
+- [x] Главная сиропная башня (`SyrupTower`) и физическая канистра концентрата.
+- [x] Терминал промышленной автоматизации (`AutomationTerminal`) и запуск конвейеров розлива.
+- [x] Автоматический тест `tests/integration/test_vertical_slice.gd` (5/5 PASS).
+- [x] Полный прогон всех 11 тестовых сьютов (100% PASS, 0 ошибок).
+- [x] Однокликовые лаунчеры `run_game.bat` и `run_tests.bat`.

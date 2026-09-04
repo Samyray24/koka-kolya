@@ -4,77 +4,90 @@
 > **Жанр**: First-Person 3D Action RPG / Immersive Sim  
 > **Движок**: Godot Engine 4.6.3-stable (Jolt Physics 3D)  
 > **Скриптовый язык**: Typed GDScript  
-> **Версия**: v0.0.1 (Foundation)  
+> **Версия**: v0.5.0 (Vertical Slice Completed)  
+> **Общий вес проекта**: ~0.245 GB (Лимит: строго <= 20.0 GB)  
+> **Статус автотестов**: 11/11 Сьютов PASS (100% Успех, 0 Ошибок)  
 
 ---
 
 ## 🎮 О проекте
 
-Главный герой — обычный, находчивый и самоироничный техник-водитель Коля, который оказывается внутри конфликта вокруг автономной логистической сети **MERIDIAN** в индустриально-футуристическом городе Красноград.
+Главный герой — обычный, находчивый и самоироничный техник-водитель Коля, который вместе со своей напарницей СашейV вступает в противостояние с корпорацией **MERIDIAN**, монополизировавшей логистику и производство напитков в городе Красноград.
 
 ### Ключевые системы игры:
 - **Отзывчивое передвижение**: first-person ходьба, спринт, прыжки с Coyote Time и буферизацией ввода.
-- **Jolt Physics 3D**: взаимодействие с физическими предметами, честная масса, толкание препятствий.
-- **Честный AI**: зрение, слух, координация без читерского чтения состояния игрока.
-- **Транспорт и доставки**: физическая модель вождения, влияние массы груза на управляемость.
-- **Глубокая RPG система**: SkillGraph из 416 узлов (16 веток по 26 узлов) + 64 синергии.
-- **Жёсткий лимит размера**: строго `<= 20.0 GB` (целевой `<= 18.0 GB`).
+- **Jolt Physics 3D**: взаимодействие с физическими телами, пружинно-демпферный захват, двери на шарнирах, бьющееся стекло, конвейеры.
+- **Честный AI (MERIDIAN Security)**: поле зрения (FOV 80°), проверка преград лучами, акустический слух (`NoiseManager`), патрулирование, тревога и реакция на шум.
+- **Дрон-компаньон BUBBLE**: автономное следование, 6-DOF полет, сканер окружения, фонарик.
+- **Физический транспорт (Колямобиль)**: 4-колесный фургон доставки на Jolt `VehicleBody3D`, влияние массы груза на управляемость.
+- **Арсенал и инструменты**:
+  - `[1]` Физический захват / Руки
+  - `[2]` Шоковая электродубинка (оглушение охранников)
+  - `[3]` Пеногенератор BUBBLE-BLOC (создание временных твердых платформ и ослепление камер)
+  - `[4]` Кибер-дека взлома (радиоэлектронный взлом замков, камер и терминалов)
+- **Глубокая RPG система**: SkillGraph из 416 узлов (16 веток по 26 узлов) + 64 синергии с активными рантайм модификаторами.
+- **Сюжетные миссии**:
+  - **Миссия 1: «Операция: Шипучка»** (Старый Район, доставка ящиков Коли, взлом терминала №4 MERIDIAN, похищение чипа рецептуры).
+  - **Миссия 2: «Операция: Красная Линия»** (Синтез сиропа на верстаке, доставка на завод, обход CCTV-камер, заправка сиропной башни, перехват автоматики и запуск розлива).
+- **Test Hub (Лаборатории)**: 7 изолированных стендов для тестирования физики, AI, транспорта, дрона, графики, оружия и масштабируемости.
 
 ---
 
-## 🚀 Инструкция запуска
+## 🚀 Быстрый запуск
 
-### 1. Запуск через локальный Godot Engine:
+### Запуск игры в один клик:
+- Дважды кликните по файлу **`run_game.bat`** в корне проекта.
+- Либо через терминал PowerShell:
 ```powershell
-cd c:\Users\Никитос\Documents\KokaKolya
-.\tools\godot\Godot_v4.6.3-stable_win64.exe --path .
+.\run_game.bat
 ```
 
-### 2. Запуск в headless-режиме (Smoke Test):
+### Запуск полного набора автотестов (11 тестовых сьютов):
+- Дважды кликните по файлу **`run_tests.bat`**.
+- Либо через терминал PowerShell:
 ```powershell
-cd c:\Users\Никитос\Documents\KokaKolya
-.\tools\godot\Godot_v4.6.3-stable_win64.exe --headless --path . -s tests/scenes/headless_smoke_test.gd
-```
-
-### 3. Быстрый запуск Graybox сцены:
-```powershell
-.\tools\godot\Godot_v4.6.3-stable_win64.exe --path . scenes/testlabs/foundation_graybox.tscn
+powershell -ExecutionPolicy Bypass -File .\scripts\tools\run_all_tests.ps1
 ```
 
 ---
 
-## 📁 Структура каталогов
+## 🕹️ Управление в игре
+
+| Действие | Клавиатура / Мышь | Геймпад |
+|---|---|---|
+| Движение | `W`, `A`, `S`, `D` | Левый стик |
+| Обзор | Движение мыши | Правый стик |
+| Прыжок | `Пробел` | Кнопка `A` / `Cross` |
+| Спринт (бег) | `Shift` | Нажатие `L3` |
+| Взаимодействие / Взять / Бросить | `E` | Кнопка `X` / `Square` |
+| Бросить с силой | `ЛКМ` | Правый триггер `RT` |
+| Слот 1 (Руки / Захват) | `1` | `D-Pad Вверх` |
+| Слот 2 (Электродубинка) | `2` | `D-Pad Вправо` |
+| Слот 3 (Пеногенератор) | `3` | `D-Pad Вниз` |
+| Слот 4 (Кибер-взломщик) | `4` | `D-Pad Влево` |
+| Дрон BUBBLE: Сканировать | `F` | Кнопка `Y` / `Triangle` |
+| Дрон BUBBLE: Фонарик | `B` | `D-Pad Вверх` |
+| Выход в Test Hub | `F1` или `~` (Тильда) | Кнопка `Select` |
+| Пауза / Курсор мыши | `Esc` | Кнопка `Start` |
+
+---
+
+## 📊 Результаты автотестирования (Quality Gate)
 
 ```
-KokaKolya/
-├── project.godot          # Основной конфигурационный файл Godot 4.6
-├── README.md              # Документация и инструкция запуска
-├── addons/                # godot-jolt v0.16.0 GDExtension
-├── docs/                  # Полный пакет архитектурной документации
-│   ├── ENVIRONMENT_AUDIT.md
-│   ├── PROJECT_CHARTER.md
-│   ├── ARCHITECTURE.md
-│   ├── DECISIONS.md (ADRs)
-│   ├── ROADMAP.md
-│   ├── PERFORMANCE_BUDGETS.md
-│   ├── STORAGE_BUDGET.md
-│   ├── TOOLCHAIN.md
-│   ├── LEGAL_AND_LICENSES.md
-│   └── RISK_REGISTER.md
-├── scenes/
-│   ├── boot/boot.tscn
-│   ├── ui/main_menu.tscn
-│   ├── testlabs/test_hub.tscn
-│   ├── testlabs/foundation_graybox.tscn
-│   └── characters/player.tscn
-├── scripts/
-│   ├── core/boot.gd
-│   ├── core/player_controller.gd
-│   ├── ui/main_menu.gd
-│   ├── debug/test_hub.gd
-│   └── gameplay/foundation_graybox.gd
-├── tests/
-│   └── scenes/headless_smoke_test.gd
-└── tools/
-    └── godot/             # Официальный портативный бинарник Godot 4.6.3
+Test                                            Status
+----                                            ------
+res://tests/scenes/headless_smoke_test.gd       PASS  
+res://tests/integration/test_core_foundation.gd PASS  
+res://tests/integration/test_physics_lab.gd     PASS  
+res://tests/integration/test_ai_arena.gd        PASS  
+res://tests/integration/test_bubble_drone.gd    PASS  
+res://tests/integration/test_vehicle_lab.gd     PASS  
+res://tests/integration/test_tools.gd           PASS  
+res://tests/integration/test_graphics_lab.gd    PASS  
+res://tests/integration/test_skill_manager.gd   PASS  
+res://tests/integration/test_first_playable.gd  PASS  
+res://tests/integration/test_vertical_slice.gd  PASS  
+
+STATUS: 100% SUCCESS (11/11 PASSED, 0 ERRORS)
 ```
