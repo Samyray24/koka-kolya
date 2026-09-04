@@ -19,8 +19,9 @@ func _ready() -> void:
 		btn_quit.pressed.connect(_on_quit_pressed)
 
 func _on_play_pressed() -> void:
-	print("[MENU] Launching Foundation Graybox Scene...")
-	get_tree().change_scene_to_file("res://scenes/testlabs/foundation_graybox.tscn")
+	print("[MENU] Launching First Playable (Old District: Mission 1)...")
+	get_tree().change_scene_to_file("res://scenes/levels/old_district.tscn")
+
 
 func _on_testhub_pressed() -> void:
 	print("[MENU] Opening Test Hub...")

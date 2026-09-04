@@ -123,3 +123,13 @@ func _update_cargo_mass() -> void:
 		if b is RigidBody3D and b != self:
 			total_cargo += (b as RigidBody3D).mass
 	current_cargo_mass = total_cargo
+
+func get_cargo_crates() -> Array[RigidBody3D]:
+	var crates: Array[RigidBody3D] = []
+	if not cargo_area:
+		return crates
+	for b in cargo_area.get_overlapping_bodies():
+		if b is RigidBody3D and b != self and (b.name.begins_with("ColaCrate") or b.is_in_group("cargo")):
+			crates.append(b as RigidBody3D)
+	return crates
+

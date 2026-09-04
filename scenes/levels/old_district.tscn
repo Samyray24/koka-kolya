@@ -1,0 +1,411 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/old_district.gd" id="1_olddistrict"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/vehicles/delivery_van.tscn" id="3_van"]
+[ext_resource type="PackedScene" path="res://scenes/characters/bubble_drone.tscn" id="4_drone"]
+[ext_resource type="PackedScene" path="res://scenes/characters/guard.tscn" id="5_guard"]
+[ext_resource type="Script" path="res://scripts/interaction/cola_crate.gd" id="6_crate"]
+[ext_resource type="Script" path="res://scripts/interaction/secret_formula.gd" id="7_formula"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="8_interactable"]
+[ext_resource type="Script" path="res://scripts/physics/physical_door.gd" id="9_door"]
+[ext_resource type="Script" path="res://scripts/physics/conveyor_belt.gd" id="10_conveyor"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_top_color = Color(0.2, 0.28, 0.42, 1)
+sky_horizon_color = Color(0.85, 0.55, 0.35, 1)
+ground_bottom_color = Color(0.12, 0.14, 0.18, 1)
+ground_horizon_color = Color(0.85, 0.55, 0.35, 1)
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 3
+ambient_light_color = Color(0.65, 0.6, 0.55, 1)
+tonemap_mode = 2
+glow_enabled = true
+ssao_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(180, 1, 180)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_asphalt"]
+albedo_color = Color(0.18, 0.2, 0.22, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("StandardMaterial3D_asphalt")
+size = Vector3(180, 1, 180)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_crate"]
+size = Vector3(0.6, 0.45, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crate"]
+albedo_color = Color(0.68, 0.42, 0.22, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="BoxMesh_crate"]
+material = SubResource("StandardMaterial3D_crate")
+size = Vector3(0.6, 0.45, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(20, 8, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_building"]
+size = Vector3(18, 7, 24)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_concrete"]
+albedo_color = Color(0.32, 0.34, 0.38, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_building"]
+material = SubResource("StandardMaterial3D_concrete")
+size = Vector3(18, 7, 24)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_garage"]
+size = Vector3(12, 5, 14)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_garage"]
+albedo_color = Color(0.4, 0.35, 0.32, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_garage"]
+material = SubResource("StandardMaterial3D_garage")
+size = Vector3(12, 5, 14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gate"]
+size = Vector3(3.5, 3.5, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gate"]
+albedo_color = Color(0.2, 0.25, 0.3, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_gate"]
+material = SubResource("StandardMaterial3D_gate")
+size = Vector3(3.5, 3.5, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chip"]
+size = Vector3(0.2, 0.05, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chip"]
+albedo_color = Color(0.1, 0.9, 0.3, 1)
+emission_enabled = true
+emission = Color(0.1, 1.0, 0.4, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_chip"]
+material = SubResource("StandardMaterial3D_chip")
+size = Vector3(0.2, 0.05, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pedestal"]
+size = Vector3(0.8, 1.0, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pedestal"]
+albedo_color = Color(0.15, 0.16, 0.2, 1)
+metallic = 0.7
+
+[sub_resource type="BoxMesh" id="BoxMesh_pedestal"]
+material = SubResource("StandardMaterial3D_pedestal")
+size = Vector3(0.8, 1.0, 0.8)
+
+[node name="OldDistrict" type="Node3D"]
+script = ExtResource("1_olddistrict")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="SunLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 30, 0)
+light_color = Color(1.0, 0.92, 0.82, 1)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(0.342, 0, 0.940, 0, 1, 0, -0.940, 0, 0.342, -2.5, 0.1, 46.5)
+
+[node name="BubbleDrone" parent="." instance=ExtResource("4_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1.8, 47.5)
+
+[node name="DeliveryVan" parent="." instance=ExtResource("3_van")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.8, 45)
+
+[node name="GarageBuilding" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 58)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GarageBuilding"]
+shape = SubResource("BoxShape3D_garage")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GarageBuilding"]
+mesh = SubResource("BoxMesh_garage")
+
+[node name="GarageLight" type="OmniLight3D" parent="GarageBuilding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -8.0)
+light_color = Color(1.0, 0.9, 0.7, 1)
+light_energy = 5.0
+shadow_enabled = true
+omni_range = 22.0
+
+[node name="GarageLabel" type="Label3D" parent="GarageBuilding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -7.1)
+text = "ГАРАЖ КОЛИ — БАЗА «КОКА-КОЛЯ»"
+font_size = 24
+modulate = Color(1, 0.8, 0.2, 1)
+
+[node name="ColaCrate1" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.3, 49)
+script = ExtResource("6_crate")
+crate_id = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate1"]
+shape = SubResource("BoxShape3D_crate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate1"]
+mesh = SubResource("BoxMesh_crate")
+
+[node name="ColaCrate2" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0.3, 49.2)
+script = ExtResource("6_crate")
+crate_id = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate2"]
+shape = SubResource("BoxShape3D_crate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate2"]
+mesh = SubResource("BoxMesh_crate")
+
+[node name="ColaCrate3" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.3, 50.5)
+script = ExtResource("6_crate")
+crate_id = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCrate3"]
+shape = SubResource("BoxShape3D_crate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCrate3"]
+mesh = SubResource("BoxMesh_crate")
+
+[node name="Warehouse" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -45)
+
+[node name="Building" type="StaticBody3D" parent="Warehouse"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Building"]
+shape = SubResource("BoxShape3D_building")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Building"]
+mesh = SubResource("BoxMesh_building")
+
+[node name="Sign" type="Label3D" parent="Warehouse"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.5, 12.1)
+text = "MERIDIAN CORP — ТЕРМИНАЛ ЛОГИСТИКИ №4"
+font_size = 28
+modulate = Color(0.2, 0.7, 1.0, 1)
+
+[node name="SecurityGate" type="Node3D" parent="Warehouse"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12.0)
+script = ExtResource("9_door")
+is_locked = true
+
+[node name="DoorFrame" type="StaticBody3D" parent="Warehouse/SecurityGate"]
+
+[node name="DoorLeaf" type="RigidBody3D" parent="Warehouse/SecurityGate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, 1.75, 0)
+collision_layer = 5
+mass = 60.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/SecurityGate/DoorLeaf"]
+shape = SubResource("BoxShape3D_gate")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/SecurityGate/DoorLeaf"]
+mesh = SubResource("BoxMesh_gate")
+
+[node name="HingeJoint3D" type="HingeJoint3D" parent="Warehouse/SecurityGate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
+node_a = NodePath("../DoorFrame")
+node_b = NodePath("../DoorLeaf")
+
+[node name="GateTerminal" type="StaticBody3D" parent="Warehouse/SecurityGate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 1.2, 0.3)
+
+[node name="Interactable" type="Node" parent="Warehouse/SecurityGate/GateTerminal"]
+script = ExtResource("8_interactable")
+prompt_message = "Электронный замок ворот (Требуется взлом [4])"
+
+[node name="GuardAI" parent="Warehouse" instance=ExtResource("5_guard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, 15)
+patrol_point_a = Vector3(-8, 0, 16)
+patrol_point_b = Vector3(8, 0, 16)
+
+[node name="Vault" type="Node3D" parent="Warehouse"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+
+[node name="Pedestal" type="StaticBody3D" parent="Warehouse/Vault"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Vault/Pedestal"]
+shape = SubResource("BoxShape3D_pedestal")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Vault/Pedestal"]
+mesh = SubResource("BoxMesh_pedestal")
+
+[node name="SecretFormula" type="Node3D" parent="Warehouse/Vault"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+script = ExtResource("7_formula")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Warehouse/Vault/SecretFormula"]
+mesh = SubResource("BoxMesh_chip")
+
+[node name="Area3D" type="Area3D" parent="Warehouse/Vault/SecretFormula"]
+collision_layer = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Warehouse/Vault/SecretFormula/Area3D"]
+shape = SubResource("BoxShape3D_chip")
+
+[node name="Interactable" type="Node" parent="Warehouse/Vault/SecretFormula"]
+script = ExtResource("8_interactable")
+prompt_message = "Забрать секретный рецептурный чип"
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Warehouse/Vault/SecretFormula"]
+light_color = Color(0.2, 1.0, 0.4, 1)
+light_energy = 2.0
+omni_range = 4.0
+
+[node name="Triggers" type="Node3D" parent="."]
+
+[node name="WarehouseArrivalArea" type="Area3D" parent="Triggers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -25)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Triggers/WarehouseArrivalArea"]
+shape = SubResource("BoxShape3D_trigger")
+
+[node name="GarageReturnArea" type="Area3D" parent="Triggers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 45)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Triggers/GarageReturnArea"]
+shape = SubResource("BoxShape3D_trigger")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="QuestPanel" type="PanelContainer" parent="HUD"]
+offset_left = 30.0
+offset_top = 25.0
+offset_right = 450.0
+offset_bottom = 145.0
+
+[node name="Margin" type="MarginContainer" parent="HUD/QuestPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/QuestPanel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "ОПЕРАЦИЯ: ШИПУЧКА (МИССИЯ 1)"
+
+[node name="ObjectiveLabel" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "[ ] Загрузить 3 ящика «Кока-Коля» в кузов (0/3)"
+
+[node name="RadioPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = -140.0
+offset_right = 350.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="HUD/RadioPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/RadioPanel/Margin"]
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
+theme_override_font_sizes/font_size = 14
+text = "[РАДИО: СашаV]"
+
+[node name="MessageLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Коля, рация работает! Заводи фургон..."
+autowrap_mode = 2
+
+[node name="MissionCompletePanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -110.0
+offset_right = 280.0
+offset_bottom = 110.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/MissionCompletePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="HUD/MissionCompletePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1.0, 0.4, 1)
+theme_override_font_sizes/font_size = 24
+text = "МИССИЯ 1 ВЫПОЛНЕНА!"
+horizontal_alignment = 1
+
+[node name="Sub" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Партия «Кока-Коля» защищена!
+Секретный рецепт MERIDIAN захвачен!
+Первый вертикальный срез игры успешно пройден."
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="HUD/MissionCompletePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "[F1 / ~] — Меню лабораторий / Выход"
+horizontal_alignment = 1
