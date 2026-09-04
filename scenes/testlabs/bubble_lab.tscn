@@ -1,0 +1,186 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/bubble_lab.gd" id="1_bubblelab"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/characters/bubble_drone.tscn" id="3_drone"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.12, 0.18, 0.3, 1)
+sky_horizon_color = Color(0.35, 0.45, 0.55, 1)
+
+[sub_resource type="Sky" id="Sky_env"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_env"]
+background_mode = 2
+sky = SubResource("Sky_env")
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.68, 0.8, 1)
+ambient_light_energy = 1.1
+tonemap_mode = 3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(40, 1, 40)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.2, 0.22, 0.28, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = SubResource("StandardMaterial3D_floor")
+size = Vector3(40, 1, 40)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vent_floor"]
+size = Vector3(1.2, 0.1, 8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_metal"]
+albedo_color = Color(0.35, 0.38, 0.44, 1)
+metallic = 0.7
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_vent_floor"]
+material = SubResource("StandardMaterial3D_metal")
+size = Vector3(1.2, 0.1, 8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vent_wall"]
+size = Vector3(0.1, 1.0, 8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vent_wall"]
+material = SubResource("StandardMaterial3D_metal")
+size = Vector3(0.1, 1.0, 8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_terminal"]
+size = Vector3(0.4, 0.6, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_terminal"]
+albedo_color = Color(0.1, 0.7, 0.3, 1)
+emission_enabled = true
+emission = Color(0.1, 0.8, 0.3, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_terminal"]
+material = SubResource("StandardMaterial3D_terminal")
+size = Vector3(0.4, 0.6, 0.3)
+
+[node name="BubbleLab" type="Node3D"]
+script = ExtResource("1_bubblelab")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 20, 10)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+collision_mask = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="VentilationShaft" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -4)
+
+[node name="VentBottom" type="StaticBody3D" parent="VentilationShaft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VentilationShaft/VentBottom"]
+shape = SubResource("BoxShape3D_vent_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VentilationShaft/VentBottom"]
+mesh = SubResource("BoxMesh_vent_floor")
+
+[node name="VentTop" type="StaticBody3D" parent="VentilationShaft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VentilationShaft/VentTop"]
+shape = SubResource("BoxShape3D_vent_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VentilationShaft/VentTop"]
+mesh = SubResource("BoxMesh_vent_floor")
+
+[node name="VentLeft" type="StaticBody3D" parent="VentilationShaft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VentilationShaft/VentLeft"]
+shape = SubResource("BoxShape3D_vent_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VentilationShaft/VentLeft"]
+mesh = SubResource("BoxMesh_vent_wall")
+
+[node name="VentRight" type="StaticBody3D" parent="VentilationShaft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VentilationShaft/VentRight"]
+shape = SubResource("BoxShape3D_vent_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VentilationShaft/VentRight"]
+mesh = SubResource("BoxMesh_vent_wall")
+
+[node name="SecretTerminal" type="StaticBody3D" parent="VentilationShaft" groups=["electronic", "scannable"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VentilationShaft/SecretTerminal"]
+shape = SubResource("BoxShape3D_terminal")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VentilationShaft/SecretTerminal"]
+mesh = SubResource("BoxMesh_terminal")
+
+[node name="BubbleDrone" parent="." instance=ExtResource("3_drone")]
+transform = Transform3D(0.966, 0, -0.259, 0, 1, 0, 0.259, 0, 0.966, 0.5, 2.2, 2.4)
+is_flashlight_on = true
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 4)
+
+[node name="DebugUI" type="CanvasLayer" parent="."]
+
+[node name="MarginContainer" type="MarginContainer" parent="DebugUI"]
+offset_right = 440.0
+offset_bottom = 220.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+
+[node name="Panel" type="Panel" parent="DebugUI/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DebugUI/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "«КОКА-КОЛЯ» • BUBBLE LAB (v0.2.0)"
+
+[node name="LblMode" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Режим BUBBLE: СЛЕДОВАНИЕ (FOLLOW)"
+
+[node name="LblLight" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Фонарь дрона: ВЫКЛЮЧЕН"
+
+[node name="LblAlt" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Высота дрона: 1.80 м"
+
+[node name="LblFPS" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "FPS: 60"
+
+[node name="Controls" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 12
+text = "B: Пилотирование BUBBLE | F: Фонарь | V: Сканер | F1: Хаб"
