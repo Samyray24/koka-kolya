@@ -1,0 +1,267 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/graphics_lab.gd" id="1_graphics"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.12, 0.14, 0.2, 1)
+sky_horizon_color = Color(0.3, 0.35, 0.45, 1)
+ground_bottom_color = Color(0.08, 0.09, 0.12, 1)
+ground_horizon_color = Color(0.3, 0.35, 0.45, 1)
+
+[sub_resource type="Sky" id="Sky_sky"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_lab"]
+background_mode = 2
+sky = SubResource("Sky_sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.5, 0.55, 0.65, 1)
+tonemap_mode = 3
+tonemap_exposure = 1.05
+ssao_enabled = true
+ssao_radius = 1.2
+ssao_intensity = 2.5
+ssr_enabled = true
+ssr_max_steps = 64
+glow_enabled = true
+glow_intensity = 0.8
+glow_bloom = 0.25
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(40, 1, 40)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.14, 0.15, 0.18, 1)
+roughness = 0.2
+metallic = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = SubResource("StandardMaterial3D_floor")
+size = Vector3(40, 1, 40)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chrome"]
+albedo_color = Color(0.95, 0.95, 0.95, 1)
+metallic = 1.0
+roughness = 0.03
+
+[sub_resource type="SphereMesh" id="SphereMesh_chrome"]
+material = SubResource("StandardMaterial3D_chrome")
+radius = 0.6
+height = 1.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cola"]
+albedo_color = Color(0.85, 0.08, 0.12, 1)
+metallic = 0.88
+roughness = 0.18
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cola"]
+material = SubResource("StandardMaterial3D_cola")
+top_radius = 0.45
+bottom_radius = 0.45
+height = 1.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glass"]
+transparency = 1
+albedo_color = Color(0.8, 0.92, 1.0, 0.3)
+roughness = 0.04
+refraction_enabled = true
+refraction_scale = 0.04
+
+[sub_resource type="BoxMesh" id="BoxMesh_glass"]
+material = SubResource("StandardMaterial3D_glass")
+size = Vector3(1.0, 1.3, 1.0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_concrete"]
+albedo_color = Color(0.4, 0.42, 0.45, 1)
+roughness = 0.95
+metallic = 0.0
+
+[sub_resource type="TorusMesh" id="TorusMesh_concrete"]
+material = SubResource("StandardMaterial3D_concrete")
+inner_radius = 0.3
+outer_radius = 0.65
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_neon_red"]
+albedo_color = Color(1.0, 0.1, 0.1, 1)
+emission_enabled = true
+emission = Color(1.0, 0.15, 0.15, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_neon_cyan"]
+albedo_color = Color(0.1, 0.8, 1.0, 1)
+emission_enabled = true
+emission = Color(0.1, 0.8, 1.0, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pedestal"]
+albedo_color = Color(0.22, 0.24, 0.28, 1)
+roughness = 0.6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pedestal"]
+material = SubResource("StandardMaterial3D_pedestal")
+top_radius = 0.7
+bottom_radius = 0.75
+height = 0.8
+
+[node name="GraphicsLab" type="Node3D"]
+script = ExtResource("1_graphics")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_lab")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 0, 12, 0)
+shadow_enabled = true
+shadow_bias = 0.04
+directional_shadow_split_1 = 0.15
+directional_shadow_split_2 = 0.35
+directional_shadow_blend_splits = true
+
+[node name="OmniLight_Cyan" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.5, -1)
+light_color = Color(0.2, 0.85, 1.0, 1)
+light_energy = 2.5
+shadow_enabled = true
+omni_range = 8.0
+
+[node name="SpotLight_Warm" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866, 0, -0.866, 0.5, 2, 4, 1.5)
+light_color = Color(1.0, 0.85, 0.6, 1)
+light_energy = 3.2
+shadow_enabled = true
+spot_range = 10.0
+spot_angle = 45.0
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 0, 2.3, 4.5)
+current = true
+fov = 68.0
+
+[node name="Pedestal_Chrome" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.4, -0.5)
+mesh = SubResource("CylinderMesh_pedestal")
+
+[node name="Sphere_Chrome" type="MeshInstance3D" parent="Pedestal_Chrome"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+mesh = SubResource("SphereMesh_chrome")
+
+[node name="Label_Chrome" type="Label3D" parent="Pedestal_Chrome"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
+text = "Хром (SSR / Отражения)"
+font_size = 18
+
+[node name="Pedestal_Cola" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0.4, -1.0)
+mesh = SubResource("CylinderMesh_pedestal")
+
+[node name="Can_Cola" type="MeshInstance3D" parent="Pedestal_Cola"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+mesh = SubResource("CylinderMesh_cola")
+
+[node name="Label_Cola" type="Label3D" parent="Pedestal_Cola"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0)
+text = "Кока-Коля Анодирование"
+font_size = 18
+
+[node name="Pedestal_Glass" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0.4, -1.0)
+mesh = SubResource("CylinderMesh_pedestal")
+
+[node name="Cube_Glass" type="MeshInstance3D" parent="Pedestal_Glass"]
+transform = Transform3D(0.866, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866, 0, 1.05, 0)
+mesh = SubResource("BoxMesh_glass")
+
+[node name="Label_Glass" type="Label3D" parent="Pedestal_Glass"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
+text = "Стекло (Преломление)"
+font_size = 18
+
+[node name="Pedestal_Concrete" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.4, -0.5)
+mesh = SubResource("CylinderMesh_pedestal")
+
+[node name="Torus_Concrete" type="MeshInstance3D" parent="Pedestal_Concrete"]
+transform = Transform3D(1, 0, 0, 0, 0.707, 0.707, 0, -0.707, 0.707, 0, 1.0, 0)
+mesh = SubResource("TorusMesh_concrete")
+
+[node name="Label_Concrete" type="Label3D" parent="Pedestal_Concrete"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
+text = "Бетон (SSAO Контакт)"
+font_size = 18
+
+[node name="NeonSign" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8, -3.2)
+
+[node name="SignText" type="Label3D" parent="NeonSign"]
+text = "« КОКА - КОЛЯ »"
+font_size = 64
+outline_size = 12
+modulate = Color(1, 0.15, 0.2, 1)
+
+[node name="SignSub" type="Label3D" parent="NeonSign"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
+text = "PBR & SCALABILITY GRAPHICS LAB"
+font_size = 22
+modulate = Color(0.2, 0.8, 1.0, 1)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Margin" type="MarginContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 30
+
+[node name="Panel" type="PanelContainer" parent="HUD/Margin"]
+layout_mode = 2
+
+[node name="MarginInner" type="MarginContainer" parent="HUD/Margin/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/Margin/Panel/MarginInner"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/Margin/Panel/MarginInner/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "GRAPHICS LAB — ТЕСТ ГРАФИЧЕСКИХ ТЕХНОЛОГИЙ И МАСШТАБИРУЕМОСТИ (RX 550)"
+
+[node name="FPSLabel" type="Label" parent="HUD/Margin/Panel/MarginInner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1.0, 0.4, 1)
+theme_override_font_sizes/font_size = 16
+text = "FPS: 60 (Кадр: 16.6 мс)"
+
+[node name="PresetLabel" type="Label" parent="HUD/Margin/Panel/MarginInner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1.0, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "Профиль: Средние (Сбалансированные / 50 FPS)"
+
+[node name="DetailsLabel" type="Label" parent="HUD/Margin/Panel/MarginInner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.88, 1)
+theme_override_font_sizes/font_size = 13
+text = "Разрешение: 85% FSR | MSAA: 2X | SSAO: ВКЛ | SSR: ВЫКЛ | Glow: ВКЛ"
+
+[node name="ControlsLabel" type="Label" parent="HUD/Margin/Panel/MarginInner/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.6, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+text = "Переключение пресетов: [1] Низкие (60+ FPS) | [2] Средние (Баланс) | [3] Высокие (SSR) | [F1 / ~] Test Hub"

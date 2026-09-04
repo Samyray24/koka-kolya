@@ -81,6 +81,11 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "6. COMBAT & TOOLS LAB (Электродубинка, пена, кибер-взлом, арсенал)"
 
+[node name="BtnGraphics" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "7. GRAPHICS LAB (PBR материалы, SSAO, SSR, профили RX 550)"
+
 [node name="BtnBack" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
