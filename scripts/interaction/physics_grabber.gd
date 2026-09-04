@@ -37,10 +37,13 @@ func _process_raycast() -> void:
 			prompt_updated.emit("Нажмите [E] чтобы поднять (Масса: %.1f кг)" % rb.mass)
 		else:
 			prompt_updated.emit("Слишком тяжелый объект (%.1f кг)" % rb.mass)
-	elif collider is Node and (collider as Node).has_node("Interactable"):
-		var interactable: Node = (collider as Node).get_node("Interactable")
-		var msg: String = String(interactable.get("prompt_message")) if "prompt_message" in interactable else "Использовать"
-		prompt_updated.emit("Нажмите [E] — %s" % msg)
+	elif collider is Node:
+		var interactable: Node = _find_interactable(collider as Node)
+		if interactable:
+			var msg: String = String(interactable.get("prompt_message")) if "prompt_message" in interactable else "Использовать"
+			prompt_updated.emit("Нажмите [E] — %s" % msg)
+		else:
+			prompt_updated.emit("")
 	else:
 		prompt_updated.emit("")
 
@@ -54,6 +57,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		if held_body:
 			throw_object()
 
+func _find_interactable(target: Node) -> Node:
+	if not target:
+		return null
+	if target.has_node("Interactable"):
+		return target.get_node("Interactable")
+	var p: Node = target.get_parent()
+	if p and p.has_node("Interactable"):
+		return p.get_node("Interactable")
+	return null
+
 func try_interact_or_grab() -> void:
 	if not raycast.is_colliding():
 		return
@@ -63,9 +76,9 @@ func try_interact_or_grab() -> void:
 		var rb := collider as RigidBody3D
 		if rb.mass <= max_grab_mass:
 			grab_object(rb)
-	elif collider is Node and (collider as Node).has_node("Interactable"):
-		var interactable: Node = (collider as Node).get_node("Interactable")
-		if interactable.has_method("trigger_interaction"):
+	elif collider is Node:
+		var interactable: Node = _find_interactable(collider as Node)
+		if interactable and interactable.has_method("trigger_interaction"):
 			interactable.call("trigger_interaction", owner)
 
 func grab_object(rb: RigidBody3D) -> void:

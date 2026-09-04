@@ -104,13 +104,19 @@ func use(camera: Camera3D) -> Dictionary:
 		LogManager.info("Взломщик: интерфейс шлема охранника перегружен помехами!", "Hacking")
 
 	# 3. Общая проверка на электронный узел (hack_bypass)
-	if not target_handled and node.has_method("hack_bypass"):
-		node.call("hack_bypass")
+	var target_bypass: Node = null
+	if node.has_method("hack_bypass"):
+		target_bypass = node
+	elif node.get_parent() and node.get_parent().has_method("hack_bypass"):
+		target_bypass = node.get_parent()
+
+	if not target_handled and target_bypass:
+		target_bypass.call("hack_bypass")
 		result["success"] = true
-		result["target"] = node
+		result["target"] = target_bypass
 		result["action"] = "custom_bypass"
 		target_handled = true
-		LogManager.info("Взломщик: протокол обхода выполнен на узле %s." % node.name, "Hacking")
+		LogManager.info("Взломщик: протокол обхода выполнен на узле %s." % target_bypass.name, "Hacking")
 
 	if target_handled:
 		hack_completed.emit(node as Node3D, node.name)

@@ -3,12 +3,23 @@ extends SceneTree
 # Headless Smoke Test for «Кока-Коля» (v0.0.1 Foundation)
 # Runs automated validation of scenes, physics backend, and core nodes.
 
-func _init() -> void:
+var frame: int = 0
+var errors: int = 0
+
+func _process(_delta: float) -> bool:
+	frame += 1
+	match frame:
+		1:
+			_run_smoke_tests()
+		2:
+			_finalize()
+			return true
+	return false
+
+func _run_smoke_tests() -> void:
 	print("==========================================================")
 	print(">>> ЗАПУСК HEADLESS SMOKE TEST: «КОКА-КОЛЯ» (v0.0.1) <<<")
 	print("==========================================================")
-
-	var errors: int = 0
 
 	# 1. Проверка настроек физики
 	var physics_engine: String = ProjectSettings.get_setting("physics/3d/physics_engine", "Default")
@@ -72,6 +83,7 @@ func _init() -> void:
 				errors += 1
 			graybox_inst.free()
 
+func _finalize() -> void:
 	print("==========================================================")
 	if errors == 0:
 		print(">>> ВСЕ 5 ТЕСТОВ SMOKE TEST ПРОЙДЕНЫ УСПЕШНО (0 ОШИБОК) <<<")

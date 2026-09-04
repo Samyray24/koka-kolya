@@ -1,0 +1,411 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/red_line_plant.gd" id="1_redline"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/vehicles/delivery_van.tscn" id="3_van"]
+[ext_resource type="PackedScene" path="res://scenes/characters/bubble_drone.tscn" id="4_drone"]
+[ext_resource type="PackedScene" path="res://scenes/characters/guard.tscn" id="5_guard"]
+[ext_resource type="Script" path="res://scripts/ai/security_camera.gd" id="6_camera"]
+[ext_resource type="Script" path="res://scripts/interaction/crafting_station.gd" id="7_crafting"]
+[ext_resource type="Script" path="res://scripts/interaction/syrup_canister.gd" id="8_canister"]
+[ext_resource type="Script" path="res://scripts/interaction/automation_terminal.gd" id="9_terminal"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="10_interactable"]
+[ext_resource type="Script" path="res://scripts/physics/conveyor_belt.gd" id="11_conveyor"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_top_color = Color(0.18, 0.22, 0.35, 1)
+sky_horizon_color = Color(0.42, 0.45, 0.58, 1)
+ground_bottom_color = Color(0.15, 0.16, 0.22, 1)
+ground_horizon_color = Color(0.35, 0.38, 0.5, 1)
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.6, 0.72, 1)
+ambient_light_energy = 0.9
+tonemap_mode = 3
+glow_enabled = true
+glow_bloom = 0.35
+ssao_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(200, 1, 200)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.32, 0.35, 0.4, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("StandardMaterial3D_ground")
+size = Vector3(200, 1, 200)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_factory"]
+size = Vector3(36, 12, 40)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_factory"]
+albedo_color = Color(0.22, 0.24, 0.28, 1)
+roughness = 0.7
+metallic = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_factory"]
+material = SubResource("StandardMaterial3D_factory")
+size = Vector3(36, 12, 40)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_tower"]
+height = 14.0
+radius = 3.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tower"]
+albedo_color = Color(0.85, 0.12, 0.15, 1)
+metallic = 0.75
+roughness = 0.3
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tower"]
+material = SubResource("StandardMaterial3D_tower")
+top_radius = 3.5
+bottom_radius = 3.5
+height = 14.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_funnel"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_canister"]
+size = Vector3(0.5, 0.7, 0.35)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_canister"]
+albedo_color = Color(0.9, 0.1, 0.15, 1)
+metallic = 0.8
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_canister"]
+material = SubResource("StandardMaterial3D_canister")
+size = Vector3(0.5, 0.7, 0.35)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_workbench"]
+size = Vector3(2.2, 1.0, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_workbench"]
+albedo_color = Color(0.3, 0.32, 0.35, 1)
+metallic = 0.6
+
+[sub_resource type="BoxMesh" id="BoxMesh_workbench"]
+material = SubResource("StandardMaterial3D_workbench")
+size = Vector3(2.2, 1.0, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_conveyor"]
+size = Vector3(14, 0.4, 1.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_conveyor"]
+albedo_color = Color(0.18, 0.19, 0.22, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_conveyor"]
+material = SubResource("StandardMaterial3D_conveyor")
+size = Vector3(14, 0.4, 1.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_terminal"]
+size = Vector3(1.2, 1.2, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_terminal"]
+albedo_color = Color(0.12, 0.14, 0.18, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_terminal"]
+material = SubResource("StandardMaterial3D_terminal")
+size = Vector3(1.2, 1.2, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(24, 8, 24)
+
+[node name="RedLinePlant" type="Node3D"]
+script = ExtResource("1_redline")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="MoonLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 30, 0)
+light_color = Color(0.82, 0.88, 1.0, 1)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="Garage" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 50)
+
+[node name="CraftingStation" type="Node3D" parent="Garage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 0)
+script = ExtResource("7_crafting")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Garage/CraftingStation"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Garage/CraftingStation/StaticBody3D"]
+shape = SubResource("BoxShape3D_workbench")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Garage/CraftingStation/StaticBody3D"]
+mesh = SubResource("BoxMesh_workbench")
+
+[node name="Interactable" type="Node" parent="Garage/CraftingStation"]
+script = ExtResource("10_interactable")
+prompt_message = "Начать синтез сиропа «Кока-Коля»"
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Garage/CraftingStation"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+light_color = Color(1.0, 0.2, 0.25, 1)
+light_energy = 3.0
+omni_range = 6.0
+
+[node name="BenchLabel" type="Label3D" parent="Garage/CraftingStation"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+text = "РЕЦЕПТУРНЫЙ ВЕРСТАК [E]"
+font_size = 20
+modulate = Color(1, 0.8, 0.2, 1)
+
+[node name="CanisterSpawnPoint" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.5, 50)
+
+[node name="SyrupCanister" type="RigidBody3D" parent="CanisterSpawnPoint"]
+script = ExtResource("8_canister")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CanisterSpawnPoint/SyrupCanister"]
+shape = SubResource("BoxShape3D_canister")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CanisterSpawnPoint/SyrupCanister"]
+mesh = SubResource("BoxMesh_canister")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(0.342, 0, 0.940, 0, 1, 0, -0.940, 0, 0.342, -5.5, 0.1, 49)
+
+[node name="BubbleDrone" parent="." instance=ExtResource("4_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 1.8, 49.5)
+
+[node name="DeliveryVan" parent="." instance=ExtResource("3_van")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.8, 48)
+
+[node name="Factory" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -60)
+
+[node name="Building" type="StaticBody3D" parent="Factory"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Factory/Building"]
+shape = SubResource("BoxShape3D_factory")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Factory/Building"]
+mesh = SubResource("BoxMesh_factory")
+
+[node name="NeonSign" type="Label3D" parent="Factory"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13, 20.1)
+text = "ЗАВОД « КРАСНАЯ ЛИНИЯ »"
+font_size = 48
+outline_size = 14
+modulate = Color(1, 0.15, 0.2, 1)
+
+[node name="SyrupTower" type="StaticBody3D" parent="Factory"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 7, 10)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Factory/SyrupTower"]
+shape = SubResource("CylinderShape3D_tower")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Factory/SyrupTower"]
+mesh = SubResource("CylinderMesh_tower")
+
+[node name="TowerLabel" type="Label3D" parent="Factory/SyrupTower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+text = "ГЛАВНАЯ СИРОПНАЯ БАШНЯ"
+font_size = 22
+modulate = Color(1, 0.8, 0.2, 1)
+
+[node name="InjectionArea" type="Area3D" parent="Factory/SyrupTower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Factory/SyrupTower/InjectionArea"]
+shape = SubResource("BoxShape3D_funnel")
+
+[node name="DispatchTower" type="Node3D" parent="Factory"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 4, 18)
+
+[node name="AutomationTerminal" type="Node3D" parent="Factory/DispatchTower"]
+script = ExtResource("9_terminal")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Factory/DispatchTower/AutomationTerminal"]
+collision_layer = 4
+collision_mask = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Factory/DispatchTower/AutomationTerminal/StaticBody3D"]
+shape = SubResource("BoxShape3D_terminal")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Factory/DispatchTower/AutomationTerminal/StaticBody3D"]
+mesh = SubResource("BoxMesh_terminal")
+
+[node name="Interactable" type="Node" parent="Factory/DispatchTower/AutomationTerminal"]
+script = ExtResource("10_interactable")
+prompt_message = "Перехватить автоматизацию розлива [E / Взлом 4]"
+
+[node name="StatusLight" type="OmniLight3D" parent="Factory/DispatchTower/AutomationTerminal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+light_color = Color(0.2, 0.8, 1.0, 1)
+light_energy = 3.0
+
+[node name="TerminalLabel" type="Label3D" parent="Factory/DispatchTower/AutomationTerminal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+text = "ТЕРМИНАЛ ДИСПЕТЧЕРСКОЙ"
+font_size = 20
+
+[node name="BottlingLine" type="Node3D" parent="Factory"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 12)
+
+[node name="ConveyorBelt" type="AnimatableBody3D" parent="Factory/BottlingLine"]
+collision_layer = 1
+collision_mask = 6
+script = ExtResource("11_conveyor")
+belt_speed = 2.5
+belt_direction = Vector3(1, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Factory/BottlingLine/ConveyorBelt"]
+shape = SubResource("BoxShape3D_conveyor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Factory/BottlingLine/ConveyorBelt"]
+mesh = SubResource("BoxMesh_conveyor")
+
+[node name="CCTV_Gate" type="Node3D" parent="Factory"]
+transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, -6, 5, 22)
+script = ExtResource("6_camera")
+
+[node name="GuardAI" parent="Factory" instance=ExtResource("5_guard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 22)
+patrol_point_a = Vector3(-6, 0, 22)
+patrol_point_b = Vector3(10, 0, 22)
+
+[node name="Triggers" type="Node3D" parent="."]
+
+[node name="PlantArrivalArea" type="Area3D" parent="Triggers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -25)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Triggers/PlantArrivalArea"]
+shape = SubResource("BoxShape3D_trigger")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="QuestPanel" type="PanelContainer" parent="HUD"]
+offset_left = 30.0
+offset_top = 25.0
+offset_right = 460.0
+offset_bottom = 155.0
+
+[node name="Margin" type="MarginContainer" parent="HUD/QuestPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/QuestPanel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "ОПЕРАЦИЯ: КРАСНАЯ ЛИНИЯ (МИССИЯ 2)"
+
+[node name="ObjectiveLabel" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "[ ] Синтезировать концентрат на верстаке"
+
+[node name="RadioPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = -140.0
+offset_right = 350.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="HUD/RadioPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/RadioPanel/Margin"]
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
+theme_override_font_sizes/font_size = 14
+text = "[РАДИО: СашаV]"
+
+[node name="MessageLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Коля, данные с чипа расшифрованы..."
+autowrap_mode = 2
+
+[node name="VictoryPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -130.0
+offset_right = 320.0
+offset_bottom = 130.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/VictoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 22
+
+[node name="VBox" type="VBoxContainer" parent="HUD/VictoryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1.0, 0.2, 0.25, 1)
+theme_override_font_sizes/font_size = 28
+text = "«КОКА-КОЛЯ» ЗАХВАТИЛА ЗАВОД!"
+horizontal_alignment = 1
+
+[node name="Sub" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Линия розлива «Красная Линия» полностью переведена на выпуск Кока-Коли!
+Корпорация MERIDIAN повержена в первом секторе.
+Вертикальный срез игры (v0.5.0) успешно пройден на 100%."
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "[F1 / ~] — Test Hub | Esc — Главное меню"
+horizontal_alignment = 1

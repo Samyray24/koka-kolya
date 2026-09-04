@@ -41,6 +41,16 @@ func _ready() -> void:
 		btn_gfx.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/testlabs/graphics_lab.tscn")
 		)
+	if has_node("MarginContainer/VBoxContainer/BtnOldDistrict"):
+		var btn_m1: Button = get_node("MarginContainer/VBoxContainer/BtnOldDistrict")
+		btn_m1.pressed.connect(func() -> void:
+			get_tree().change_scene_to_file("res://scenes/levels/old_district.tscn")
+		)
+	if has_node("MarginContainer/VBoxContainer/BtnRedLine"):
+		var btn_m2: Button = get_node("MarginContainer/VBoxContainer/BtnRedLine")
+		btn_m2.pressed.connect(func() -> void:
+			get_tree().change_scene_to_file("res://scenes/levels/red_line_plant.tscn")
+		)
 	if btn_back:
 		btn_back.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
