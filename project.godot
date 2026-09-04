@@ -12,6 +12,12 @@ run/main_scene="res://scenes/boot/boot.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+LogManager="*res://scripts/core/log_manager.gd"
+SettingsManager="*res://scripts/core/settings_manager.gd"
+InputManager="*res://scripts/core/input_manager.gd"
+
 [display]
 
 window/size/viewport_width=1920

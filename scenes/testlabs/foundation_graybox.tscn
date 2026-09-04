@@ -53,6 +53,21 @@ roughness = 0.4
 material = SubResource("StandardMaterial3D_crate")
 size = Vector3(1, 1, 1)
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_can"]
+height = 0.35
+radius = 0.12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_can"]
+albedo_color = Color(0.9, 0.1, 0.15, 1)
+metallic = 0.8
+roughness = 0.2
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_can"]
+material = SubResource("StandardMaterial3D_can")
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.35
+
 [node name="FoundationGraybox" type="Node3D"]
 script = ExtResource("1_graybox")
 
@@ -120,14 +135,38 @@ shape = SubResource("BoxShape3D_crate")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Crate3"]
 mesh = SubResource("BoxMesh_crate")
 
+[node name="ColaCan1" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -5)
+collision_layer = 4
+collision_mask = 7
+mass = 0.35
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCan1"]
+shape = SubResource("CylinderShape3D_can")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCan1"]
+mesh = SubResource("CylinderMesh_can")
+
+[node name="ColaCan2" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 1.8)
+collision_layer = 4
+collision_mask = 7
+mass = 0.35
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ColaCan2"]
+shape = SubResource("CylinderShape3D_can")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ColaCan2"]
+mesh = SubResource("CylinderMesh_can")
+
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 4)
 
 [node name="DebugUI" type="CanvasLayer" parent="."]
 
 [node name="MarginContainer" type="MarginContainer" parent="DebugUI"]
-offset_right = 420.0
-offset_bottom = 220.0
+offset_right = 440.0
+offset_bottom = 240.0
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
 
@@ -141,7 +180,7 @@ theme_override_constants/separation = 6
 [node name="Title" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "«КОКА-КОЛЯ» • FOUNDATION GRAYBOX"
+text = "«КОКА-КОЛЯ» • FOUNDATION GRAYBOX (v0.1.0)"
 
 [node name="LblPhysics" type="Label" parent="DebugUI/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -168,4 +207,4 @@ text = "Скорость: 0.0 км/ч"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
 theme_override_font_sizes/font_size = 12
-text = "Управление: WASD — Ход | Shift — Спринт | Пробел — Прыжок | F1 / ~ — В хаб"
+text = "WASD: Ход | Shift: Бег | Пробел: Прыжок | E: Взять/Бросить | ЛКМ: Бросок | F1: Хаб"

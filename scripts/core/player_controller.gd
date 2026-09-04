@@ -14,6 +14,8 @@ extends CharacterBody3D
 # Camera & Head
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
+@onready var prompt_label: Label = $HUD/PromptLabel
+@onready var grabber: Node3D = $Head/Camera3D/PhysicsGrabber
 
 # Physics state
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
@@ -27,6 +29,10 @@ const JUMP_BUFFER_TIME: float = 0.12
 
 func _ready() -> void:
 	capture_mouse(true)
+	if grabber and prompt_label and grabber.has_signal("prompt_updated"):
+		grabber.connect("prompt_updated", func(txt: String) -> void:
+			prompt_label.text = txt
+		)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and mouse_captured:
