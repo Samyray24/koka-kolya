@@ -1,4 +1,4 @@
-﻿class_name PlayerController
+class_name PlayerController
 extends CharacterBody3D
 
 # First-Person Character Controller for «Кока-Коля»
@@ -22,6 +22,14 @@ extends CharacterBody3D
 @onready var crosshair: ColorRect = get_node_or_null("HUD/Crosshair")
 @onready var grabber: Node3D = $Head/Camera3D/PhysicsGrabber
 @onready var inventory_manager: Node = get_node_or_null("InventoryManager")
+
+@onready var interaction_badge: PanelContainer = get_node_or_null("HUD/InteractionBadge")
+@onready var action_label: Label = get_node_or_null("HUD/InteractionBadge/Margin/VBox/HBoxMain/ActionLabel")
+@onready var key_label: Label = get_node_or_null("HUD/InteractionBadge/Margin/VBox/HBoxMain/KeyLabel")
+@onready var sub_hint_label: Label = get_node_or_null("HUD/InteractionBadge/Margin/VBox/SubHintLabel")
+@onready var step_banner: PanelContainer = get_node_or_null("HUD/StepBanner")
+@onready var step_title: Label = get_node_or_null("HUD/StepBanner/Margin/VBox/StepTitle")
+@onready var step_detail: Label = get_node_or_null("HUD/StepBanner/Margin/VBox/StepDetail")
 
 # Physics state
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
@@ -54,9 +62,20 @@ func _ready() -> void:
 	if camera:
 		base_fov = camera.fov
 
-	if grabber and prompt_label and grabber.has_signal("prompt_updated"):
+	# Загрузка чувствительности мыши из настроек
+	if has_node("/root/SettingsManager"):
+		var sm: Node = get_node("/root/SettingsManager")
+		mouse_sensitivity = float(sm.call("get_val", "controls", "mouse_sensitivity", mouse_sensitivity))
+		sm.connect("settings_changed", func(cat: String) -> void:
+			if cat == "controls" or cat == "all":
+				mouse_sensitivity = float(sm.call("get_val", "controls", "mouse_sensitivity", mouse_sensitivity))
+		)
+
+	if grabber and grabber.has_signal("prompt_updated"):
 		grabber.connect("prompt_updated", func(txt: String) -> void:
-			prompt_label.text = txt
+			if prompt_label:
+				prompt_label.text = txt
+			_update_interaction_badge(txt)
 		)
 
 	if grabber and grabber.has_signal("target_state_changed"):
@@ -93,6 +112,43 @@ func _on_target_state_changed(state: String) -> void:
 			crosshair.color = Color(1, 1, 1, 0.75)
 			crosshair.size = Vector2(4, 4)
 			crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(2, 2)
+
+func _update_interaction_badge(txt: String) -> void:
+	if not interaction_badge:
+		return
+	if txt.is_empty():
+		interaction_badge.visible = false
+		return
+
+	interaction_badge.visible = true
+	var is_holding: bool = (grabber and grabber.get("held_body") != null)
+	if sub_hint_label:
+		sub_hint_label.visible = is_holding
+
+	if action_label:
+		var clean_text := txt
+		if clean_text.begins_with("Нажмите [E] — "):
+			clean_text = clean_text.substr(14)
+			if key_label:
+				key_label.text = "[ E ]"
+				key_label.visible = true
+		elif clean_text.begins_with("[E]"):
+			clean_text = clean_text.substr(3).strip_edges()
+			if key_label:
+				key_label.text = "[ E ]"
+				key_label.visible = true
+		action_label.text = clean_text
+
+func set_step_guidance(title: String, detail: String) -> void:
+	if step_banner:
+		step_banner.visible = true
+	if step_title:
+		step_title.text = title.to_upper()
+	if step_detail:
+		step_detail.text = detail
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "hint", -4.0)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and mouse_captured:

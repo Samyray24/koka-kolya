@@ -93,6 +93,9 @@ func play_sfx_3d(sound_name: String, pos: Vector3, volume_db: float = 0.0, pitch
 # Генерация процедурных звуков через PCM
 func _generate_sound_library() -> void:
 	sfx_library["click"] = _create_click_sound()
+	sfx_library["ui_click"] = sfx_library["click"]
+	sfx_library["ui_hover"] = _create_hover_sound()
+	sfx_library["hint"] = _create_hint_sound()
 	sfx_library["footstep"] = _create_footstep_sound()
 	sfx_library["jump"] = _create_jump_sound()
 	sfx_library["land"] = _create_land_sound()
@@ -126,13 +129,44 @@ func _create_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	return wav
 
 func _create_click_sound() -> AudioStreamWAV:
-	var count := int(SAMPLE_RATE * 0.04) # 40ms
+	# Мягкий тактильный щелчок (warm wooden pop ~480Hz) без режущего уши писка 1800Hz
+	var count := int(SAMPLE_RATE * 0.035) # 35ms
 	var samples := PackedFloat32Array()
 	samples.resize(count)
 	for i in range(count):
 		var t := float(i) / float(SAMPLE_RATE)
-		var env := exp(-t * 80.0)
-		samples[i] = sin(t * TAU * 1800.0) * env * 0.6
+		var env := exp(-t * 110.0)
+		var f1 := sin(t * TAU * 480.0) * 0.4
+		var f2 := sin(t * TAU * 240.0) * 0.25
+		samples[i] = (f1 + f2) * env
+	return _create_wav(samples)
+
+func _create_hover_sound() -> AudioStreamWAV:
+	# Очень мягкий, приглушенный тик при наведении курсора на кнопку (320Hz, тихий)
+	var count := int(SAMPLE_RATE * 0.018) # 18ms
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var env := exp(-t * 180.0)
+		samples[i] = sin(t * TAU * 340.0) * env * 0.15
+	return _create_wav(samples)
+
+func _create_hint_sound() -> AudioStreamWAV:
+	# Приятный двухтоновый звуковой сигнал для подсказок и обновлений целей (523Hz -> 659Hz)
+	var count := int(SAMPLE_RATE * 0.22)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	var half := int(count * 0.45)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		if i < half:
+			var env := exp(-t * 18.0)
+			samples[i] = sin(t * TAU * 523.25) * env * 0.35
+		else:
+			var t2 := float(i - half) / float(SAMPLE_RATE)
+			var env2 := exp(-t2 * 14.0)
+			samples[i] = sin(t2 * TAU * 659.25) * env2 * 0.35
 	return _create_wav(samples)
 
 func _create_footstep_sound() -> AudioStreamWAV:
@@ -209,48 +243,59 @@ func _create_radio_chime_sound() -> AudioStreamWAV:
 	return _create_wav(samples)
 
 func _create_stun_sound() -> AudioStreamWAV:
-	var count := int(SAMPLE_RATE * 0.22)
+	# Глубокий, плотный электрический импульс (120-240Hz с мягким насыщением) без противного визга и квадратных волн
+	var count := int(SAMPLE_RATE * 0.20)
 	var samples := PackedFloat32Array()
 	samples.resize(count)
 	for i in range(count):
 		var t := float(i) / float(SAMPLE_RATE)
-		var env := exp(-t * 10.0)
-		var square := 1.0 if sin(t * TAU * 140.0) > 0.0 else -1.0
-		var buzz := sin(t * TAU * 950.0) * 0.4
-		var noise := (randf() * 2.0 - 1.0) * 0.4
-		samples[i] = (square * 0.4 + buzz + noise) * env * 0.6
+		var env := exp(-t * 9.0)
+		var bass := sin(t * TAU * 130.0) * 0.5
+		var sub := sin(t * TAU * 65.0) * 0.3
+		var crackle := (randf() * 2.0 - 1.0) * 0.25 * exp(-t * 18.0)
+		# Мягкое ограничение tanh для теплого эффекта перегруза
+		var raw: float = bass + sub + crackle
+		samples[i] = tanh(raw * 1.4) * env * 0.6
 	return _create_wav(samples)
 
 func _create_foam_sound() -> AudioStreamWAV:
-	var count := int(SAMPLE_RATE * 0.3)
+	var count := int(SAMPLE_RATE * 0.28)
 	var samples := PackedFloat32Array()
 	samples.resize(count)
 	for i in range(count):
 		var t := float(i) / float(SAMPLE_RATE)
-		var env := exp(-t * 6.0)
-		var noise := (randf() * 2.0 - 1.0) * 0.7
-		samples[i] = noise * env * 0.6
+		var env := exp(-t * 7.0)
+		var noise := (randf() * 2.0 - 1.0) * 0.5
+		samples[i] = noise * env * 0.5
 	return _create_wav(samples)
 
 func _create_hack_sound() -> AudioStreamWAV:
-	var count := int(SAMPLE_RATE * 0.25)
+	# Мелодичный футуристический data-burst (G4 392Hz -> A4 440Hz -> C5 523Hz) с мягкими синусоидами
+	var count := int(SAMPLE_RATE * 0.22)
 	var samples := PackedFloat32Array()
 	samples.resize(count)
+	var step := count / 3
 	for i in range(count):
 		var t := float(i) / float(SAMPLE_RATE)
-		var freq := 800.0 + float(int(t * 24.0) % 3) * 400.0
-		var env := exp(-t * 7.0)
-		samples[i] = sin(t * TAU * freq) * env * 0.5
+		var seg := mini(i / step, 2)
+		var freqs := [392.0, 440.0, 523.25]
+		var f: float = freqs[seg]
+		var t_sub := float(i % step) / float(SAMPLE_RATE)
+		var env := exp(-t_sub * 16.0)
+		samples[i] = sin(t * TAU * f) * env * 0.4
 	return _create_wav(samples)
 
 func _create_alarm_sound() -> AudioStreamWAV:
-	var count := int(SAMPLE_RATE * 0.4)
+	# Кинематографичный низкий пульс тревоги (320-420Hz) без режущего ультразвукового свиста 880Hz
+	var count := int(SAMPLE_RATE * 0.45)
 	var samples := PackedFloat32Array()
 	samples.resize(count)
 	for i in range(count):
 		var t := float(i) / float(SAMPLE_RATE)
-		var warble := sin(t * TAU * 8.0) * 200.0
-		samples[i] = sin(t * TAU * (880.0 + warble)) * 0.5
+		var pulse := sin(t * TAU * 3.5) # Плавное дыхание сирены
+		var freq := 320.0 + (pulse * 0.5 + 0.5) * 100.0
+		var env := sin(t / 0.45 * PI)
+		samples[i] = sin(t * TAU * freq) * env * 0.45
 	return _create_wav(samples)
 
 func _create_victory_sound() -> AudioStreamWAV:

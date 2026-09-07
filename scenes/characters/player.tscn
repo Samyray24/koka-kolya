@@ -28,7 +28,7 @@ fov = 85.0
 script = ExtResource("2_grabber")
 
 [node name="RayCast3D" type="RayCast3D" parent="Head/Camera3D/PhysicsGrabber"]
-target_position = Vector3(0, 0, -3)
+target_position = Vector3(0, 0, -3.2)
 collision_mask = 5
 
 [node name="HoldPoint" type="Marker3D" parent="Head/Camera3D/PhysicsGrabber"]
@@ -57,18 +57,100 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = 24.0
-offset_right = 200.0
-offset_bottom = 54.0
+offset_left = -240.0
+offset_top = 28.0
+offset_right = 240.0
+offset_bottom = 58.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1
+
+[node name="InteractionBadge" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = 32.0
+offset_right = 220.0
+offset_bottom = 96.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/InteractionBadge"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="HUD/InteractionBadge/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HBoxMain" type="HBoxContainer" parent="HUD/InteractionBadge/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="KeyLabel" type="Label" parent="HUD/InteractionBadge/Margin/VBox/HBoxMain"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "[ E ]"
+
+[node name="ActionLabel" type="Label" parent="HUD/InteractionBadge/Margin/VBox/HBoxMain"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Взаимодействовать"
+
+[node name="SubHintLabel" type="Label" parent="HUD/InteractionBadge/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 11
+text = "[Колесико] Дистанция • [ПКМ] Вращать • [ЛКМ] Заряд броска"
+horizontal_alignment = 1
+
+[node name="StepBanner" type="PanelContainer" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -260.0
+offset_top = 16.0
+offset_right = 260.0
+offset_bottom = 66.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/StepBanner"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="HUD/StepBanner/Margin"]
+layout_mode = 2
+
+[node name="StepTitle" type="Label" parent="HUD/StepBanner/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 11
+text = "ЦЕЛЬ МИССИИ"
+
+[node name="StepDetail" type="Label" parent="HUD/StepBanner/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "Загрузите 3 ящика «Кока-Коля» в кузов фургона (0/3)"
 
 [node name="InventoryLabel" type="Label" parent="HUD"]
 anchors_preset = 3
@@ -92,4 +174,3 @@ horizontal_alignment = 2
 
 [node name="InventoryManager" type="Node" parent="."]
 script = ExtResource("3_inventory")
-

@@ -28,6 +28,7 @@ Write-Host "========================================================" -Foregroun
 
 foreach ($t in $tests) {
     Write-Host "RUNNING: $t ..." -NoNewline
+    $LASTEXITCODE = 0
     $output = & $godotExe --headless -s $t 2>&1 | Out-String
     if ($LASTEXITCODE -eq 0 -and -not ($output -match "\[FAIL\]|SCRIPT ERROR")) {
         Write-Host " [PASS]" -ForegroundColor Green

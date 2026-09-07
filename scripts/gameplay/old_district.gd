@@ -1,4 +1,4 @@
-﻿class_name OldDistrict
+class_name OldDistrict
 extends Node3D
 
 # Игровой контроллер Первого играбельного района «Старый район & Складской терминал №4» (v0.3.0)
@@ -65,8 +65,37 @@ func _ready() -> void:
 		secret_formula.connect("formula_collected", _on_formula_secured)
 
 	_create_waypoint_beacon()
+	_spawn_world_details()
 	_start_mission_intro()
 	_update_waypoint_for_stage()
+
+func _spawn_world_details() -> void:
+	# 1. Спавн 3D-модели связного СашиV (Rogue_Hooded) возле гаража Коли
+	var npc_scene: PackedScene = load("res://scenes/characters/npc_character.tscn")
+	if npc_scene:
+		var sasha: Node3D = npc_scene.instantiate()
+		sasha.name = "SashaV_NPC"
+		sasha.position = Vector3(4.5, 0.0, 46.5)
+		sasha.rotation_degrees = Vector3(0, -60, 0)
+		add_child(sasha)
+
+	# 2. Спавн патрульной машины (car_police) на обочине улицы
+	var police_scene: PackedScene = load("res://assets/scenes_3d/car_police.tscn")
+	if police_scene:
+		var cop_car: Node3D = police_scene.instantiate()
+		cop_car.name = "PoliceCruiser_Deco"
+		cop_car.position = Vector3(-6.2, 0.0, 18.0)
+		cop_car.rotation_degrees = Vector3(0, 15, 0)
+		add_child(cop_car)
+
+	# 3. Спавн седана горожан (car_sedan) у площади
+	var sedan_scene: PackedScene = load("res://assets/scenes_3d/car_sedan.tscn")
+	if sedan_scene:
+		var sedan: Node3D = sedan_scene.instantiate()
+		sedan.name = "CitySedan_Deco"
+		sedan.position = Vector3(6.5, 0.0, 5.0)
+		sedan.rotation_degrees = Vector3(0, -10, 0)
+		add_child(sedan)
 
 func _create_waypoint_beacon() -> void:
 	waypoint_node = Node3D.new()
@@ -159,6 +188,9 @@ func _start_mission_intro() -> void:
 	mission_mgr.call("start_mission", "Операция: Шипучка")
 	mission_mgr.call("add_objective", "load_crates", "Загрузить 3 ящика «Кока-Коля» в кузов фургона", 3)
 	
+	if player and player.has_method("set_step_guidance"):
+		player.call("set_step_guidance", "ЭТАП 1: ПОГРУЗКА ЯЩИКОВ (0/3)", "Подойдите к ящику «Кока-Коля» и нажмите [E], чтобы взять его")
+
 	dialogue_mgr.call("queue_message", "СашаV", "Коля, рация работает! MERIDIAN перекрыл поставки сиропа. Нам нужен их секретный чип с терминала №4.", Color(0.3, 0.8, 1.0), 4.5)
 	dialogue_mgr.call("queue_message", "Коля", "Понял тебя. Сначала загружу готовые ящики в кузов [E], чтобы не ехать пустым.", Color(1.0, 0.8, 0.2), 3.5)
 
@@ -175,6 +207,12 @@ func _check_crate_loading() -> void:
 			var cur: int = objectives["load_crates"]["current"]
 			mission_mgr.call("advance_objective", "load_crates", crates_loaded - cur)
 		
+		if player and player.has_method("set_step_guidance"):
+			if crates_loaded < 3:
+				player.call("set_step_guidance", "ЭТАП 1: ПОГРУЗКА В ФУРГОН (%d/3)" % crates_loaded, "Отнесите ящик к задней части фургона и закрепите [E]")
+			else:
+				player.call("set_step_guidance", "ЭТАП 2: ВЫЕЗД НА СКЛАД", "Все ящики погружены! Подойдите к водительской двери фургона сбоку и нажмите [E]")
+
 		var is_done: bool = mission_mgr.call("is_objective_completed", "load_crates")
 		if crates_loaded >= 3 and not is_done:
 			mission_mgr.call("complete_objective", "load_crates")
@@ -189,6 +227,8 @@ func _on_warehouse_entered(body: Node) -> void:
 		_update_waypoint_for_stage()
 		mission_mgr.call("complete_objective", "drive_to_warehouse")
 		mission_mgr.call("add_objective", "steal_formula", "Проникнуть в хранилище и похитить рецептурный чип", 1)
+		if player and player.has_method("set_step_guidance"):
+			player.call("set_step_guidance", "ЭТАП 3: ПРОНИКНОВЕНИЕ В СКЛАД №4", "Взломайте терминал ворот [4] или проникните внутрь")
 		dialogue_mgr.call("queue_message", "СашаV", "Ты на месте! Ворота заперты. Используй кибер-деку [4], пенные ступени [3] или дрона BUBBLE.", Color(0.3, 0.8, 1.0), 5.0)
 
 func _on_formula_secured() -> void:
@@ -197,6 +237,8 @@ func _on_formula_secured() -> void:
 		_update_waypoint_for_stage()
 		mission_mgr.call("complete_objective", "steal_formula")
 		mission_mgr.call("add_objective", "return_to_garage", "Вернуться на фургоне в гараж Коли", 1)
+		if player and player.has_method("set_step_guidance"):
+			player.call("set_step_guidance", "ЭТАП 4: ЭВАКУАЦИЯ В ГАРАЖ", "Чип похищен! Садитесь в фургон и возвращайтесь на базу")
 		dialogue_mgr.call("queue_message", "СашаV", "ЧИП У ТЕБЯ! Отличная работа! Прыгай в фургон и возвращайся на базу, пока тревога не поднята!", Color(0.3, 1.0, 0.4), 4.5)
 
 func _on_return_entered(body: Node) -> void:
@@ -208,6 +250,8 @@ func _on_return_entered(body: Node) -> void:
 func _on_mission_completed(_title: String) -> void:
 	if complete_panel:
 		complete_panel.visible = true
+	if player and player.has_method("set_step_guidance"):
+		player.call("set_step_guidance", "МИССИЯ УСПЕШНО ВЫПОЛНЕНА!", "Рецептурный чип «Кока-Коля» в безопасности!")
 	dialogue_mgr.call("queue_message", "Коля", "Груз доставлен, формула у нас. «Кока-Коля» будет жить!", Color(1.0, 0.8, 0.2), 5.0)
 	LogManager.info(">>> ВЕРТИКАЛЬНЫЙ СРЕЗ (STAGE 3) УСПЕШНО ПРОЙДЕН! <<<", "QUEST")
 

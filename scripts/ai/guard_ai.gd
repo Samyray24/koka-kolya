@@ -22,12 +22,14 @@ var patrol_target_b: bool = true
 @onready var vision_sensor: Node3D = get_node_or_null("AISensorVision")
 @onready var hearing_sensor: Node3D = get_node_or_null("AISensorHearing")
 @onready var state_label: Label3D = get_node_or_null("StateIndicator")
+@onready var anim_player: AnimationPlayer = get_node_or_null("Model/AnimationPlayer")
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 
 func _ready() -> void:
 	target_pos = patrol_point_a
 	_update_state_indicator()
+	_play_anim("Idle")
 
 	if vision_sensor:
 		vision_sensor.awareness_changed.connect(_on_awareness_changed)
@@ -36,6 +38,13 @@ func _ready() -> void:
 
 	if hearing_sensor:
 		hearing_sensor.noise_heard.connect(_on_noise_heard)
+
+func _play_anim(anim_name: String) -> void:
+	if not anim_player:
+		anim_player = get_node_or_null("Model/AnimationPlayer")
+	if anim_player and anim_player.has_animation(anim_name):
+		if anim_player.current_animation != anim_name:
+			anim_player.play(anim_name)
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -63,11 +72,14 @@ func _process_patrol(delta: float) -> void:
 	dir.y = 0.0
 	if dir.length() < 0.8:
 		patrol_target_b = not patrol_target_b
+		_play_anim("Idle")
 	else:
 		_move_towards(dir.normalized(), walk_speed, delta)
+		_play_anim("Walking_A")
 
 func _process_suspicious(delta: float) -> void:
 	# Охранник замер и поворачивается к источнику шума/подозрения
+	_play_anim("Idle")
 	velocity.x = move_toward(velocity.x, 0.0, 15.0 * delta)
 	velocity.z = move_toward(velocity.z, 0.0, 15.0 * delta)
 	_look_at_pos(last_known_pos, delta)
@@ -80,6 +92,7 @@ func _process_investigating(delta: float) -> void:
 		_transition_to(AIState.SEARCHING)
 	else:
 		_move_towards(dir.normalized(), walk_speed * 1.2, delta)
+		_play_anim("Walking_A")
 
 func _process_alert(delta: float) -> void:
 	if target_player:
@@ -89,15 +102,18 @@ func _process_alert(delta: float) -> void:
 	dir.y = 0.0
 	if dir.length() > 2.0:
 		_move_towards(dir.normalized(), run_speed, delta)
+		_play_anim("Running_A")
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, 20.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, 20.0 * delta)
 		_look_at_pos(last_known_pos, delta)
+		_play_anim("1H_Melee_Attack_Chop" if anim_player and anim_player.has_animation("1H_Melee_Attack_Chop") else "Idle")
 
 func _process_searching(delta: float) -> void:
 	search_timer -= delta
 	velocity.x = move_toward(velocity.x, 0.0, 10.0 * delta)
 	velocity.z = move_toward(velocity.z, 0.0, 10.0 * delta)
+	_play_anim("Walking_A")
 	
 	# Медленно оглядывается по сторонам
 	rotate_y(0.8 * delta)
@@ -107,6 +123,7 @@ func _process_searching(delta: float) -> void:
 		_transition_to(AIState.IDLE)
 
 func _process_stunned(delta: float) -> void:
+	_play_anim("Death_A")
 	velocity.x = move_toward(velocity.x, 0.0, 15.0 * delta)
 	velocity.z = move_toward(velocity.z, 0.0, 15.0 * delta)
 	stun_timer -= delta

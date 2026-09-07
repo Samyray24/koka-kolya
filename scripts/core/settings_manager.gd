@@ -34,6 +34,11 @@ var settings: Dictionary = {
 		"subtitle_scale": 1.0,
 		"high_contrast_mode": false,
 		"coyote_time_extended": false
+	},
+	"controls": {
+		"mouse_sensitivity": 0.0022,
+		"invert_y": false,
+		"head_bob": true
 	}
 }
 
@@ -91,8 +96,11 @@ func apply_graphics_settings() -> void:
 	RenderingServer.viewport_set_msaa_3d(get_viewport().get_viewport_rid(), msaa as RenderingServer.ViewportMSAA)
 
 func apply_audio_settings() -> void:
-	# Audio buses will be adjusted in Audio Manager
-	pass
+	var aud: Dictionary = settings.get("audio", {})
+	var master_vol: float = aud.get("master_volume", 0.85)
+	var master_bus := AudioServer.get_bus_index("Master")
+	if master_bus >= 0:
+		AudioServer.set_bus_volume_db(master_bus, linear_to_db(master_vol) if master_vol > 0.01 else -80.0)
 
 func get_val(category: String, key: String, default_val: Variant = null) -> Variant:
 	if settings.has(category) and settings[category].has(key):

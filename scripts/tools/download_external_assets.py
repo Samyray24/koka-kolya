@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import io
 import time
@@ -55,6 +55,13 @@ KHRONOS_MODELS = [
     ("CesiumMilkTruck.glb", "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb", os.path.join(MODELS_DIR, "vehicles")),
     ("Lantern.glb", "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Lantern/glTF-Binary/Lantern.glb", os.path.join(MODELS_DIR, "props")),
     ("BoomBox.glb", "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/BoomBox/glTF-Binary/BoomBox.glb", os.path.join(MODELS_DIR, "props")),
+]
+
+KAYKIT_CHARACTERS = [
+    ("Knight.glb", "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/main/addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb"),
+    ("knight_texture.png", "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/main/addons/kaykit_character_pack_adventures/Characters/gltf/knight_texture.png"),
+    ("Rogue_Hooded.glb", "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/main/addons/kaykit_character_pack_adventures/Characters/gltf/Rogue_Hooded.glb"),
+    ("rogue_texture.png", "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/main/addons/kaykit_character_pack_adventures/Characters/gltf/rogue_texture.png"),
 ]
 
 AMBIENT_CG_TEXTURES = [
@@ -176,12 +183,24 @@ def download_ambientcg_textures():
         except Exception as e:
             print(f"[ERROR] Failed to extract zip for {asset_id}: {e}")
 
+def download_kaykit_characters():
+    print("\n--- Downloading KayKit 3D Character Models (CC0) ---")
+    char_dir = os.path.join(MODELS_DIR, "characters")
+    for name, url in KAYKIT_CHARACTERS:
+        target = os.path.join(char_dir, name)
+        root_target = os.path.join(MODELS_DIR, name)
+        if download_file(url, target):
+            if not os.path.exists(root_target) and name.endswith(".glb"):
+                shutil.copy2(target, root_target)
+
 def main():
     print("Starting download of real 3D models and authentic PBR textures...")
     download_kenney_models()
     download_khronos_models()
+    download_kaykit_characters()
     download_ambientcg_textures()
     print("\nAll assets downloaded successfully!")
 
 if __name__ == "__main__":
     main()
+

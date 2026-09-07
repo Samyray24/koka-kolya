@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 
 var frame: int = 0
 
@@ -59,7 +59,7 @@ func _find_glb_recursive(dir_path: String, results: Array[String]) -> void:
 			var full_path = dir_path + "/" + item
 			if dir.current_is_dir():
 				_find_glb_recursive(full_path, results)
-			elif item.ends_with(".glb"):
+			elif item.ends_with(".glb") or item.ends_with(".gltf"):
 				results.append(full_path)
 		item = dir.get_next()
 	dir.list_dir_end()

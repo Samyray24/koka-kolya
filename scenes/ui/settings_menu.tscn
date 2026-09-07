@@ -1,0 +1,554 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/settings_menu.gd" id="1_settings"]
+
+[node name="SettingsMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_settings")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.04, 0.07, 0.88)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(820, 580)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderHBox" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="TitleVBox" type="VBoxContainer" parent="Center/Panel/Margin/VBox/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 22
+text = "НАСТРОЙКИ И УПРАВЛЕНИЕ"
+
+[node name="SubTitle" type="Label" parent="Center/Panel/Margin/VBox/HeaderHBox/TitleVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "СИСТЕМА КРАСНОГРАД • RED EDITION v1.0.0"
+
+[node name="BtnTopClose" type="Button" parent="Center/Panel/Margin/VBox/HeaderHBox"]
+custom_minimum_size = Vector2(36, 32)
+layout_mode = 2
+text = "✕"
+
+[node name="HSeparator" type="HSeparator" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="TabGraphics" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+metadata/_tab_index = 0
+
+[node name="Grid" type="GridContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics"]
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 18
+columns = 2
+
+[node name="LabelWinMode" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+layout_mode = 2
+text = "Режим окна:"
+
+[node name="OptWindowMode" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+custom_minimum_size = Vector2(260, 36)
+layout_mode = 2
+item_count = 2
+popup/item_0/text = "Оконный режим"
+popup/item_0/id = 0
+popup/item_1/text = "Полноэкранный"
+popup/item_1/id = 1
+
+[node name="LabelVSync" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+layout_mode = 2
+text = "Вертикальная синхронизация (V-Sync):"
+
+[node name="CheckVSync" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+layout_mode = 2
+text = "Включено"
+
+[node name="LabelFOV" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+layout_mode = 2
+text = "Угол обзора (FOV):"
+
+[node name="HBoxFOV" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+layout_mode = 2
+
+[node name="SliderFOV" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid/HBoxFOV"]
+custom_minimum_size = Vector2(200, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 70.0
+max_value = 105.0
+value = 85.0
+
+[node name="LabelFOVVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid/HBoxFOV"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "85°"
+horizontal_alignment = 2
+
+[node name="LabelMSAA" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+layout_mode = 2
+text = "Сглаживание (MSAA 3D):"
+
+[node name="OptMSAA" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+custom_minimum_size = Vector2(260, 36)
+layout_mode = 2
+item_count = 3
+popup/item_0/text = "Выключено"
+popup/item_0/id = 0
+popup/item_1/text = "MSAA 2X (Рекомендуется)"
+popup/item_1/id = 1
+popup/item_2/text = "MSAA 4X (Максимальное)"
+popup/item_2/id = 2
+
+[node name="TabAudio" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+metadata/_tab_index = 1
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Grid" type="GridContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 18
+columns = 2
+
+[node name="LabelMaster" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+text = "Общая громкость:"
+
+[node name="HBoxMaster" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+
+[node name="SliderMaster" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxMaster"]
+custom_minimum_size = Vector2(260, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.85
+
+[node name="LabelMasterVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxMaster"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "85%"
+horizontal_alignment = 2
+
+[node name="LabelSFX" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+text = "Звуковые эффекты (SFX):"
+
+[node name="HBoxSFX" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+
+[node name="SliderSFX" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxSFX"]
+custom_minimum_size = Vector2(260, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.9
+
+[node name="LabelSFXVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxSFX"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "90%"
+horizontal_alignment = 2
+
+[node name="LabelMusic" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+text = "Авто-радио и музыка:"
+
+[node name="HBoxMusic" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+
+[node name="SliderMusic" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxMusic"]
+custom_minimum_size = Vector2(260, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.7
+
+[node name="LabelMusicVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxMusic"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "70%"
+horizontal_alignment = 2
+
+[node name="BtnTestSound" type="Button" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox"]
+custom_minimum_size = Vector2(200, 36)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "▶ Проверить мягкий звук"
+
+[node name="TabControls" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+metadata/_tab_index = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GridSens" type="GridContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="LabelSens" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Чувствительность мыши:"
+
+[node name="HBoxSens" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+
+[node name="SliderSens" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens/HBoxSens"]
+custom_minimum_size = Vector2(240, 24)
+layout_mode = 2
+min_value = 0.001
+max_value = 0.005
+step = 0.0002
+value = 0.0022
+
+[node name="LabelSensVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens/HBoxSens"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "2.2x"
+horizontal_alignment = 2
+
+[node name="LabelInvertY" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Инвертировать ось Y (обзор):"
+
+[node name="CheckInvertY" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Выключено"
+
+[node name="HSeparator" type="HSeparator" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxKeys" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="KeyRow1" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow1"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "[ W ] [ A ] [ S ] [ D ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow1"]
+layout_mode = 2
+text = "— Передвижение персонажа / Управление фургоном (Газ/Руль/Тормоз)"
+
+[node name="KeyRow2" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow2"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "[ Shift ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow2"]
+layout_mode = 2
+text = "— Спринт / Быстрый бег с динамическим FOV"
+
+[node name="KeyRow3" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow3"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "[ Ctrl ] / [ C ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow3"]
+layout_mode = 2
+text = "— Присед (тихие шаги, пролезание под препятствиями, скрытность)"
+
+[node name="KeyRow4" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow4"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "[ Space ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow4"]
+layout_mode = 2
+text = "— Прыжок с амортизацией приземления"
+
+[node name="KeyRow5" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow5"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+text = "[ E ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow5"]
+layout_mode = 2
+text = "— Взаимодействие: взять ящик, сесть в фургон, закрепить в кузове, открыть дверь"
+
+[node name="KeyRow6" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow6"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+text = "[ Колесико мыши ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow6"]
+layout_mode = 2
+text = "— Плавная регулировка дистанции удержания предмета (1.1м - 3.2м)"
+
+[node name="KeyRow7" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow7"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+text = "[ ПКМ (зажать) ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow7"]
+layout_mode = 2
+text = "— Свободный поворот удерживаемого предмета мышью"
+
+[node name="KeyRow8" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow8"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.3, 0.35, 1)
+text = "[ ЛКМ (зажать) ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow8"]
+layout_mode = 2
+text = "— Зарядка силового броска предмета (отпустите для броска)"
+
+[node name="KeyRow9" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow9"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "[ 1 ] [ 2 ] [ 3 ] [ 4 ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow9"]
+layout_mode = 2
+text = "— Экипировка: 1-Руки | 2-Шокер охраны | 3-Пеномет | 4-Кибер-дека"
+
+[node name="KeyRow10" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow10"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+text = "[ R ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow10"]
+layout_mode = 2
+text = "— Авто-радио фургона: переключение волн Краснограда"
+
+[node name="KeyRow11" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys"]
+layout_mode = 2
+
+[node name="Badge" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow11"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.9, 0.4, 1)
+text = "[ F5 ] / [ F9 ]"
+
+[node name="Desc" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/Scroll/VBoxKeys/KeyRow11"]
+layout_mode = 2
+text = "— Быстрое сохранение [F5] / Быстрая загрузка [F9]"
+
+[node name="TabGuide" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+metadata/_tab_index = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide"]
+layout_mode = 2
+
+[node name="VBoxGuide" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="Card1" type="PanelContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card1"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card1/Margin"]
+layout_mode = 2
+
+[node name="Hdr" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card1/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 15
+text = "📦 1. Погрузка ящиков и доставка на фургоне"
+
+[node name="Txt" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card1/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+text = "• Подойдите к ящику «Кока-Коля» и нажмите [E], чтобы поднять его.
+• Отнесите ящик к задней части фургона. При наведении на кузов нажмите [E], чтобы надежно зафиксировать ящик в одном из 3 слотов.
+• Загрузив все 3 ящика, подойдите к водительской двери сбоку и нажмите [E], чтобы сесть за руль!"
+autowrap_mode = 2
+
+[node name="Card2" type="PanelContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card2"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card2/Margin"]
+layout_mode = 2
+
+[node name="Hdr" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card2/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "🛠️ 2. Арсенал инструментов и взлом"
+
+[node name="Txt" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card2/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+text = "• [1] Руки: переноска тяжестей, физические манипуляции, броски.
+• [2] Шоковая дубинка: бесшумно оглушает патрульных роботов и охрану на 8 секунд.
+• [3] Пеномет: распыляет пену для тушения огня и блокировки камер.
+• [4] Кибер-дека: дистанционный взлом терминалов ворот, замков и систем завода."
+autowrap_mode = 2
+
+[node name="Card3" type="PanelContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card3"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card3/Margin"]
+layout_mode = 2
+
+[node name="Hdr" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card3/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+text = "👁️ 3. Скрытность и навигация"
+
+[node name="Txt" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGuide/Scroll/VBoxGuide/Card3/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+text = "• Присед [Ctrl] полностью заглушает шум шагов и снижает вероятность обнаружения.
+• Светящийся 3D-маяк над головой указывает точное расстояние до текущей цели миссии.
+• Дрон BUBBLE следует за вами и подсвечивает интерактивные объекты."
+autowrap_mode = 2
+
+[node name="BottomHBox" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 2
+
+[node name="BtnClose" type="Button" parent="Center/Panel/Margin/VBox/BottomHBox"]
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+text = "ЗАКРЫТЬ"
+
+[node name="BtnApply" type="Button" parent="Center/Panel/Margin/VBox/BottomHBox"]
+custom_minimum_size = Vector2(200, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.4, 1)
+text = "СОХРАНИТЬ И ПРИМЕНИТЬ"
