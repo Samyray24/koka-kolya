@@ -5,11 +5,11 @@
 [ext_resource type="Texture2D" path="res://assets/textures/pbr/brick/brick_roughness.jpg" id="3_rough"]
 
 [resource]
-albedo_color = Color(0.95, 0.92, 0.9, 1)
+albedo_color = Color(0.55, 0.52, 0.50, 1)
 albedo_texture = ExtResource("1_color")
 roughness_texture = ExtResource("3_rough")
 normal_enabled = true
-normal_scale = 1.2
+normal_scale = 1.3
 normal_texture = ExtResource("2_norm")
-uv1_scale = Vector3(3, 3, 3)
+uv1_scale = Vector3(2.5, 2.5, 2.5)
 uv1_triplanar = true

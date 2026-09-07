@@ -6,25 +6,25 @@
 radius = 0.35
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shell"]
-albedo_color = Color(0.92, 0.94, 0.97, 1)
-metallic = 0.3
-roughness = 0.2
+albedo_color = Color(0.2, 0.23, 0.28, 1)
+metallic = 0.8
+roughness = 0.3
 
 [sub_resource type="SphereMesh" id="SphereMesh_shell"]
 material = SubResource("StandardMaterial3D_shell")
-radius = 0.35
-height = 0.7
+radius = 0.22
+height = 0.44
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eye"]
-albedo_color = Color(0.1, 0.8, 1, 1)
+albedo_color = Color(0.0, 0.85, 1, 1)
 emission_enabled = true
-emission = Color(0.1, 0.85, 1, 1)
-emission_energy_multiplier = 3.5
+emission = Color(0.0, 0.85, 1, 1)
+emission_energy_multiplier = 2.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_eye"]
 material = SubResource("StandardMaterial3D_eye")
-radius = 0.12
-height = 0.24
+radius = 0.09
+height = 0.18
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_scanner"]
 radius = 12.0

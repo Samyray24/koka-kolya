@@ -23,24 +23,19 @@
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/road-straight.tscn" id="21_nb33p"]
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/pavement.tscn" id="22_84ocj"]
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/road-intersection.tscn" id="22_mrjb0"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-a.tscn" id="22_n3i75"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-b.tscn" id="23_oj0ah"]
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/pavement-fountain.tscn" id="24_c1ctt"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-c.tscn" id="24_i5ioe"]
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/grass-trees-tall.tscn" id="25_7lkbf"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/building-small-d.tscn" id="25_khiet"]
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/grass.tscn" id="27_g050w"]
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/grass-trees.tscn" id="27_mjhq2"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/vehicle-motorcycle.tscn" id="32_nb33p"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/vehicle-truck-yellow.tscn" id="33_n3i75"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/vehicle-truck-green.tscn" id="34_oj0ah"]
-[ext_resource type="PackedScene" path="res://assets/scenes_3d/character.tscn" id="35_i5ioe"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mrjb0"]
-sky_top_color = Color(0.28, 0.48, 0.78, 1)
-sky_horizon_color = Color(0.72, 0.8, 0.88, 1)
-ground_bottom_color = Color(0.2, 0.22, 0.25, 1)
-ground_horizon_color = Color(0.65, 0.72, 0.8, 1)
+sky_top_color = Color(0.18, 0.42, 0.78, 1)
+sky_horizon_color = Color(0.85, 0.76, 0.72, 1)
+sky_curve = 0.09
+ground_bottom_color = Color(0.2, 0.22, 0.26, 1)
+ground_horizon_color = Color(0.72, 0.74, 0.76, 1)
+sun_angle_max = 35.0
+sun_curve = 0.12
 
 [sub_resource type="Sky" id="Sky_c1ctt"]
 sky_material = SubResource("ProceduralSkyMaterial_mrjb0")
@@ -49,13 +44,33 @@ sky_material = SubResource("ProceduralSkyMaterial_mrjb0")
 background_mode = 2
 sky = SubResource("Sky_c1ctt")
 ambient_light_source = 2
-ambient_light_color = Color(0.62, 0.7, 0.8, 1)
-ambient_light_sky_contribution = 0.85
-ambient_light_energy = 0.65
+ambient_light_color = Color(0.68, 0.72, 0.82, 1)
+ambient_light_sky_contribution = 0.75
+ambient_light_energy = 0.75
 tonemap_mode = 3
-tonemap_exposure = 0.95
+tonemap_exposure = 1.05
+tonemap_white = 1.15
 ssao_enabled = true
-glow_bloom = 0.05
+ssao_radius = 1.5
+ssao_intensity = 1.8
+glow_enabled = true
+glow_levels/1 = 1.0
+glow_levels/2 = 1.0
+glow_levels/3 = 1.0
+glow_intensity = 0.6
+glow_strength = 0.9
+glow_bloom = 0.12
+glow_blend_mode = 0
+fog_enabled = true
+fog_light_color = Color(0.78, 0.82, 0.88, 1)
+fog_light_energy = 0.85
+fog_sun_scatter = 0.25
+fog_density = 0.0035
+fog_aerial_perspective = 0.4
+adjustment_enabled = true
+adjustment_brightness = 1.02
+adjustment_contrast = 1.12
+adjustment_saturation = 1.18
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(180, 1, 180)
@@ -147,11 +162,17 @@ script = ExtResource("1_olddistrict")
 environment = SubResource("Environment_1")
 
 [node name="SunLight" type="DirectionalLight3D" parent="." unique_id=717283926]
-transform = Transform3D(0.7070912, -0.47313377, 0.52547985, 0, 0.74312437, 0.6691269, -0.7070912, -0.47313377, 0.52547985, 0, 30, 0)
-light_color = Color(1, 0.96, 0.9, 1)
-light_energy = 1.15
+transform = Transform3D(0.7071068, -0.5, 0.5, 0, 0.7071068, 0.7071068, -0.7071068, -0.5, 0.5, 0, 30, 0)
+light_color = Color(1, 0.94, 0.86, 1)
+light_energy = 1.35
 shadow_enabled = true
-shadow_bias = 0.05
+shadow_bias = 0.03
+shadow_blur = 1.2
+directional_shadow_mode = 2
+directional_shadow_split_1 = 0.1
+directional_shadow_split_2 = 0.25
+directional_shadow_split_3 = 0.55
+directional_shadow_blend_splits = true
 
 [node name="Ground" type="StaticBody3D" parent="." unique_id=1684222167]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
@@ -170,7 +191,7 @@ collision_mask = 5
 script = ExtResource("4_1cgmy")
 
 [node name="BubbleDrone" type="CharacterBody3D" parent="." unique_id=991856211 instance=ExtResource("4_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2.5, 42)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 1.85, 43.8)
 collision_layer = 8
 script = ExtResource("6_nxx57")
 
@@ -480,7 +501,7 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 52)
 [node name="@Node3D@2" type="Node3D" parent="CityArchitecture" unique_id=1493635628 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 48)
 
-[node name="road-straight-lightposts2" type="Node3D" parent="CityArchitecture" unique_id=1412783524 instance=ExtResource("20_g050w")]
+[node name="road-straight-lightposts2" type="Node3D" parent="CityArchitecture" unique_id=1412783524 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 44)
 
 [node name="@Node3D@3" type="Node3D" parent="CityArchitecture" unique_id=2121814082 instance=ExtResource("21_nb33p")]
@@ -492,7 +513,7 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 36)
 [node name="@Node3D@5" type="Node3D" parent="CityArchitecture" unique_id=648202710 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 32)
 
-[node name="@Node3D@6" type="Node3D" parent="CityArchitecture" unique_id=2021818535 instance=ExtResource("20_g050w")]
+[node name="@Node3D@6" type="Node3D" parent="CityArchitecture" unique_id=2021818535 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 28)
 
 [node name="@Node3D@7" type="Node3D" parent="CityArchitecture" unique_id=1606288217 instance=ExtResource("21_nb33p")]
@@ -519,7 +540,7 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 12)
 [node name="@Node3D@13" type="Node3D" parent="CityArchitecture" unique_id=1284223689 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 8)
 
-[node name="@Node3D@14" type="Node3D" parent="CityArchitecture" unique_id=409746835 instance=ExtResource("20_g050w")]
+[node name="@Node3D@14" type="Node3D" parent="CityArchitecture" unique_id=409746835 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, 4)
 
 [node name="@Node3D@15" type="Node3D" parent="CityArchitecture" unique_id=305482596 instance=ExtResource("21_nb33p")]
@@ -531,7 +552,7 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -4)
 [node name="@Node3D@17" type="Node3D" parent="CityArchitecture" unique_id=396191049 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -8)
 
-[node name="@Node3D@18" type="Node3D" parent="CityArchitecture" unique_id=1757415869 instance=ExtResource("20_g050w")]
+[node name="@Node3D@18" type="Node3D" parent="CityArchitecture" unique_id=1757415869 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -12)
 
 [node name="@Node3D@19" type="Node3D" parent="CityArchitecture" unique_id=2066468875 instance=ExtResource("21_nb33p")]
@@ -543,7 +564,7 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -20)
 [node name="@Node3D@21" type="Node3D" parent="CityArchitecture" unique_id=1405384685 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -24)
 
-[node name="@Node3D@22" type="Node3D" parent="CityArchitecture" unique_id=516081224 instance=ExtResource("20_g050w")]
+[node name="@Node3D@22" type="Node3D" parent="CityArchitecture" unique_id=516081224 instance=ExtResource("21_nb33p")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.02, -28)
 
 [node name="@Node3D@23" type="Node3D" parent="CityArchitecture" unique_id=1943845776 instance=ExtResource("21_nb33p")]
@@ -753,125 +774,3 @@ transform = Transform3D(0.8550504, 0, 2.3492315, 0, 2.5, 0, -2.3492315, 0, 0.855
 [node name="@Node3D@86" type="Node3D" parent="CityArchitecture" unique_id=1775736419 instance=ExtResource("27_mjhq2")]
 transform = Transform3D(1.9151111, 0, 1.6069689, 0, 2.5, 0, -1.6069689, 0, 1.9151111, 4, 0.12, -8)
 
-[node name="building-small-a2" type="Node3D" parent="CityArchitecture" unique_id=1540575637 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, 52)
-
-[node name="building-small-b2" type="Node3D" parent="CityArchitecture" unique_id=1093362067 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6, 0, -4, 0, -1.7484555e-07, -8, 0.12, 48)
-
-[node name="building-small-c2" type="Node3D" parent="CityArchitecture" unique_id=282446265 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 7.2, 0, -4, 0, -1.7484555e-07, -8, 0.12, 44)
-
-[node name="building-small-d2" type="Node3D" parent="CityArchitecture" unique_id=1771953189 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5, 0, -4, 0, -1.7484555e-07, -8, 0.12, 40)
-
-[node name="@Node3D@87" type="Node3D" parent="CityArchitecture" unique_id=1079940480 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, 36)
-
-[node name="@Node3D@88" type="Node3D" parent="CityArchitecture" unique_id=1744917128 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, 28)
-
-[node name="@Node3D@89" type="Node3D" parent="CityArchitecture" unique_id=1924811706 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, 24)
-
-[node name="@Node3D@90" type="Node3D" parent="CityArchitecture" unique_id=208650033 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 7, 0, -4, 0, -1.7484555e-07, -8, 0.12, 20)
-
-[node name="@Node3D@91" type="Node3D" parent="CityArchitecture" unique_id=1776178735 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5.2, 0, -4, 0, -1.7484555e-07, -8, 0.12, 12)
-
-[node name="@Node3D@92" type="Node3D" parent="CityArchitecture" unique_id=750385996 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6.2, 0, -4, 0, -1.7484555e-07, -8, 0.12, 4)
-
-[node name="@Node3D@93" type="Node3D" parent="CityArchitecture" unique_id=1077954386 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, 0)
-
-[node name="@Node3D@94" type="Node3D" parent="CityArchitecture" unique_id=1226593109 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6.8, 0, -4, 0, -1.7484555e-07, -8, 0.12, -8)
-
-[node name="@Node3D@95" type="Node3D" parent="CityArchitecture" unique_id=1449069762 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 5, 0, -4, 0, -1.7484555e-07, -8, 0.12, -12)
-
-[node name="@Node3D@96" type="Node3D" parent="CityArchitecture" unique_id=1595201176 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 6, 0, -4, 0, -1.7484555e-07, -8, 0.12, -16)
-
-[node name="@Node3D@97" type="Node3D" parent="CityArchitecture" unique_id=1660792704 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 7.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, -24)
-
-[node name="@Node3D@98" type="Node3D" parent="CityArchitecture" unique_id=660948917 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4.5, 0, -4, 0, -1.7484555e-07, -8, 0.12, -28)
-
-[node name="@Node3D@99" type="Node3D" parent="CityArchitecture" unique_id=783835139 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6, 0, 4, 0, -1.7484555e-07, 8, 0.12, 52)
-
-[node name="@Node3D@100" type="Node3D" parent="CityArchitecture" unique_id=236284546 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5, 0, 4, 0, -1.7484555e-07, 8, 0.12, 48)
-
-[node name="@Node3D@101" type="Node3D" parent="CityArchitecture" unique_id=240155302 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7, 0, 4, 0, -1.7484555e-07, 8, 0.12, 44)
-
-[node name="@Node3D@102" type="Node3D" parent="CityArchitecture" unique_id=743148841 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 4.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, 40)
-
-[node name="@Node3D@103" type="Node3D" parent="CityArchitecture" unique_id=1789112921 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.2, 0, 4, 0, -1.7484555e-07, 8, 0.12, 36)
-
-[node name="@Node3D@104" type="Node3D" parent="CityArchitecture" unique_id=1792230185 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.5, 0, 4, 0, -1.7484555e-07, 8, 0.12, 32)
-
-[node name="@Node3D@105" type="Node3D" parent="CityArchitecture" unique_id=1339237970 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, 28)
-
-[node name="@Node3D@106" type="Node3D" parent="CityArchitecture" unique_id=1008546015 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.2, 0, 4, 0, -1.7484555e-07, 8, 0.12, 0)
-
-[node name="@Node3D@107" type="Node3D" parent="CityArchitecture" unique_id=1888858840 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 8, 0.12, -4)
-
-[node name="@Node3D@108" type="Node3D" parent="CityArchitecture" unique_id=254244315 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 4.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, -8)
-
-[node name="@Node3D@109" type="Node3D" parent="CityArchitecture" unique_id=1689158748 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6, 0, 4, 0, -1.7484555e-07, 8, 0.12, -12)
-
-[node name="@Node3D@110" type="Node3D" parent="CityArchitecture" unique_id=738616221 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7.2, 0, 4, 0, -1.7484555e-07, 8, 0.12, -16)
-
-[node name="@Node3D@111" type="Node3D" parent="CityArchitecture" unique_id=1482756095 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5, 0, 4, 0, -1.7484555e-07, 8, 0.12, -20)
-
-[node name="@Node3D@112" type="Node3D" parent="CityArchitecture" unique_id=1187653204 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 8, 0.12, -24)
-
-[node name="@Node3D@113" type="Node3D" parent="CityArchitecture" unique_id=54118285 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 4.8, 0, 4, 0, -1.7484555e-07, 8, 0.12, -28)
-
-[node name="@Node3D@114" type="Node3D" parent="CityArchitecture" unique_id=1511915814 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 24)
-
-[node name="@Node3D@115" type="Node3D" parent="CityArchitecture" unique_id=1936552978 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 20)
-
-[node name="@Node3D@116" type="Node3D" parent="CityArchitecture" unique_id=154109165 instance=ExtResource("25_khiet")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 16)
-
-[node name="@Node3D@117" type="Node3D" parent="CityArchitecture" unique_id=48430367 instance=ExtResource("22_n3i75")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 5.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 12)
-
-[node name="@Node3D@118" type="Node3D" parent="CityArchitecture" unique_id=848123212 instance=ExtResource("23_oj0ah")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 6.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 8)
-
-[node name="@Node3D@119" type="Node3D" parent="CityArchitecture" unique_id=680892022 instance=ExtResource("24_i5ioe")]
-transform = Transform3D(-1.7484555e-07, 0, -4, 0, 7.5, 0, 4, 0, -1.7484555e-07, 24, 0.12, 4)
-
-[node name="vehicle-motorcycle" type="Node3D" parent="CityArchitecture" unique_id=1188093945 instance=ExtResource("32_nb33p")]
-transform = Transform3D(1.1468129, 0, 0.803007, 0, 1.4, 0, -0.803007, 0, 1.1468129, -3.2, 0.15, 36)
-
-[node name="vehicle-truck-yellow" type="Node3D" parent="CityArchitecture" unique_id=1187115801 instance=ExtResource("33_n3i75")]
-transform = Transform3D(-6.119594e-08, 0, 1.4, 0, 1.4, 0, -1.4, 0, -6.119594e-08, -8, 0.15, 16)
-
-[node name="vehicle-truck-green" type="Node3D" parent="CityArchitecture" unique_id=162757831 instance=ExtResource("34_oj0ah")]
-transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 16, 0.15, 0)
-
-[node name="character2" type="Node3D" parent="CityArchitecture" unique_id=1452094512 instance=ExtResource("35_i5ioe")]
-transform = Transform3D(-1.8, 0, -1.57361e-07, 0, 1.8, 0, 1.57361e-07, 0, -1.8, 10, 0.12, 14)

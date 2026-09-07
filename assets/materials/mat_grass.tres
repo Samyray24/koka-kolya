@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/paving/paving_normal.jpg" id="1_norm"]
+
+[resource]
+albedo_color = Color(0.24, 0.48, 0.18, 1)
+roughness = 0.88
+normal_enabled = true
+normal_scale = 0.8
+normal_texture = ExtResource("1_norm")
+uv1_scale = Vector3(2, 2, 2)
+uv1_triplanar = true

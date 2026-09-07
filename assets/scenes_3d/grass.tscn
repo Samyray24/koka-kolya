@@ -3,6 +3,8 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tdq1t"]
 resource_name = "colormap"
 cull_mode = 2
+albedo_color = Color(0.24, 0.48, 0.18, 1)
+roughness = 0.85
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_kyb58"]
 resource_name = "grass_grass"

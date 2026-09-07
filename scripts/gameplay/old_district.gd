@@ -70,6 +70,21 @@ func _ready() -> void:
 	_update_waypoint_for_stage()
 
 func _spawn_world_details() -> void:
+	# 0. Инициализация и наложение фотореалистичных PBR материалов на геометрию уровня
+	var mat_asphalt: Material = load("res://assets/materials/mat_asphalt.tres")
+	var mat_paving: Material = load("res://assets/materials/mat_paving.tres")
+	var mat_grass: Material = load("res://assets/materials/mat_grass.tres")
+	var mat_foliage: Material = load("res://assets/materials/mat_foliage.tres")
+	var mat_brick: Material = load("res://assets/materials/mat_brick.tres")
+	var mat_concrete: Material = load("res://assets/materials/mat_concrete.tres")
+	var mat_brick_dark: Material = load("res://assets/materials/mat_brick_dark.tres")
+	var mat_sandstone: Material = load("res://assets/materials/mat_sandstone.tres")
+	var mat_metal: Material = load("res://assets/materials/mat_metal.tres")
+
+	var city_arch: Node3D = get_node_or_null("CityArchitecture")
+	if city_arch:
+		_apply_city_materials_recursive(city_arch, mat_asphalt, mat_paving, mat_grass, mat_foliage)
+
 	# 1. Спавн 3D-модели связного СашиV (Rogue_Hooded) возле гаража Коли
 	var npc_scene: PackedScene = load("res://scenes/characters/npc_character.tscn")
 	if npc_scene:
@@ -97,6 +112,241 @@ func _spawn_world_details() -> void:
 		sedan.rotation_degrees = Vector3(0, -10, 0)
 		add_child(sedan)
 
+	# 4. Хэтчбек и универсал жителей города
+	var hatch_scene: PackedScene = load("res://assets/scenes_3d/car_hatchback.tscn")
+	if hatch_scene:
+		var hatch: Node3D = hatch_scene.instantiate()
+		hatch.name = "CityHatch_Deco"
+		hatch.position = Vector3(-6.2, 0.0, 34.0)
+		hatch.rotation_degrees = Vector3(0, 20, 0)
+		add_child(hatch)
+
+	var wagon_scene: PackedScene = load("res://assets/scenes_3d/car_stationwagon.tscn")
+	if wagon_scene:
+		var wagon: Node3D = wagon_scene.instantiate()
+		wagon.name = "CityWagon_Deco"
+		wagon.position = Vector3(6.2, 0.0, -8.0)
+		wagon.rotation_degrees = Vector3(0, -15, 0)
+		add_child(wagon)
+
+	# 5. Грузовой фургон корпорации в переулке
+	var truck_scene: PackedScene = load("res://assets/scenes_3d/vehicle-truck-purple.tscn")
+	if truck_scene:
+		var truck: Node3D = truck_scene.instantiate()
+		truck.name = "CargoTruck_Deco"
+		truck.position = Vector3(-7.5, 0.0, -16.0)
+		truck.rotation_degrees = Vector3(0, 90, 0)
+		truck.scale = Vector3(1.3, 1.3, 1.3)
+		add_child(truck)
+
+	# 6. Уличные скамейки (bench.tscn) вдоль тротуаров
+	var bench_scene: PackedScene = load("res://assets/scenes_3d/bench.tscn")
+	if bench_scene:
+		var bench_spots = [
+			Vector3(-4.1, 0.12, 42.0),
+			Vector3(4.1, 0.12, 40.0),
+			Vector3(-4.1, 0.12, 26.0),
+			Vector3(4.1, 0.12, 22.0),
+			Vector3(-4.1, 0.12, 8.0),
+			Vector3(4.1, 0.12, -4.0)
+		]
+		for i in range(bench_spots.size()):
+			var b: Node3D = bench_scene.instantiate()
+			b.name = "Bench_%d" % i
+			b.position = bench_spots[i]
+			b.rotation_degrees = Vector3(0, 90 if bench_spots[i].x < 0 else -90, 0)
+			b.scale = Vector3(1.2, 1.2, 1.2)
+			add_child(b)
+
+	# 7. Уличные фонари с физическими столбами и теплым светом (OmniLight3D)
+	var lamp_z_coords = [46.0, 30.0, 14.0, -2.0, -18.0]
+	for z_pos in lamp_z_coords:
+		for x_side in [-4.3, 4.3]:
+			var pole := MeshInstance3D.new()
+			var p_mesh := CylinderMesh.new()
+			p_mesh.top_radius = 0.06
+			p_mesh.bottom_radius = 0.1
+			p_mesh.height = 3.2
+			pole.mesh = p_mesh
+			if mat_metal:
+				pole.material_override = mat_metal
+			pole.position = Vector3(x_side, 1.6, z_pos)
+			add_child(pole)
+
+			var head := MeshInstance3D.new()
+			var s_mesh := SphereMesh.new()
+			s_mesh.radius = 0.16
+			s_mesh.height = 0.32
+			head.mesh = s_mesh
+			var glow_mat := StandardMaterial3D.new()
+			glow_mat.albedo_color = Color(1.0, 0.92, 0.75)
+			glow_mat.emission_enabled = true
+			glow_mat.emission = Color(1.0, 0.88, 0.65)
+			glow_mat.emission_energy_multiplier = 2.0
+			head.material_override = glow_mat
+			head.position = Vector3(x_side, 3.2, z_pos)
+			add_child(head)
+
+			var lamp := OmniLight3D.new()
+			lamp.name = "StreetLamp_Light_%.0f_%.0f" % [x_side, z_pos]
+			lamp.position = Vector3(x_side, 3.2, z_pos)
+			lamp.light_color = Color(1.0, 0.90, 0.72)
+			lamp.light_energy = 1.8
+			lamp.omni_range = 8.0
+			lamp.omni_attenuation = 1.4
+			lamp.shadow_enabled = false
+			add_child(lamp)
+
+	# 8. Настоящие 3D здания (building_A - building_H) вдоль улицы с PBR отделкой
+	var b_types = ["building_A", "building_B", "building_C", "building_D", "building_E", "building_F", "building_G", "building_H"]
+	var bld_materials: Array[Material] = [mat_brick, mat_concrete, mat_brick_dark, mat_sandstone]
+	var street_z_list = [52.0, 44.0, 36.0, 28.0, 20.0, 12.0, 4.0, -4.0, -12.0, -20.0, -28.0]
+	for idx in range(street_z_list.size()):
+		var z_val = street_z_list[idx]
+		# Левая сторона
+		var left_type = b_types[idx % b_types.size()]
+		var left_res: PackedScene = load("res://assets/scenes_3d/%s.tscn" % left_type)
+		if left_res:
+			var lb: Node3D = left_res.instantiate()
+			lb.name = "StreetBld_L_%d" % idx
+			lb.position = Vector3(-8.8, 0.0, z_val)
+			lb.rotation_degrees = Vector3(0, 90, 0)
+			lb.scale = Vector3(4.0, 4.0 + (idx % 3) * 0.5, 4.0)
+			if bld_materials.size() > 0:
+				_apply_mesh_material_recursive(lb, bld_materials[idx % bld_materials.size()])
+			add_child(lb)
+		# Правая сторона
+		var right_type = b_types[(idx + 3) % b_types.size()]
+		var right_res: PackedScene = load("res://assets/scenes_3d/%s.tscn" % right_type)
+		if right_res:
+			var rb: Node3D = right_res.instantiate()
+			rb.name = "StreetBld_R_%d" % idx
+			rb.position = Vector3(8.8, 0.0, z_val)
+			rb.rotation_degrees = Vector3(0, -90, 0)
+			rb.scale = Vector3(4.0, 4.2 + ((idx + 1) % 3) * 0.5, 4.0)
+			if bld_materials.size() > 0:
+				_apply_mesh_material_recursive(rb, bld_materials[(idx + 2) % bld_materials.size()])
+			add_child(rb)
+
+	# 9. Защитные стены периметра склада (wall-high, wall-low)
+	var wall_high_res: PackedScene = load("res://assets/scenes_3d/wall-high.tscn")
+	if wall_high_res:
+		var wall_coords = [
+			Vector3(-9.0, 0.0, -36.0),
+			Vector3(-9.0, 0.0, -42.0),
+			Vector3(-9.0, 0.0, -48.0),
+			Vector3(9.0, 0.0, -36.0),
+			Vector3(9.0, 0.0, -42.0),
+			Vector3(9.0, 0.0, -48.0)
+		]
+		for i in range(wall_coords.size()):
+			var w: Node3D = wall_high_res.instantiate()
+			w.name = "PerimeterWall_%d" % i
+			w.position = wall_coords[i]
+			w.rotation_degrees = Vector3(0, 0, 0)
+			w.scale = Vector3(3.5, 3.5, 3.5)
+			add_child(w)
+
+	# 10. Промышленные ящики у терминала (box_A, box_B)
+	var box_a_res: PackedScene = load("res://assets/scenes_3d/box_A.tscn")
+	var box_b_res: PackedScene = load("res://assets/scenes_3d/box_B.tscn")
+	if box_a_res and box_b_res:
+		var crate_spots = [
+			Vector3(-4.8, 0.0, -28.0),
+			Vector3(-5.2, 0.0, -29.0),
+			Vector3(5.0, 0.0, -27.5),
+			Vector3(5.5, 0.0, -28.8)
+		]
+		for i in range(crate_spots.size()):
+			var bx: Node3D = (box_a_res if i % 2 == 0 else box_b_res).instantiate()
+			bx.name = "DecoCrate_%d" % i
+			bx.position = crate_spots[i]
+			bx.scale = Vector3(1.5, 1.5, 1.5)
+			add_child(bx)
+
+	# 11. Эффект клубящегося пара из канализационных люков (CPUParticles3D)
+	var steam_spots = [Vector3(1.0, 0.04, 34.0), Vector3(-1.2, 0.04, 10.0), Vector3(0.5, 0.04, -14.0)]
+	for i in range(steam_spots.size()):
+		var steam := CPUParticles3D.new()
+		steam.name = "ManholeSteam_%d" % i
+		steam.position = steam_spots[i]
+		steam.amount = 18
+		steam.lifetime = 2.4
+		steam.preprocess = 1.0
+		steam.explosiveness = 0.0
+		steam.randomness = 0.3
+		steam.direction = Vector3(0, 1, 0)
+		steam.spread = 15.0
+		steam.gravity = Vector3(0, 0.45, 0)
+		steam.initial_velocity_min = 0.4
+		steam.initial_velocity_max = 0.8
+		var p_mesh := SphereMesh.new()
+		p_mesh.radius = 0.18
+		p_mesh.height = 0.36
+		var p_mat := StandardMaterial3D.new()
+		p_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		p_mat.albedo_color = Color(0.9, 0.92, 0.95, 0.18)
+		p_mat.roughness = 1.0
+		p_mesh.material = p_mat
+		steam.mesh = p_mesh
+		add_child(steam)
+
+	# 12. Неоновая вывеска «КОКА-КОЛЯ: ВКУС СВОБОДЫ» на базе Коли
+	var neon_sign := Label3D.new()
+	neon_sign.name = "NeonSign_Cola"
+	neon_sign.position = Vector3(0.0, 4.8, 50.8)
+	neon_sign.text = "★ КОКА-КОЛЯ: ВКУС СВОБОДЫ ★"
+	neon_sign.font_size = 32
+	neon_sign.modulate = Color(0.3, 1.0, 0.45, 1.0)
+	neon_sign.outline_modulate = Color(0.05, 0.4, 0.15, 1.0)
+	neon_sign.outline_size = 8
+	add_child(neon_sign)
+
+	var neon_light := OmniLight3D.new()
+	neon_light.name = "NeonSign_Light"
+	neon_light.position = Vector3(0.0, 4.8, 49.8)
+	neon_light.light_color = Color(0.3, 1.0, 0.45)
+	neon_light.light_energy = 2.2
+	neon_light.omni_range = 6.0
+	add_child(neon_light)
+
+	# 13. Дорожная разметка: Пешеходный переход «зебра» на перекрестке (z = 16)
+	var zebra_parent := Node3D.new()
+	zebra_parent.name = "RoadMarkings_Zebra"
+	add_child(zebra_parent)
+	for i in range(-5, 6):
+		var stripe := MeshInstance3D.new()
+		var q_mesh := QuadMesh.new()
+		q_mesh.size = Vector2(0.5, 3.2)
+		q_mesh.orientation = PlaneMesh.FACE_Y
+		var s_mat := StandardMaterial3D.new()
+		s_mat.albedo_color = Color(0.94, 0.95, 0.98, 0.9)
+		s_mat.roughness = 0.8
+		stripe.mesh = q_mesh
+		stripe.material_override = s_mat
+		stripe.position = Vector3(i * 0.75, 0.03, 16.0)
+		zebra_parent.add_child(stripe)
+
+	# 14. Прерывистая разделительная полоса по центру дороги
+	var line_parent := Node3D.new()
+	line_parent.name = "RoadMarkings_CenterLine"
+	add_child(line_parent)
+	var z_coord := 52.0
+	while z_coord >= -35.0:
+		if abs(z_coord - 16.0) > 3.0:
+			var dash := MeshInstance3D.new()
+			var d_mesh := QuadMesh.new()
+			d_mesh.size = Vector2(0.2, 2.0)
+			d_mesh.orientation = PlaneMesh.FACE_Y
+			var d_mat := StandardMaterial3D.new()
+			d_mat.albedo_color = Color(1.0, 0.85, 0.25, 0.85)
+			d_mat.roughness = 0.7
+			dash.mesh = d_mesh
+			dash.material_override = d_mat
+			dash.position = Vector3(0.0, 0.025, z_coord)
+			line_parent.add_child(dash)
+		z_coord -= 4.0
+
 func _create_waypoint_beacon() -> void:
 	waypoint_node = Node3D.new()
 	waypoint_node.name = "WaypointBeacon"
@@ -105,12 +355,13 @@ func _create_waypoint_beacon() -> void:
 	# Светящийся кристалл маркера
 	waypoint_mesh = MeshInstance3D.new()
 	var prism := PrismMesh.new()
-	prism.size = Vector3(0.6, 0.9, 0.6)
+	prism.size = Vector3(0.35, 0.5, 0.35)
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.2, 0.9, 1.0, 0.9)
+	mat.albedo_color = Color(0.2, 0.9, 1.0, 0.8)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.emission_enabled = true
 	mat.emission = Color(0.2, 0.8, 1.0)
-	mat.emission_energy_multiplier = 3.0
+	mat.emission_energy_multiplier = 1.0
 	waypoint_mesh.mesh = prism
 	waypoint_mesh.material_override = mat
 	waypoint_node.add_child(waypoint_mesh)
@@ -118,8 +369,8 @@ func _create_waypoint_beacon() -> void:
 	# Точечный свет
 	waypoint_light = OmniLight3D.new()
 	waypoint_light.light_color = Color(0.2, 0.8, 1.0)
-	waypoint_light.light_energy = 1.8
-	waypoint_light.omni_range = 6.0
+	waypoint_light.light_energy = 1.2
+	waypoint_light.omni_range = 5.0
 	waypoint_node.add_child(waypoint_light)
 
 	# 3D Текстовая метка цели
@@ -286,3 +537,32 @@ func _update_objective_ui() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("test_hub"):
 		get_tree().change_scene_to_file("res://scenes/testlabs/test_hub.tscn")
+
+func _apply_city_materials_recursive(node: Node, mat_asphalt: Material, mat_paving: Material, mat_grass: Material, mat_foliage: Material) -> void:
+	if node is MeshInstance3D:
+		var mi := node as MeshInstance3D
+		var s_name := mi.name.to_lower()
+		var p_name := mi.get_parent().name.to_lower() if mi.get_parent() else ""
+		if "road" in s_name or "road" in p_name:
+			if mat_asphalt:
+				mi.material_override = mat_asphalt
+		elif "pavement" in s_name or "pavement" in p_name:
+			if mat_paving:
+				mi.material_override = mat_paving
+		elif "tree" in s_name or "tree" in p_name:
+			if mat_foliage:
+				mi.material_override = mat_foliage
+		elif "grass" in s_name or "grass" in p_name:
+			if mat_grass:
+				mi.material_override = mat_grass
+	for child in node.get_children():
+		_apply_city_materials_recursive(child, mat_asphalt, mat_paving, mat_grass, mat_foliage)
+
+func _apply_mesh_material_recursive(node: Node, mat: Material) -> void:
+	if not mat:
+		return
+	if node is MeshInstance3D:
+		(node as MeshInstance3D).material_override = mat
+	for child in node.get_children():
+		_apply_mesh_material_recursive(child, mat)
+
