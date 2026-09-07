@@ -5,8 +5,20 @@
 [ext_resource type="Script" path="res://scripts/vehicles/vehicle_radio.gd" id="3_radio"]
 [ext_resource type="PackedScene" path="res://assets/scenes_3d/vehicle-truck-red.tscn" id="4_dqto5"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_chassis"]
-size = Vector3(1.9, 1.6, 4.4)
+[sub_resource type="BoxShape3D" id="BoxShape3D_cabin"]
+size = Vector3(1.85, 1.45, 2.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bed_floor"]
+size = Vector3(1.75, 0.25, 2.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bed_wall"]
+size = Vector3(0.12, 0.55, 2.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tailgate"]
+size = Vector3(1.75, 0.55, 0.12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_base"]
+size = Vector3(1.6, 0.3, 4.0)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
 albedo_color = Color(0.85, 0.15, 0.18, 1)
@@ -171,8 +183,28 @@ center_of_mass = Vector3(0, -0.2, 0)
 script = ExtResource("1_van")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=299543783]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-shape = SubResource("BoxShape3D_chassis")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -1.15)
+shape = SubResource("BoxShape3D_cabin")
+
+[node name="CollisionBedFloor" type="CollisionShape3D" parent="." unique_id=299543784]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 1.05)
+shape = SubResource("BoxShape3D_bed_floor")
+
+[node name="CollisionBedWallL" type="CollisionShape3D" parent="." unique_id=299543785]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.88, 0.72, 1.05)
+shape = SubResource("BoxShape3D_bed_wall")
+
+[node name="CollisionBedWallR" type="CollisionShape3D" parent="." unique_id=299543786]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88, 0.72, 1.05)
+shape = SubResource("BoxShape3D_bed_wall")
+
+[node name="CollisionTailgate" type="CollisionShape3D" parent="." unique_id=299543787]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 2.15)
+shape = SubResource("BoxShape3D_tailgate")
+
+[node name="CollisionBase" type="CollisionShape3D" parent="." unique_id=299543788]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+shape = SubResource("BoxShape3D_base")
 
 [node name="BodyMesh" type="MeshInstance3D" parent="." unique_id=760292669]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)

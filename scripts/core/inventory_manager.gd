@@ -77,6 +77,8 @@ func _input(event: InputEvent) -> void:
 				select_slot(ToolSlot.HACK)
 				
 	if event is InputEventMouseButton and event.pressed:
+		if grabber and grabber.get("held_body") != null:
+			return # Пока держим предмет, колесико мыши регулирует дистанцию
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			cycle_slot(-1)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
@@ -116,8 +118,7 @@ func use_active_tool() -> Dictionary:
 		ToolSlot.GRABBER:
 			if grabber:
 				if grabber.get("held_body") != null:
-					grabber.call("throw_object")
-					result = {"action": "throw"}
+					result = {"action": "throw_handling"}
 				else:
 					grabber.call("try_interact_or_grab")
 					result = {"action": "interact_or_grab"}

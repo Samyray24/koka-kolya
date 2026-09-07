@@ -1,4 +1,4 @@
-class_name ColaCrate
+﻿class_name ColaCrate
 extends RigidBody3D
 
 # Физический деревянный ящик с бутылками «Кока-Коля» для погрузки в фургон
@@ -17,3 +17,17 @@ func _ready() -> void:
 	mat.friction = 0.85
 	mat.rough = true
 	physics_material_override = mat
+
+func unstrap() -> void:
+	if not is_secured:
+		return
+	is_secured = false
+	freeze = false
+	var p := get_parent()
+	if p is DeliveryVan:
+		var van := p as DeliveryVan
+		if self in van.secured_crates:
+			van.secured_crates.erase(self)
+		if van.get_parent():
+			reparent(van.get_parent())
+		van._update_cargo_mass()
