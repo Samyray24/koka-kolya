@@ -283,6 +283,51 @@ static func spawn_exhaust_flame(parent: Node, pos: Vector3, dir: Vector3) -> voi
 	tw_l.tween_property(light, "light_energy", 0.0, 0.2)
 	tw_l.tween_callback(light.queue_free)
 
+static func spawn_nitro_flame(parent: Node, pos: Vector3, dir: Vector3) -> void:
+	if not is_instance_valid(parent) or not parent.is_inside_tree():
+		return
+	var p := CPUParticles3D.new()
+	p.name = "NitroFlameFX"
+	p.emitting = false
+	p.one_shot = true
+	p.explosiveness = 0.98
+	p.amount = 22
+	p.lifetime = 0.28
+	p.direction = dir
+	p.spread = 12.0
+	p.initial_velocity_min = 9.0
+	p.initial_velocity_max = 16.0
+	p.gravity = Vector3(0, 0.5, 0)
+
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.09, 0.09, 0.32)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.1, 0.8, 1.0)
+	mat.emission_enabled = true
+	mat.emission = Color(0.0, 0.95, 1.0)
+	mat.emission_energy_multiplier = 6.0
+	mesh.material = mat
+	p.mesh = mesh
+
+	var light := OmniLight3D.new()
+	light.light_color = Color(0.2, 0.9, 1.0)
+	light.light_energy = 4.5
+	light.omni_range = 4.0
+	parent.add_child(light)
+	light.global_position = pos
+
+	parent.add_child(p)
+	p.global_position = pos
+	p.restart()
+
+	var tw := p.create_tween()
+	tw.tween_interval(0.35)
+	tw.tween_callback(p.queue_free)
+	var tw_l := light.create_tween()
+	tw_l.tween_property(light, "light_energy", 0.0, 0.25)
+	tw_l.tween_callback(light.queue_free)
+
+
 static func spawn_steam_vent(parent: Node, pos: Vector3, count: int = 14) -> void:
 	if not is_instance_valid(parent) or not parent.is_inside_tree():
 		return

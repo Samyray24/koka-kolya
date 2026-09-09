@@ -11,6 +11,34 @@ signal soda_dispensed(player: Node)
 @export var max_uses: int = 10
 var remaining_uses: int = 10
 
+const FLAVORS = [
+	{
+		"name": "Классика",
+		"color": Color(0.9, 0.15, 0.2),
+		"emission": Color(0.9, 0.1, 0.1),
+		"heal": 25.0,
+		"voice": "kolya_taste",
+		"line": "Пшшш... Вот это свежесть, аж искры из глаз! Заряжен на все сто процентов!"
+	},
+	{
+		"name": "Черри-Бунт",
+		"color": Color(0.72, 0.08, 0.32),
+		"emission": Color(0.85, 0.1, 0.4),
+		"heal": 45.0,
+		"voice": "kolya_cherry",
+		"line": "О-о, Черри-Бунт! Вот это забористый вкус, теперь держитесь!"
+	},
+	{
+		"name": "Неон-Лайм",
+		"color": Color(0.15, 0.9, 0.35),
+		"emission": Color(0.2, 1.0, 0.4),
+		"heal": 20.0,
+		"voice": "kolya_taste",
+		"line": "Ух ты, Неон-Лайм! Кислинка пробивает до мурашек, полная перезагрузка!"
+	}
+]
+var current_flavor_idx: int = 0
+
 var interactable: Interactable = null
 var dispenser_light: OmniLight3D = null
 
@@ -87,11 +115,22 @@ func _build_visuals() -> void:
 	display_cavity.position = Vector3(0, 0.95, 0.36)
 	add_child(display_cavity)
 
-	# 3D-банки газировки на полочках витрины
-	var mat_can := StandardMaterial3D.new()
-	mat_can.albedo_color = Color(0.9, 0.15, 0.18)
-	mat_can.metallic = 0.8
-	mat_can.roughness = 0.2
+	# 3D-банки газировки на полочках витрины (3 вкуса: Классика, Черри-Бунт, Неон-Лайм)
+	var mat_can_classic := StandardMaterial3D.new()
+	mat_can_classic.albedo_color = Color(0.9, 0.15, 0.18)
+	mat_can_classic.metallic = 0.8
+	mat_can_classic.roughness = 0.2
+
+	var mat_can_cherry := StandardMaterial3D.new()
+	mat_can_cherry.albedo_color = Color(0.72, 0.08, 0.32)
+	mat_can_cherry.metallic = 0.8
+	mat_can_cherry.roughness = 0.2
+
+	var mat_can_lime := StandardMaterial3D.new()
+	mat_can_lime.albedo_color = Color(0.15, 0.9, 0.35)
+	mat_can_lime.metallic = 0.8
+	mat_can_lime.roughness = 0.2
+
 	for row in range(2):
 		for col_idx in range(4):
 			var can_vis := MeshInstance3D.new()
@@ -100,7 +139,12 @@ func _build_visuals() -> void:
 			cyl.bottom_radius = 0.04
 			cyl.height = 0.14
 			can_vis.mesh = cyl
-			can_vis.material_override = mat_can
+			if col_idx < 2:
+				can_vis.material_override = mat_can_classic
+			elif col_idx == 2:
+				can_vis.material_override = mat_can_cherry
+			else:
+				can_vis.material_override = mat_can_lime
 			var x_c := -0.24 + col_idx * 0.16
 			var y_c := 0.8 + row * 0.24
 			can_vis.position = Vector3(x_c, y_c, 0.35)
@@ -120,7 +164,8 @@ func _build_visuals() -> void:
 	glass.position = Vector3(0, 0.95, 0.38)
 	add_child(glass)
 
-	# 5. Кнопочная консоль выбора товара
+	# 5. Кнопочная консоль выбора товара (3 фирменных вкуса)
+	var btn_glows := [Color(1.0, 0.2, 0.2), Color(0.95, 0.1, 0.5), Color(0.2, 1.0, 0.4)]
 	for b_i in range(3):
 		var btn := MeshInstance3D.new()
 		var bm := CylinderMesh.new()
@@ -129,10 +174,10 @@ func _build_visuals() -> void:
 		bm.height = 0.03
 		btn.mesh = bm
 		var b_mat := StandardMaterial3D.new()
-		b_mat.albedo_color = Color(0.2, 0.8, 1.0)
+		b_mat.albedo_color = btn_glows[b_i]
 		b_mat.emission_enabled = true
-		b_mat.emission = Color(0.2, 0.8, 1.0)
-		b_mat.emission_energy_multiplier = 2.0
+		b_mat.emission = btn_glows[b_i]
+		b_mat.emission_energy_multiplier = 2.4
 		btn.material_override = b_mat
 		btn.rotation_degrees = Vector3(90, 0, 0)
 		btn.position = Vector3(0.38, 1.05 - b_i * 0.1, 0.38)
@@ -178,41 +223,61 @@ func _build_visuals() -> void:
 
 func _setup_interactable() -> void:
 	interactable = Interactable.new()
-	interactable.prompt_message = "Взять банку «Кока-Коля» [E]"
+	_update_prompt()
 	interactable.interacted.connect(_on_interacted)
 	add_child(interactable)
 
+func _update_prompt() -> void:
+	if not interactable:
+		return
+	if remaining_uses <= 0:
+		interactable.prompt_message = "Автомат пуст"
+	else:
+		var flv: Dictionary = FLAVORS[current_flavor_idx]
+		interactable.prompt_message = "Взять банку «%s» [E] (+%.0f HP)" % [flv.name, flv.heal]
+
 func _on_interacted(instigator: Node) -> void:
 	if remaining_uses <= 0:
-		if interactable:
-			interactable.prompt_message = "Автомат пуст"
+		_update_prompt()
 		return
 
+	var flavor: Dictionary = FLAVORS[current_flavor_idx]
 	remaining_uses -= 1
-	_play_dispense_sfx()
-	_spawn_physics_can()
 
+	_play_dispense_sfx(flavor)
+	_spawn_physics_can(flavor)
+
+	var heal_amt: float = float(flavor.heal)
 	if instigator and instigator.has_method("heal"):
-		instigator.call("heal", heals_amount)
+		instigator.call("heal", heal_amt)
 
 	soda_dispensed.emit(instigator)
-	LogManager.info("Автомат выдал банку «Кока-Коля»! Здоровье восстановлено на %.0f HP." % heals_amount, "Interaction")
+	LogManager.info("Автомат выдал банку «%s»! Здоровье восстановлено на %.0f HP." % [flavor.name, heal_amt], "Interaction")
 
-func _play_dispense_sfx() -> void:
+	# Переключение на следующий вкус в очереди
+	current_flavor_idx = (current_flavor_idx + 1) % FLAVORS.size()
+	_update_prompt()
+
+func _play_dispense_sfx(flavor: Dictionary) -> void:
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")
 		am.call("play_sfx", "can_pop_fizz", 2.0)
+
 	if has_node("/root/VoiceManager"):
 		var vm: Node = get_node("/root/VoiceManager")
-		vm.call("speak_kolya", "kolya_taste", "Пшшш... Вот это свежесть, аж искры из глаз! Заряжен на все сто процентов!")
+		var voice_id: String = flavor.voice
+		var voice_txt: String = flavor.line
+		vm.call("speak_kolya", voice_id, voice_txt)
+
 	if dispenser_light:
+		dispenser_light.light_color = flavor.emission
 		var tw := create_tween()
-		tw.tween_property(dispenser_light, "light_energy", 3.8, 0.08)
+		tw.tween_property(dispenser_light, "light_energy", 4.2, 0.08)
 		tw.tween_property(dispenser_light, "light_energy", 1.6, 0.28)
 
-func _spawn_physics_can() -> void:
+func _spawn_physics_can(flavor: Dictionary) -> void:
 	var can := RigidBody3D.new()
-	can.name = "SodaCan_%d" % remaining_uses
+	can.name = "SodaCan_%d_%s" % [remaining_uses, flavor.name]
 	can.mass = 0.35
 	can.continuous_cd = true
 	can.linear_damp = 0.4
@@ -238,9 +303,12 @@ func _spawn_physics_can() -> void:
 	cm.bottom_radius = 0.07
 	cm.height = 0.18
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.9, 0.15, 0.2)
-	mat.metallic = 0.75
-	mat.roughness = 0.25
+	mat.albedo_color = flavor.color
+	mat.metallic = 0.8
+	mat.roughness = 0.22
+	mat.emission_enabled = true
+	mat.emission = flavor.emission
+	mat.emission_energy_multiplier = 0.6
 	c_mesh.mesh = cm
 	c_mesh.material_override = mat
 	can.add_child(c_mesh)
@@ -251,3 +319,4 @@ func _spawn_physics_can() -> void:
 		can.global_position = global_position + global_transform.basis * Vector3(0, 0.32, 0.55)
 		can.apply_impulse(global_transform.basis.z * 2.0 + Vector3(0, 1.1, 0), Vector3(0.01, 0.04, 0.01))
 		can.apply_torque_impulse(Vector3(randf_range(-2, 2), randf_range(-2, 2), randf_range(-2, 2)))
+

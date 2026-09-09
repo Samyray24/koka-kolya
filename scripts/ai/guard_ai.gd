@@ -23,6 +23,10 @@ var patrol_target_b: bool = true
 @export var max_health: float = 100.0
 var current_health: float = 100.0
 
+var tactical_flashlight: SpotLight3D = null
+var search_voice_cooldown: float = 0.0
+var idle_banter_timer: float = 30.0
+
 @onready var vision_sensor: Node3D = get_node_or_null("AISensorVision")
 @onready var hearing_sensor: Node3D = get_node_or_null("AISensorHearing")
 @onready var state_label: Label3D = get_node_or_null("StateIndicator")
@@ -32,6 +36,7 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9
 
 func _ready() -> void:
 	target_pos = patrol_point_a
+	_setup_flashlight()
 	_update_state_indicator()
 	_play_anim("Idle")
 
@@ -60,6 +65,8 @@ func _play_anim(anim_name: String) -> void:
 			anim_player.play(anim_name)
 
 func _physics_process(delta: float) -> void:
+	search_voice_cooldown = maxf(0.0, search_voice_cooldown - delta)
+
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
@@ -80,6 +87,13 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func _process_patrol(delta: float) -> void:
+	idle_banter_timer -= delta
+	if idle_banter_timer <= 0.0:
+		idle_banter_timer = randf_range(40.0, 75.0)
+		if has_node("/root/VoiceManager"):
+			var vm: Node = get_node("/root/VoiceManager")
+			vm.call("speak_guard", "guard_idle_banter", "Опять смена двенадцать часов... Хоть бы банку колы кто подогнал...")
+
 	var target := patrol_point_b if patrol_target_b else patrol_point_a
 	var dir := (target - global_position)
 	dir.y = 0.0
@@ -207,17 +221,54 @@ func _look_at_pos(target: Vector3, delta: float) -> void:
 		var target_yaw := atan2(-diff.x, -diff.z)
 		rotation.y = lerp_angle(rotation.y, target_yaw, 6.0 * delta)
 
+func _setup_flashlight() -> void:
+	tactical_flashlight = SpotLight3D.new()
+	tactical_flashlight.name = "TacticalFlashlight"
+	tactical_flashlight.position = Vector3(0, 1.45, -0.3)
+	tactical_flashlight.rotation_degrees = Vector3(0, 180, 0)
+	tactical_flashlight.light_color = Color(0.85, 0.95, 1.0)
+	tactical_flashlight.spot_range = 22.0
+	tactical_flashlight.spot_angle = 32.0
+	tactical_flashlight.light_energy = 2.4
+	tactical_flashlight.visible = false
+	add_child(tactical_flashlight)
+
+func _update_flashlight() -> void:
+	if not tactical_flashlight:
+		return
+	match current_state:
+		AIState.IDLE:
+			tactical_flashlight.visible = false
+		AIState.SUSPICIOUS, AIState.INVESTIGATING, AIState.SEARCHING:
+			tactical_flashlight.visible = true
+			tactical_flashlight.light_color = Color(0.85, 0.95, 1.0)
+			tactical_flashlight.light_energy = 2.4
+			tactical_flashlight.spot_angle = 34.0
+		AIState.ALERT:
+			tactical_flashlight.visible = true
+			tactical_flashlight.light_color = Color(1.0, 0.2, 0.2)
+			tactical_flashlight.light_energy = 3.5
+			tactical_flashlight.spot_angle = 40.0
+		AIState.STUNNED:
+			tactical_flashlight.visible = false
+
 func _transition_to(new_state: AIState) -> void:
 	if current_state == new_state:
 		return
 	var prev_state = current_state
 	current_state = new_state
 	_update_state_indicator()
+	_update_flashlight()
 
 	if new_state == AIState.ALERT and prev_state != AIState.ALERT:
 		if has_node("/root/VoiceManager"):
 			var vm: Node = get_node("/root/VoiceManager")
 			vm.call("speak_guard", "guard_alert", "Внимание всем постам! Нарушитель на периметре, перекрыть все выходы и открыть огонь!")
+	elif (new_state == AIState.SEARCHING or new_state == AIState.INVESTIGATING) and search_voice_cooldown <= 0.0:
+		search_voice_cooldown = 25.0
+		if has_node("/root/VoiceManager"):
+			var vm: Node = get_node("/root/VoiceManager")
+			vm.call("speak_guard", "guard_search", "Выходи по-хорошему! Всё равно все выходы перекрыты!")
 
 func _update_state_indicator() -> void:
 	if not state_label:

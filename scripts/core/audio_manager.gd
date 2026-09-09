@@ -115,6 +115,8 @@ func _generate_sound_library() -> void:
 	sfx_library["can_pop_fizz"] = _create_can_pop_fizz_sound()
 	sfx_library["backfire"] = _create_backfire_sound()
 	sfx_library["shield_hit"] = _create_shield_hit_sound()
+	sfx_library["nitro_boost"] = _create_nitro_boost_sound()
+	sfx_library["horn"] = _create_horn_sound()
 
 func _create_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	var wav := AudioStreamWAV.new()
@@ -427,4 +429,36 @@ func _create_shield_hit_sound() -> AudioStreamWAV:
 		var env := exp(-t * 9.0)
 		var tone := sin(t * TAU * freq) * env * 0.6
 		samples[i] = clampf(tone, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_nitro_boost_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.55)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var turbine_freq := 380.0 + 720.0 * (t / 0.55)
+		var turbine := sin(t * TAU * turbine_freq) * 0.28
+		var bass := sin(t * TAU * (65.0 + 25.0 * sin(t * TAU * 14.0))) * 0.42
+		var rush := (randf() * 2.0 - 1.0) * 0.4
+		var env := sin(t / 0.55 * PI)
+		samples[i] = clampf((turbine + bass + rush) * env, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_horn_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.45)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var f1 := 440.0
+		var f2 := 554.37
+		var f3 := 880.0
+		var tone := sin(t * TAU * f1) * 0.45 + sin(t * TAU * f2) * 0.4 + sin(t * TAU * f3) * 0.15
+		var env := 1.0
+		if t < 0.03:
+			env = t / 0.03
+		elif t > 0.35:
+			env = (0.45 - t) / 0.10
+		samples[i] = clampf(tone * env * 0.65, -1.0, 1.0)
 	return _create_wav(samples)

@@ -114,11 +114,15 @@ func run_tests() -> void:
 		guard_inst.call("_on_target_lost", Vector3(0, 0, -4))
 		var state_after_lost: int = guard_inst.get("current_state")
 		
+		var tf: SpotLight3D = guard_inst.get("tactical_flashlight") as SpotLight3D
+		var flashlight_ok: bool = (tf != null and tf.visible)
+		var flashlight_red: bool = (tf != null and tf.light_color.r > 0.9 and tf.light_color.b < 0.3)
+
 		# 0: IDLE, 2: INVESTIGATING, 3: ALERT, 4: SEARCHING
-		if initial_state == 0 and state_after_noise == 2 and state_after_spot == 3 and state_after_lost == 4:
-			print("  [PASS] GuardAI FSM корректно отрабатывает цепочку состояний 0 -> 2 -> 3 -> 4.")
+		if initial_state == 0 and state_after_noise == 2 and state_after_spot == 3 and state_after_lost == 4 and flashlight_ok:
+			print("  [PASS] GuardAI FSM (0 -> 2 -> 3 -> 4) и тактический фонарь поиска успешно протестированы.")
 		else:
-			printerr("  [FAIL] Ошибка FSM: init=%d, noise=%d, spot=%d, lost=%d" % [initial_state, state_after_noise, state_after_spot, state_after_lost])
+			printerr("  [FAIL] Ошибка FSM или фонаря: init=%d, noise=%d, spot=%d, lost=%d, light_ok=%s" % [initial_state, state_after_noise, state_after_spot, state_after_lost, flashlight_ok])
 			errors += 1
 		
 		dummy_player.queue_free()

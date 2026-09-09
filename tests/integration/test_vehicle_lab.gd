@@ -83,14 +83,59 @@ func run_tests() -> void:
 			printerr("  [FAIL] Не найдена зона CargoArea3D.")
 			errors += 1
 
+		# 6. Проверка нитро-ускорения, фар и клаксона
+		print("[TEST 6/8] Проверка систем мега-патча фургона (Нитро, Фары, Гудок, Шасси)...")
+		var nitro_val: float = float(van.get("nitro_fuel"))
+		var max_nitro_val: float = float(van.get("max_nitro"))
+		var chassis_hp: float = float(van.get("chassis_health"))
+
+		van.call("toggle_headlights") # LOW
+		var mode_low: int = int(van.get("headlight_mode"))
+		var hl_l: SpotLight3D = van.get_node_or_null("HeadlightL")
+		var is_low_ok: bool = (mode_low == 1 and hl_l != null and hl_l.visible and is_equal_approx(hl_l.spot_range, 35.0))
+
+		van.call("toggle_headlights") # HIGH
+		var mode_high: int = int(van.get("headlight_mode"))
+		var is_high_ok: bool = (mode_high == 2 and hl_l != null and hl_l.visible and is_equal_approx(hl_l.spot_range, 75.0))
+
+		van.call("toggle_headlights") # OFF
+		var mode_off: int = int(van.get("headlight_mode"))
+		var is_off_ok: bool = (mode_off == 0 and hl_l != null and not hl_l.visible)
+
+		van.call("honk_horn")
+		var horn_cd: float = float(van.get("horn_voice_cooldown"))
+
+		if is_equal_approx(nitro_val, 100.0) and is_equal_approx(max_nitro_val, 100.0) and is_equal_approx(chassis_hp, 100.0) and is_low_ok and is_high_ok and is_off_ok and horn_cd > 0.0:
+			print("  [PASS] Нитро (100%), 3 режима фар (ВЫКЛ/БЛИЖНИЙ/ДАЛЬНИЙ), гудок и здоровье шасси успешно протестированы.")
+		else:
+			printerr("  [FAIL] Ошибка систем фургона: nitro=%s, low=%s, high=%s, off=%s, horn_cd=%s" % [nitro_val, is_low_ok, is_high_ok, is_off_ok, horn_cd])
+			errors += 1
+
+		# 7. Проверка торгового автомата и 3 вкусов газировки
+		print("[TEST 7/8] Проверка автомата газировки и 3 вкусов (Классика, Черри-Бунт, Неон-Лайм)...")
+		var vm_script: Script = load("res://scripts/interaction/vending_machine.gd")
+		if vm_script:
+			var vm_inst: Node3D = vm_script.new()
+			root.add_child(vm_inst)
+			var flavors: Array = vm_inst.get("FLAVORS")
+			if flavors.size() == 3 and flavors[0].name == "Классика" and flavors[1].name == "Черри-Бунт" and flavors[2].name == "Неон-Лайм":
+				print("  [PASS] В торговом автомате доступны все 3 уникальных вкуса газировки.")
+			else:
+				printerr("  [FAIL] Ошибка списка вкусов: %s" % str(flavors))
+				errors += 1
+			vm_inst.queue_free()
+		else:
+			printerr("  [FAIL] Не удалось загрузить vending_machine.gd")
+			errors += 1
+
 		dummy_player.queue_free()
 		van.queue_free()
 	else:
 		printerr("  [FAIL] Не удалось загрузить scenes/vehicles/delivery_van.tscn")
 		errors += 1
 
-	# 6. Проверка загрузки сцены vehicle_lab.tscn
-	print("[TEST 6/6] Проверка целостности сцены vehicle_lab.tscn...")
+	# 8. Проверка загрузки сцены vehicle_lab.tscn
+	print("[TEST 8/8] Проверка целостности сцены vehicle_lab.tscn...")
 	var lab_res: PackedScene = load("res://scenes/testlabs/vehicle_lab.tscn")
 	if lab_res:
 		var lab_inst: Node3D = lab_res.instantiate()
@@ -110,7 +155,7 @@ func run_tests() -> void:
 
 	print("=======================================================================")
 	if errors == 0:
-		print(">>> ВСЕ 6 ТЕСТОВ VEHICLE LAB УСПЕШНО ПРОЙДЕНЫ (0 ОШИБОК) <<<")
+		print(">>> ВСЕ 8 ТЕСТОВ VEHICLE LAB УСПЕШНО ПРОЙДЕНЫ (0 ОШИБОК) <<<")
 		print("=======================================================================")
 		quit(0)
 	else:

@@ -51,12 +51,37 @@ var drift_cooldown: float = 0.0
 var exhaust_timer: float = 0.0
 var drift_voice_cooldown: float = 0.0
 
+# Нитро-ускорение (Soda Nitro Boost)
+@export var max_nitro: float = 100.0
+var nitro_fuel: float = 100.0
+var is_nitro_active: bool = false
+var nitro_voice_cooldown: float = 0.0
+var nitro_sfx_timer: float = 0.0
+
+# Фары (Headlights)
+enum HeadlightMode { OFF, LOW, HIGH }
+var headlight_mode: HeadlightMode = HeadlightMode.OFF
+var headlight_l: SpotLight3D = null
+var headlight_r: SpotLight3D = null
+
+# Клаксон (Klaxon Horn)
+var horn_voice_cooldown: float = 0.0
+
+# Состояние шасси (Chassis Health)
+@export var max_chassis_health: float = 100.0
+var chassis_health: float = 100.0
+var smoke_timer: float = 0.0
+var caution_voice_cooldown: float = 0.0
+
 # HUD приборной панели
 var dashboard_canvas: CanvasLayer = null
 var speed_label: Label = null
 var gear_label: Label = null
 var cargo_label: Label = null
 var radio_label: Label = null
+var nitro_label: Label = null
+var health_label: Label = null
+var headlight_label: Label = null
 
 func _ready() -> void:
 	add_to_group("vehicle")
@@ -73,6 +98,7 @@ func _ready() -> void:
 	if interactable_node and interactable_node.has_signal("interacted") and interactable_node != door_interactable:
 		interactable_node.connect("interacted", _on_door_interacted)
 
+	_setup_headlights()
 	_build_dashboard_ui()
 
 func _on_door_interacted(instigator: Node) -> void:
@@ -130,6 +156,85 @@ func exit_vehicle() -> void:
 	player_exited.emit()
 	driver_passenger = null
 
+func _setup_headlights() -> void:
+	headlight_l = SpotLight3D.new()
+	headlight_l.name = "HeadlightL"
+	headlight_l.position = Vector3(-0.7, 0.65, -2.2)
+	headlight_l.rotation_degrees = Vector3(0, 180, 0)
+	headlight_l.light_color = Color(1.0, 0.96, 0.88)
+	headlight_l.visible = false
+	add_child(headlight_l)
+
+	headlight_r = SpotLight3D.new()
+	headlight_r.name = "HeadlightR"
+	headlight_r.position = Vector3(0.7, 0.65, -2.2)
+	headlight_r.rotation_degrees = Vector3(0, 180, 0)
+	headlight_r.light_color = Color(1.0, 0.96, 0.88)
+	headlight_r.visible = false
+	add_child(headlight_r)
+
+func toggle_headlights() -> void:
+	match headlight_mode:
+		HeadlightMode.OFF:
+			headlight_mode = HeadlightMode.LOW
+			headlight_l.visible = true
+			headlight_r.visible = true
+			headlight_l.spot_range = 35.0
+			headlight_r.spot_range = 35.0
+			headlight_l.spot_angle = 36.0
+			headlight_r.spot_angle = 36.0
+			headlight_l.light_energy = 2.2
+			headlight_r.light_energy = 2.2
+		HeadlightMode.LOW:
+			headlight_mode = HeadlightMode.HIGH
+			headlight_l.visible = true
+			headlight_r.visible = true
+			headlight_l.spot_range = 75.0
+			headlight_r.spot_range = 75.0
+			headlight_l.spot_angle = 46.0
+			headlight_r.spot_angle = 46.0
+			headlight_l.light_energy = 4.2
+			headlight_r.light_energy = 4.2
+		HeadlightMode.HIGH:
+			headlight_mode = HeadlightMode.OFF
+			headlight_l.visible = false
+			headlight_r.visible = false
+
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "click", -3.0, 1.25)
+
+	_refresh_dashboard_accessories()
+
+func honk_horn() -> void:
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "horn", 3.0)
+
+	if has_node("/root/NoiseManager"):
+		var nm: Node = get_node("/root/NoiseManager")
+		nm.call("emit_noise", global_position, 40.0, self, "vehicle_horn")
+
+	if horn_voice_cooldown <= 0.0:
+		horn_voice_cooldown = 14.0
+		if has_node("/root/VoiceManager"):
+			var vm: Node = get_node("/root/VoiceManager")
+			vm.call("speak_kolya", "kolya_horn", "Бип-бип, посторонись, корпораты! Доставка свежести летит!")
+
+func _refresh_dashboard_accessories() -> void:
+	if not headlight_label:
+		return
+	match headlight_mode:
+		HeadlightMode.OFF:
+			headlight_label.text = "Фары: ВЫКЛ [L]"
+			headlight_label.modulate = Color(0.6, 0.6, 0.6)
+		HeadlightMode.LOW:
+			headlight_label.text = "Фары: БЛИЖНИЙ [L]"
+			headlight_label.modulate = Color(1.0, 0.9, 0.3)
+		HeadlightMode.HIGH:
+			headlight_label.text = "Фары: ДАЛЬНИЙ [L]"
+			headlight_label.modulate = Color(0.3, 0.9, 1.0)
+
 func _physics_process(delta: float) -> void:
 	_update_cargo_mass()
 
@@ -170,16 +275,59 @@ func _physics_process(delta: float) -> void:
 	drift_cooldown = maxf(0.0, drift_cooldown - delta)
 	exhaust_timer = maxf(0.0, exhaust_timer - delta)
 	drift_voice_cooldown = maxf(0.0, drift_voice_cooldown - delta)
+	nitro_voice_cooldown = maxf(0.0, nitro_voice_cooldown - delta)
+	horn_voice_cooldown = maxf(0.0, horn_voice_cooldown - delta)
+	caution_voice_cooldown = maxf(0.0, caution_voice_cooldown - delta)
 
-	# Выхлопное пламя и хлопок из трубы при резком разгоне
-	if is_driven and throttle > 0.8 and current_speed_kmh > 15.0 and exhaust_timer <= 0.0:
+	# 1. Нитро-ускорение на сиропе [Shift]
+	var is_sprint_pressed := Input.is_action_pressed("sprint") or Input.is_key_pressed(KEY_SHIFT)
+	if is_driven and is_sprint_pressed and throttle > 0.1 and nitro_fuel > 0.0:
+		is_nitro_active = true
+		nitro_fuel = maxf(0.0, nitro_fuel - 32.0 * delta)
+		engine_force *= 2.6
+		apply_central_force(-global_transform.basis.z * 2200.0)
+
+		# Пламя нитро из выхлопных труб сзади
+		var root_node = get_parent() if get_parent() else self
+		var exhaust_left := global_position + global_transform.basis.z * 2.2 + global_transform.basis.x * 0.7 + Vector3.UP * 0.35
+		var exhaust_right := global_position + global_transform.basis.z * 2.2 - global_transform.basis.x * 0.7 + Vector3.UP * 0.35
+		ImpactFX.spawn_nitro_flame(root_node, exhaust_left, global_transform.basis.z)
+		ImpactFX.spawn_nitro_flame(root_node, exhaust_right, global_transform.basis.z)
+
+		nitro_sfx_timer -= delta
+		if nitro_sfx_timer <= 0.0:
+			nitro_sfx_timer = 0.45
+			if has_node("/root/AudioManager"):
+				var am: Node = get_node("/root/AudioManager")
+				am.call("play_sfx", "nitro_boost", 2.0)
+
+		if nitro_voice_cooldown <= 0.0:
+			nitro_voice_cooldown = 18.0
+			if has_node("/root/VoiceManager"):
+				var vm: Node = get_node("/root/VoiceManager")
+				vm.call("speak_kolya", "kolya_nitro", "Форсаж на сиропе! Погнали!")
+	else:
+		is_nitro_active = false
+		nitro_fuel = minf(max_nitro, nitro_fuel + 15.0 * delta)
+
+	# 2. Дым из-под капота при критическом повреждении шасси
+	if chassis_health < 45.0:
+		smoke_timer -= delta
+		if smoke_timer <= 0.0:
+			smoke_timer = 0.35
+			var root_node = get_parent() if get_parent() else self
+			var hood_pos := global_position - global_transform.basis.z * 1.8 + Vector3.UP * 0.85
+			ImpactFX.spawn_steam_vent(root_node, hood_pos, 6)
+
+	# 3. Выхлопное пламя и хлопок из трубы при обычном резком разгоне
+	if is_driven and not is_nitro_active and throttle > 0.8 and current_speed_kmh > 15.0 and exhaust_timer <= 0.0:
 		if randf() < 0.35:
 			exhaust_timer = randf_range(1.5, 3.5)
 			var root_node = get_parent() if get_parent() else self
-			var exhaust_left := global_position - global_transform.basis.z * 2.2 + global_transform.basis.x * 0.7 + Vector3.UP * 0.35
-			var exhaust_right := global_position - global_transform.basis.z * 2.2 - global_transform.basis.x * 0.7 + Vector3.UP * 0.35
-			ImpactFX.spawn_exhaust_flame(root_node, exhaust_left, -global_transform.basis.z)
-			ImpactFX.spawn_exhaust_flame(root_node, exhaust_right, -global_transform.basis.z)
+			var exhaust_left := global_position + global_transform.basis.z * 2.2 + global_transform.basis.x * 0.7 + Vector3.UP * 0.35
+			var exhaust_right := global_position + global_transform.basis.z * 2.2 - global_transform.basis.x * 0.7 + Vector3.UP * 0.35
+			ImpactFX.spawn_exhaust_flame(root_node, exhaust_left, global_transform.basis.z)
+			ImpactFX.spawn_exhaust_flame(root_node, exhaust_right, global_transform.basis.z)
 			if has_node("/root/AudioManager"):
 				var am: Node = get_node("/root/AudioManager")
 				am.call("play_sfx", "backfire", -4.0, randf_range(0.95, 1.15))
@@ -248,6 +396,10 @@ func _input(event: InputEvent) -> void:
 			if vehicle_radio and vehicle_radio.has_method("cycle_station"):
 				vehicle_radio.call("cycle_station")
 				_refresh_radio_text()
+		elif event.keycode == KEY_L:
+			toggle_headlights()
+		elif event.keycode == KEY_H:
+			honk_horn()
 
 func _update_chase_camera(delta: float) -> void:
 	if not spring_arm or not chase_camera:
@@ -257,11 +409,12 @@ func _update_chase_camera(delta: float) -> void:
 	spring_arm.rotation.x = cam_pitch
 
 	# Динамическая дистанция и FOV от скорости
-	var target_dist := base_cam_distance + clampf(current_speed_kmh * 0.04, 0.0, 2.5)
+	var target_dist := base_cam_distance + clampf(current_speed_kmh * 0.04, 0.0, 2.5) + (1.2 if is_nitro_active else 0.0)
 	spring_arm.spring_length = lerpf(spring_arm.spring_length, target_dist, 5.0 * delta)
 
-	var target_fov := 80.0 + clampf(current_speed_kmh * 0.25, 0.0, 15.0)
+	var target_fov := 80.0 + clampf(current_speed_kmh * 0.25, 0.0, 15.0) + (10.0 if is_nitro_active else 0.0)
 	chase_camera.fov = lerpf(chase_camera.fov, target_fov, 6.0 * delta)
+
 
 func snap_crate(crate: RigidBody3D) -> bool:
 	if not is_instance_valid(crate):
@@ -331,9 +484,9 @@ func _build_dashboard_ui() -> void:
 	panel.anchor_right = 0.0
 	panel.anchor_bottom = 1.0
 	panel.offset_left = 24.0
-	panel.offset_top = -140.0
-	panel.offset_right = 320.0
-	panel.offset_bottom = -24.0
+	panel.offset_top = -215.0
+	panel.offset_right = 370.0
+	panel.offset_bottom = -20.0
 	dashboard_canvas.add_child(panel)
 
 	var vbox := VBoxContainer.new()
@@ -354,20 +507,38 @@ func _build_dashboard_ui() -> void:
 	gear_label.add_theme_color_override("font_color", Color(0.2, 0.9, 1.0))
 	hbox_top.add_child(gear_label)
 
+	nitro_label = Label.new()
+	nitro_label.text = "Нитро: [██████████] 100%"
+	nitro_label.add_theme_font_size_override("font_size", 13)
+	nitro_label.add_theme_color_override("font_color", Color(0.1, 0.9, 1.0))
+	vbox.add_child(nitro_label)
+
+	health_label = Label.new()
+	health_label.text = "Шасси: 100%"
+	health_label.add_theme_font_size_override("font_size", 13)
+	health_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+	vbox.add_child(health_label)
+
+	headlight_label = Label.new()
+	headlight_label.text = "Фары: ВЫКЛ [L]"
+	headlight_label.add_theme_font_size_override("font_size", 13)
+	headlight_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	vbox.add_child(headlight_label)
+
 	cargo_label = Label.new()
 	cargo_label.text = "Груз: 0/3 ящиков (0.0 кг)"
-	cargo_label.add_theme_font_size_override("font_size", 14)
+	cargo_label.add_theme_font_size_override("font_size", 13)
 	vbox.add_child(cargo_label)
 
 	radio_label = Label.new()
 	radio_label.text = "Радио: ВЫКЛ [R]"
-	radio_label.add_theme_font_size_override("font_size", 13)
+	radio_label.add_theme_font_size_override("font_size", 12)
 	radio_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
 	vbox.add_child(radio_label)
 
 	var hint := Label.new()
-	hint.text = "[W/S] Газ/Тормоз | [A/D] Руль | [Space] Ручник | [E] Выйти"
-	hint.add_theme_font_size_override("font_size", 11)
+	hint.text = "[W/S] Газ/Тормоз | [A/D] Руль | [Shift] Нитро | [L] Фары | [H] Гудок | [Space] Ручник | [E] Выход"
+	hint.add_theme_font_size_override("font_size", 10)
 	hint.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
 	vbox.add_child(hint)
 
@@ -388,6 +559,30 @@ func _update_dashboard_ui(_throttle: float, forward_speed: float, is_handbrake: 
 		else:
 			gear_label.text = " [D]"
 			gear_label.modulate = Color(0.2, 0.9, 1.0)
+
+	if nitro_label:
+		var pct := int(round(clampf(nitro_fuel / max_nitro, 0.0, 1.0) * 100.0))
+		var bars := int(round(pct / 10.0))
+		var bar_str := ""
+		for b in range(10):
+			bar_str += "█" if b < bars else "░"
+		nitro_label.text = "Нитро: [%s] %d%%" % [bar_str, pct]
+		if is_nitro_active:
+			nitro_label.modulate = Color(1.0, 0.55, 0.1)
+		else:
+			nitro_label.modulate = Color(0.1, 0.9, 1.0)
+
+	if health_label:
+		var hp_pct := int(round(clampf(chassis_health / max_chassis_health, 0.0, 1.0) * 100.0))
+		if hp_pct > 60:
+			health_label.text = "Шасси: %d%%" % hp_pct
+			health_label.modulate = Color(0.4, 1.0, 0.4)
+		elif hp_pct > 30:
+			health_label.text = "Шасси: %d%% (Повреждено)" % hp_pct
+			health_label.modulate = Color(1.0, 0.8, 0.2)
+		else:
+			health_label.text = "Шасси: %d%% (КРИТИЧЕСКИЙ УРОН!)" % hp_pct
+			health_label.modulate = Color(1.0, 0.3, 0.3)
 
 	if cargo_label:
 		cargo_label.text = "Груз: %d/3 ящиков (%.1f кг)" % [get_cargo_crates().size(), current_cargo_mass]
@@ -410,6 +605,16 @@ func _on_vehicle_collision(body: Node) -> void:
 
 	var move_dir := linear_velocity.normalized()
 	var collision_point: Vector3 = global_position + move_dir * 2.2
+
+	# Повреждение шасси фургона при сильных ударах
+	if speed_ms > 4.5:
+		var dmg: float = (speed_ms - 3.5) * 2.8
+		chassis_health = maxf(0.0, chassis_health - dmg)
+		if chassis_health < 50.0 and caution_voice_cooldown <= 0.0:
+			caution_voice_cooldown = 20.0
+			if has_node("/root/VoiceManager"):
+				var vm: Node = get_node("/root/VoiceManager")
+				vm.call("speak_sasha", "sasha_radio_caution", "Коля, осторожнее на виражах, у фургона подвеска не железная... хотя нет, железная!")
 
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")

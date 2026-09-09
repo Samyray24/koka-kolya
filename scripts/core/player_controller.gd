@@ -48,6 +48,8 @@ const CROUCH_CAPSULE_HEIGHT: float = 1.0
 var bob_timer: float = 0.0
 var landing_dip: float = 0.0
 var base_fov: float = 85.0
+var mouse_delta_accum: Vector2 = Vector2.ZERO
+var current_target_state: String = ""
 
 # Input buffering & Coyote time
 var coyote_timer: float = 0.0
@@ -99,6 +101,7 @@ func _ready() -> void:
 			)
 
 func _on_target_state_changed(state: String) -> void:
+	current_target_state = state
 	if not crosshair:
 		return
 	match state:
@@ -168,6 +171,7 @@ func _input(event: InputEvent) -> void:
 			is_rotating_item = true
 
 		if not is_rotating_item:
+			mouse_delta_accum += event.relative
 			rotate_y(-event.relative.x * mouse_sensitivity)
 			head.rotate_x(-event.relative.y * mouse_sensitivity)
 			head.rotation.x = clampf(head.rotation.x, deg_to_rad(-88.0), deg_to_rad(88.0))
@@ -319,6 +323,32 @@ func _physics_process(delta: float) -> void:
 	elif is_crouching:
 		target_fov = base_fov - 5.0
 	camera.fov = lerpf(camera.fov, target_fov, 8.0 * delta)
+
+	# 11. Плавный динамический прицел (Dynamic Crosshair Spread)
+	if crosshair:
+		var spread_bonus := clampf(horizontal_speed * 0.75, 0.0, 4.0)
+		var base_sz: float = 4.0
+		match current_target_state:
+			"grabbable", "interactable", "vehicle":
+				base_sz = 8.0
+			"cargo_snap":
+				base_sz = 10.0
+			"holding":
+				base_sz = 6.0
+			_:
+				base_sz = 4.0
+		var target_sz := base_sz + spread_bonus
+		crosshair.size = Vector2(target_sz, target_sz)
+		crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(target_sz * 0.5, target_sz * 0.5)
+
+	# 12. Инерция и покачивание манипулятора (Weapon Sway)
+	if grabber:
+		var sway_x := -mouse_delta_accum.x * 0.0003 - input_dir.x * 0.012
+		var sway_y := mouse_delta_accum.y * 0.0003 - (0.015 if is_sprinting else 0.0)
+		grabber.position.x = lerpf(grabber.position.x, sway_x, 10.0 * delta)
+		grabber.position.y = lerpf(grabber.position.y, sway_y, 10.0 * delta)
+	mouse_delta_accum = mouse_delta_accum.lerp(Vector2.ZERO, 10.0 * delta)
+
 
 func take_damage(amount: float, impulse_dir: Vector3 = Vector3.ZERO, impulse_force: float = 0.0) -> void:
 	health = maxf(0.0, health - amount)
