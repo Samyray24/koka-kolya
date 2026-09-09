@@ -10,6 +10,9 @@ extends Node3D
 const MissionManagerScript = preload("res://scripts/core/mission_manager.gd")
 const DialogueManagerScript = preload("res://scripts/core/dialogue_manager.gd")
 const SyrupCanisterScript = preload("res://scripts/interaction/syrup_canister.gd")
+const VendingMachineScript = preload("res://scripts/interaction/vending_machine.gd")
+const LootContainerScript = preload("res://scripts/interaction/loot_container.gd")
+const LoreTerminalScript = preload("res://scripts/interaction/lore_terminal.gd")
 
 @onready var player: CharacterBody3D = get_node_or_null("Player")
 @onready var van: VehicleBody3D = get_node_or_null("DeliveryVan")
@@ -81,6 +84,7 @@ func _spawn_plant_world_details() -> void:
 	var mat_metal_ind: Material = load("res://assets/materials/mat_metal_industrial.tres")
 	var mat_metal: Material = load("res://assets/materials/mat_metal.tres")
 	var mat_hazard: Material = load("res://assets/materials/mat_hazard.tres")
+	var mat_asphalt: Material = load("res://assets/materials/mat_asphalt.tres")
 
 	# 1. 3D-Здание Гаража сопротивления (building-garage) в точке старта
 	var garage_res: PackedScene = load("res://assets/scenes_3d/building-garage.tscn")
@@ -93,7 +97,7 @@ func _spawn_plant_world_details() -> void:
 			_apply_mesh_material_recursive(gar, mat_concrete)
 		add_child(gar)
 
-	# 2. Освещение базы и вывеска
+	# 2. Освещение базы и неоновая вывеска
 	var gar_light := OmniLight3D.new()
 	gar_light.name = "GarageInteriorLight"
 	gar_light.position = Vector3(-2.0, 3.5, 50.0)
@@ -111,23 +115,81 @@ func _spawn_plant_world_details() -> void:
 	gar_neon.outline_size = 8
 	add_child(gar_neon)
 
+	# 2.1 Зона отдыха и инструктажа повстанцев (Интерактивная зона)
+	var vend: Node3D = VendingMachineScript.new()
+	vend.name = "ResistanceVendingMachine"
+	vend.position = Vector3(-5.2, 0.0, 48.0)
+	vend.rotation_degrees = Vector3(0, 75, 0)
+	add_child(vend)
+
+	var boombox_res: PackedScene = load("res://assets/scenes_3d/BoomBox.tscn")
+	if boombox_res:
+		var bb: Node3D = boombox_res.instantiate()
+		bb.name = "GarageBoomBox"
+		bb.position = Vector3(-4.6, 0.85, 46.2)
+		bb.scale = Vector3(1.2, 1.2, 1.2)
+		add_child(bb)
+
+	# Столик под бумбокс
+	var table := MeshInstance3D.new()
+	var t_mesh := BoxMesh.new()
+	t_mesh.size = Vector3(1.2, 0.8, 0.8)
+	table.mesh = t_mesh
+	if mat_metal_ind:
+		table.material_override = mat_metal_ind
+	table.position = Vector3(-4.6, 0.4, 46.2)
+	add_child(table)
+
+	# Скамейки отдыха
+	var bench_res: PackedScene = load("res://assets/scenes_3d/bench.tscn")
+	if bench_res:
+		var b1: Node3D = bench_res.instantiate()
+		b1.name = "GarageBench_1"
+		b1.position = Vector3(-6.2, 0.0, 46.0)
+		b1.rotation_degrees = Vector3(0, 90, 0)
+		add_child(b1)
+
+	# Планшет СашиV с разведданными
+	var lore_pad: Node3D = LoreTerminalScript.new()
+	lore_pad.name = "SashaLorePad"
+	lore_pad.set("terminal_title", "Планшет СашиV")
+	lore_pad.set("lore_header", "ДИРЕКТИВА СОПРОТИВЛЕНИЯ #14")
+	lore_pad.set("lore_text", "Коля, синтезируй сироп на верстаке, загрузи канистру в фургон и двигай к заводу. Залей концентрат в главную башню — конвейеры наполнят город настоящей Колей!")
+	lore_pad.position = Vector3(-2.8, 0.92, 50.8)
+	lore_pad.rotation_degrees = Vector3(-25, 30, 0)
+	add_child(lore_pad)
+
+	# 2.2 Дополнительный транспорт повстанцев
+	var bike_res: PackedScene = load("res://assets/scenes_3d/vehicle-motorcycle.tscn")
+	if bike_res:
+		var bike: Node3D = bike_res.instantiate()
+		bike.name = "ResistanceMotorcycle"
+		bike.position = Vector3(-5.8, 0.0, 52.8)
+		bike.rotation_degrees = Vector3(0, 35, 0)
+		add_child(bike)
+
+	var civ_car_res: PackedScene = load("res://assets/scenes_3d/car_hatchback.tscn")
+	if civ_car_res:
+		var ccar: Node3D = civ_car_res.instantiate()
+		ccar.name = "ResistanceSupportCar"
+		ccar.position = Vector3(7.2, 0.0, 46.0)
+		ccar.rotation_degrees = Vector3(0, -20, 0)
+		add_child(ccar)
+
 	# 3. Подъездная дорога к заводу (z от 48 до -20) с освещением
 	var road_parent := Node3D.new()
 	road_parent.name = "PlantAccessRoad"
 	add_child(road_parent)
 
-	# Асфальтовое полотно дороги
 	var road_bed := MeshInstance3D.new()
 	var rb_mesh := BoxMesh.new()
 	rb_mesh.size = Vector3(10.0, 0.15, 75.0)
 	road_bed.mesh = rb_mesh
-	var mat_asphalt: Material = load("res://assets/materials/mat_asphalt.tres")
 	if mat_asphalt:
 		road_bed.material_override = mat_asphalt
 	road_bed.position = Vector3(0.0, 0.08, 14.0)
 	road_parent.add_child(road_bed)
 
-	# Разделительная полоса на дороге
 	var z_road: float = 48.0
 	while z_road >= -20.0:
 		var dash := MeshInstance3D.new()
@@ -142,7 +204,6 @@ func _spawn_plant_world_details() -> void:
 		road_parent.add_child(dash)
 		z_road -= 5.0
 
-	# Фонарные столбы вдоль дороги
 	var road_lamps = [42.0, 24.0, 6.0, -12.0]
 	for z_pos in road_lamps:
 		for x_side in [-5.8, 5.8]:
@@ -166,7 +227,7 @@ func _spawn_plant_world_details() -> void:
 			lamp.omni_attenuation = 1.3
 			add_child(lamp)
 
-	# 4. Защитные стены завода (wall-high, wall-low)
+	# 4. Защитный замкнутый периметр завода (стены и барьеры)
 	var wall_high_res: PackedScene = load("res://assets/scenes_3d/wall-high.tscn")
 	if wall_high_res:
 		var wall_positions = [
@@ -192,18 +253,26 @@ func _spawn_plant_world_details() -> void:
 				_apply_mesh_material_recursive(w, mat_concrete)
 			add_child(w)
 
-	# 5. Окружающие заводские цеха и склады (building_C, building_D, building_G, building-garage)
+	# 5. Плотная застройка периметра — устранение пустоты со всех сторон!
 	var complex_buildings = [
-		{"type": "building_C", "pos": Vector3(-28.0, 0.0, -50.0), "rot": 90, "scale": Vector3(4.2, 5.0, 4.2)},
-		{"type": "building_D", "pos": Vector3(28.0, 0.0, -50.0), "rot": -90, "scale": Vector3(4.2, 5.2, 4.2)},
-		{"type": "building_G", "pos": Vector3(-27.0, 0.0, -72.0), "rot": 90, "scale": Vector3(4.0, 4.8, 4.0)},
-		{"type": "building-garage", "pos": Vector3(26.0, 0.0, -72.0), "rot": -90, "scale": Vector3(3.5, 3.5, 3.5)}
+		{"type": "building_C", "pos": Vector3(-28.0, 0.0, -50.0), "rot": 90, "scale": Vector3(4.5, 5.5, 4.5)},
+		{"type": "building_D", "pos": Vector3(28.0, 0.0, -50.0), "rot": -90, "scale": Vector3(4.5, 5.5, 4.5)},
+		{"type": "building_G", "pos": Vector3(-27.0, 0.0, -72.0), "rot": 90, "scale": Vector3(4.2, 5.0, 4.2)},
+		{"type": "building-garage", "pos": Vector3(26.0, 0.0, -72.0), "rot": -90, "scale": Vector3(3.8, 3.8, 3.8)},
+		{"type": "building_H", "pos": Vector3(0.0, 0.0, -84.0), "rot": 180, "scale": Vector3(6.5, 6.5, 6.5)}, # Северный фасад
+		{"type": "building_A", "pos": Vector3(-32.0, 0.0, -18.0), "rot": 90, "scale": Vector3(4.5, 6.0, 4.5)},
+		{"type": "building_B", "pos": Vector3(32.0, 0.0, -18.0), "rot": -90, "scale": Vector3(4.5, 6.0, 4.5)},
+		{"type": "building_E", "pos": Vector3(-26.0, 0.0, 15.0), "rot": 90, "scale": Vector3(4.0, 5.5, 4.0)},
+		{"type": "building_F", "pos": Vector3(26.0, 0.0, 15.0), "rot": -90, "scale": Vector3(4.0, 5.5, 4.0)},
+		{"type": "building_A", "pos": Vector3(-24.0, 0.0, 42.0), "rot": 90, "scale": Vector3(4.0, 5.0, 4.0)},
+		{"type": "building_B", "pos": Vector3(24.0, 0.0, 42.0), "rot": -90, "scale": Vector3(4.0, 5.0, 4.0)},
+		{"type": "building-garage", "pos": Vector3(0.0, 0.0, 68.0), "rot": 0, "scale": Vector3(4.5, 4.0, 4.5)} # Южный фасад
 	]
 	for b_info in complex_buildings:
 		var b_scene: PackedScene = load("res://assets/scenes_3d/%s.tscn" % b_info["type"])
 		if b_scene:
 			var bld: Node3D = b_scene.instantiate()
-			bld.name = "FactoryWing_%s" % b_info["type"]
+			bld.name = "FactoryWing_%s_%.0f" % [b_info["type"], b_info["pos"].z]
 			bld.position = b_info["pos"]
 			bld.rotation_degrees = Vector3(0, b_info["rot"], 0)
 			bld.scale = b_info["scale"]
@@ -211,6 +280,16 @@ func _spawn_plant_world_details() -> void:
 				_apply_mesh_material_recursive(bld, mat_metal_ind)
 			add_child(bld)
 
+	# Охранная будка КПП завода
+	var booth_res: PackedScene = load("res://assets/scenes_3d/building-small-a.tscn")
+	if booth_res:
+		var booth: Node3D = booth_res.instantiate()
+		booth.name = "PlantGate_SecurityBooth"
+		booth.position = Vector3(-9.5, 0.0, -18.0)
+		booth.scale = Vector3(1.4, 1.4, 1.4)
+		if mat_concrete:
+			_apply_mesh_material_recursive(booth, mat_concrete)
+		add_child(booth)
 
 	# Бетонный погрузочный двор завода
 	var apron := MeshInstance3D.new()
@@ -250,7 +329,7 @@ func _spawn_plant_world_details() -> void:
 			tree_inst.scale = Vector3(1.6, 1.6, 1.6)
 			add_child(tree_inst)
 
-	# 6. Транспорт охраны и снабжения (car_police, vehicle-truck-red)
+	# 6. Транспорт охраны и снабжения
 	var police_scene: PackedScene = load("res://assets/scenes_3d/car_police.tscn")
 	if police_scene:
 		var cop: Node3D = police_scene.instantiate()
@@ -268,7 +347,74 @@ func _spawn_plant_world_details() -> void:
 		truck.scale = Vector3(1.35, 1.35, 1.35)
 		add_child(truck)
 
-	# 7. Промышленные ящики и контейнеры (box_A, box_B)
+	var truck_yellow_scene: PackedScene = load("res://assets/scenes_3d/vehicle-truck-yellow.tscn")
+	if truck_yellow_scene:
+		var truck_y: Node3D = truck_yellow_scene.instantiate()
+		truck_y.name = "PlantDock_YellowTruck"
+		truck_y.position = Vector3(-14.0, 0.0, -42.0)
+		truck_y.rotation_degrees = Vector3(0, 90, 0)
+		truck_y.scale = Vector3(1.35, 1.35, 1.35)
+		add_child(truck_y)
+
+	# 7. Интерактивные лут-контейнеры снабжения
+	var loot1: Node3D = LootContainerScript.new()
+	loot1.name = "PlantToolboxLoot"
+	loot1.set("container_title", "Ящик инструментов цеха")
+	loot1.set("credits_reward", 80)
+	loot1.set("is_locked", false)
+	loot1.position = Vector3(-15.5, 0.0, -25.0)
+	loot1.rotation_degrees = Vector3(0, 45, 0)
+	add_child(loot1)
+
+	var loot2: Node3D = LootContainerScript.new()
+	loot2.name = "PlantSafeLoot"
+	loot2.set("container_title", "Сейф снабжения MERIDIAN")
+	loot2.set("credits_reward", 150)
+	loot2.set("is_locked", true) # Взламывается кибер-декой [4]
+	loot2.position = Vector3(12.0, 0.0, -48.0)
+	loot2.rotation_degrees = Vector3(0, -45, 0)
+	add_child(loot2)
+
+	# 8. Физические бочки горючего (RigidBody3D) — реагируют на толчки и стрельбу
+	var barrel_coords = [
+		Vector3(7.0, 0.6, -34.0),
+		Vector3(7.8, 0.6, -34.5),
+		Vector3(7.4, 1.6, -34.2),
+		Vector3(-12.5, 0.6, -30.0),
+		Vector3(-13.2, 0.6, -30.4),
+		Vector3(15.2, 0.6, -42.0)
+	]
+	var mat_barrel := StandardMaterial3D.new()
+	mat_barrel.albedo_color = Color(0.85, 0.2, 0.15)
+	mat_barrel.metallic = 0.8
+	mat_barrel.roughness = 0.3
+	for i in range(barrel_coords.size()):
+		var b_rb := RigidBody3D.new()
+		b_rb.name = "PhysicsBarrel_%d" % i
+		b_rb.mass = 18.0
+		b_rb.collision_layer = 1 | 4
+		b_rb.collision_mask = 1 | 2 | 4
+
+		var col_shape := CollisionShape3D.new()
+		var cyl := CylinderShape3D.new()
+		cyl.radius = 0.35
+		cyl.height = 1.0
+		col_shape.shape = cyl
+		b_rb.add_child(col_shape)
+
+		var b_mesh := MeshInstance3D.new()
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.35
+		cm.bottom_radius = 0.35
+		cm.height = 1.0
+		b_mesh.mesh = cm
+		b_mesh.material_override = mat_barrel
+		b_rb.add_child(b_mesh)
+
+		b_rb.position = barrel_coords[i]
+		add_child(b_rb)
+
+	# 9. Промышленные ящики и контейнеры (box_A, box_B)
 	var box_a_res: PackedScene = load("res://assets/scenes_3d/box_A.tscn")
 	var box_b_res: PackedScene = load("res://assets/scenes_3d/box_B.tscn")
 	if box_a_res and box_b_res:
@@ -289,7 +435,7 @@ func _spawn_plant_world_details() -> void:
 			crate.scale = Vector3(1.4, 1.4, 1.4)
 			add_child(crate)
 
-	# 8. Промышленные прожекторы периметра завода
+	# 10. Промышленные прожекторы периметра завода
 	var floodlight_coords = [
 		Vector3(-12.0, 0.0, -18.0),
 		Vector3(12.0, 0.0, -18.0),
@@ -319,7 +465,7 @@ func _spawn_plant_world_details() -> void:
 		spot.omni_attenuation = 1.2
 		add_child(spot)
 
-	# 9. Клубящийся пар вентиляционных труб и сиропной башни (CPUParticles3D)
+	# 11. Клубящийся пар вентиляционных труб и сиропной башни (CPUParticles3D)
 	var steam_coords = [
 		Vector3(14.0, 14.2, -50.0),
 		Vector3(-6.0, 12.2, -58.0),
@@ -352,7 +498,7 @@ func _spawn_plant_world_details() -> void:
 		steam.mesh = p_mesh
 		add_child(steam)
 
-	# 10. Проблесковый маяк на вершине сиропной башни
+	# 12. Проблесковый маяк на вершине сиропной башни
 	tower_strobe = OmniLight3D.new()
 	tower_strobe.name = "SyrupTowerStrobe"
 	tower_strobe.position = Vector3(14.0, 14.5, -50.0)
@@ -360,6 +506,7 @@ func _spawn_plant_world_details() -> void:
 	tower_strobe.light_energy = 3.5
 	tower_strobe.omni_range = 14.0
 	add_child(tower_strobe)
+
 
 func _apply_mesh_material_recursive(node: Node, mat: Material) -> void:
 	if node is MeshInstance3D:

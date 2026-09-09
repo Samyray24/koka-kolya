@@ -8,6 +8,9 @@ extends Node3D
 
 const MissionManagerScript = preload("res://scripts/core/mission_manager.gd")
 const DialogueManagerScript = preload("res://scripts/core/dialogue_manager.gd")
+const VendingMachineScript = preload("res://scripts/interaction/vending_machine.gd")
+const LootContainerScript = preload("res://scripts/interaction/loot_container.gd")
+const LoreTerminalScript = preload("res://scripts/interaction/lore_terminal.gd")
 
 @onready var player: CharacterBody3D = get_node_or_null("Player")
 @onready var van: VehicleBody3D = get_node_or_null("DeliveryVan")
@@ -73,8 +76,9 @@ func _ready() -> void:
 func _spawn_highway_world_details() -> void:
 	var mat_metal: Material = load("res://assets/materials/mat_metal.tres")
 	var mat_metal_ind: Material = load("res://assets/materials/mat_metal_industrial.tres")
-	var mat_brick_dark: Material = load("res://assets/materials/mat_brick_dark.tres")
 	var mat_concrete: Material = load("res://assets/materials/mat_concrete.tres")
+	var mat_neon_cyan: Material = load("res://assets/materials/mat_neon_cyan.tres")
+	var mat_neon_amber: Material = load("res://assets/materials/mat_neon_amber.tres")
 
 	# 1. Фонарные столбы вдоль скоростного шоссе (с обеих сторон, z от 90 до -60)
 	var lamp_z_coords = [88.0, 68.0, 48.0, 28.0, 8.0, -12.0, -32.0, -52.0]
@@ -107,7 +111,6 @@ func _spawn_highway_world_details() -> void:
 			light.light_energy = 2.2
 			light.omni_range = 14.0
 			light.omni_attenuation = 1.3
-			light.shadow_enabled = false
 			add_child(light)
 
 	# 2. Дорожная разметка: прерывистая осевая линия шоссе
@@ -116,7 +119,7 @@ func _spawn_highway_world_details() -> void:
 	add_child(center_line_node)
 	var z_cur: float = 95.0
 	while z_cur >= -60.0:
-		if abs(z_cur) > 4.0: # Не перекрывать зону шлагбаума
+		if abs(z_cur) > 4.0:
 			var dash := MeshInstance3D.new()
 			var d_mesh := QuadMesh.new()
 			d_mesh.size = Vector2(0.25, 3.0)
@@ -143,9 +146,23 @@ func _spawn_highway_world_details() -> void:
 		shoulder_line.position = Vector3(x_shoulder, 0.22, 18.0)
 		add_child(shoulder_line)
 
-	# 4. Небоскрёбы Даунтауна вокруг Телебашни на Городской Площади (z от -65 до -105)
-	var b_types = ["building_A", "building_B", "building_E", "building_F", "building_G", "building_H"]
-	var plaza_buildings = [
+	# 4. Небоскрёбы Городского Каньона (полная застройка от старта до финиша — ноль пустоты!)
+	var highway_canyon = [
+		# Левая сторона каньона (x = -24)
+		{"type": "building_A", "pos": Vector3(-24.0, 0.0, 85.0), "rot": 90, "scale": Vector3(5.0, 8.0, 5.0)},
+		{"type": "building_B", "pos": Vector3(-24.0, 0.0, 55.0), "rot": 90, "scale": Vector3(5.0, 7.5, 5.0)},
+		{"type": "building_C", "pos": Vector3(-24.0, 0.0, 25.0), "rot": 90, "scale": Vector3(5.0, 7.0, 5.0)},
+		{"type": "building_D", "pos": Vector3(-24.0, 0.0, -10.0), "rot": 90, "scale": Vector3(5.0, 8.0, 5.0)},
+		{"type": "building_E", "pos": Vector3(-24.0, 0.0, -40.0), "rot": 90, "scale": Vector3(5.0, 8.5, 5.0)},
+		# Правая сторона каньона (x = 24)
+		{"type": "building_F", "pos": Vector3(24.0, 0.0, 85.0), "rot": -90, "scale": Vector3(5.0, 8.0, 5.0)},
+		{"type": "building_G", "pos": Vector3(24.0, 0.0, 55.0), "rot": -90, "scale": Vector3(5.0, 7.5, 5.0)},
+		{"type": "building_H", "pos": Vector3(24.0, 0.0, 25.0), "rot": -90, "scale": Vector3(5.0, 7.0, 5.0)},
+		{"type": "building_A", "pos": Vector3(24.0, 0.0, -10.0), "rot": -90, "scale": Vector3(5.0, 8.0, 5.0)},
+		{"type": "building_B", "pos": Vector3(24.0, 0.0, -40.0), "rot": -90, "scale": Vector3(5.0, 8.5, 5.0)},
+		# Южный торец за спиной игрока на старте
+		{"type": "building_G", "pos": Vector3(0.0, 0.0, 108.0), "rot": 0, "scale": Vector3(7.0, 8.5, 7.0)},
+		# Площадь у Телебашни
 		{"type": "building_A", "pos": Vector3(-24.0, 0.0, -70.0), "rot": 90, "scale": Vector3(5.5, 7.5, 5.5)},
 		{"type": "building_B", "pos": Vector3(24.0, 0.0, -70.0), "rot": -90, "scale": Vector3(5.5, 7.0, 5.5)},
 		{"type": "building_E", "pos": Vector3(-25.0, 0.0, -92.0), "rot": 90, "scale": Vector3(5.0, 8.0, 5.0)},
@@ -154,11 +171,11 @@ func _spawn_highway_world_details() -> void:
 		{"type": "building_H", "pos": Vector3(-14.0, 0.0, -102.0), "rot": 135, "scale": Vector3(4.8, 6.5, 4.8)},
 		{"type": "building_C", "pos": Vector3(14.0, 0.0, -102.0), "rot": -135, "scale": Vector3(4.8, 6.5, 4.8)}
 	]
-	for b_info in plaza_buildings:
+	for b_info in highway_canyon:
 		var b_res: PackedScene = load("res://assets/scenes_3d/%s.tscn" % b_info["type"])
 		if b_res:
 			var bld: Node3D = b_res.instantiate()
-			bld.name = "PlazaSkyscraper_%s" % b_info["type"]
+			bld.name = "Canyon_%s_%.0f" % [b_info["type"], b_info["pos"].z]
 			bld.position = b_info["pos"]
 			bld.rotation_degrees = Vector3(0, b_info["rot"], 0)
 			bld.scale = b_info["scale"]
@@ -166,7 +183,7 @@ func _spawn_highway_world_details() -> void:
 				_apply_mesh_material_recursive(bld, mat_metal_ind)
 			add_child(bld)
 
-	# 5. Укрепления и заграждения блокпоста КПП №2 (wall-high, box_A, box_B)
+	# 5. Укрепления и охранный пост КПП №2
 	var wall_high_res: PackedScene = load("res://assets/scenes_3d/wall-high.tscn")
 	if wall_high_res:
 		var cp_walls = [
@@ -184,7 +201,6 @@ func _spawn_highway_world_details() -> void:
 				_apply_mesh_material_recursive(w, mat_concrete)
 			add_child(w)
 
-		# Модульные охранные посты КПП №2
 		var booth_scene: PackedScene = load("res://assets/scenes_3d/building-small-a.tscn")
 		if booth_scene:
 			var b1: Node3D = booth_scene.instantiate()
@@ -195,24 +211,65 @@ func _spawn_highway_world_details() -> void:
 				_apply_mesh_material_recursive(b1, mat_concrete)
 			add_child(b1)
 
-	var box_a_res: PackedScene = load("res://assets/scenes_3d/box_A.tscn")
-	var box_b_res: PackedScene = load("res://assets/scenes_3d/box_B.tscn")
-	if box_a_res and box_b_res:
-		var cp_boxes = [
-			Vector3(-7.5, 0.0, 2.0),
-			Vector3(-8.2, 0.0, 3.2),
-			Vector3(-7.8, 0.9, 2.5),
-			Vector3(7.2, 0.0, 2.0),
-			Vector3(7.8, 0.0, 3.5)
-		]
-		for i in range(cp_boxes.size()):
-			var bx: Node3D = (box_a_res if i % 2 == 0 else box_b_res).instantiate()
-			bx.name = "CPBox_%d" % i
-			bx.position = cp_boxes[i]
-			bx.scale = Vector3(1.35, 1.35, 1.35)
-			add_child(bx)
+	# 5.1 Сюжетный терминал КПП №2 (LoreTerminal)
+	var cp_lore: Node3D = LoreTerminalScript.new()
+	cp_lore.name = "CheckpointLoreTerminal"
+	cp_lore.set("terminal_title", "Терминал КПП №2")
+	cp_lore.set("lore_header", "СЕКРЕТНЫЙ ПРИКАЗ СИНДИКАТА №402")
+	cp_lore.set("lore_text", "Внимание патрулям! Полная блокада 4-го сектора. Все поставки сахара и газировки немедленно конфисковать в пользу Цитадели.")
+	cp_lore.position = Vector3(-9.2, 0.9, 0.5)
+	cp_lore.rotation_degrees = Vector3(0, 90, 0)
+	add_child(cp_lore)
 
-	# 6. Патрульный автомобиль охраны на КПП
+	# 6. Многополосный затор брошенных автомобилей на шоссе (Traffic Jam)
+	var jam_vehicles = [
+		{"type": "car_sedan", "pos": Vector3(-2.8, 0.0, 72.0), "rot": Vector3(0, -18, 0), "scale": Vector3(1, 1, 1)},
+		{"type": "car_hatchback", "pos": Vector3(3.2, 0.0, 62.0), "rot": Vector3(0, 25, 0), "scale": Vector3(1, 1, 1)},
+		{"type": "vehicle-truck-purple", "pos": Vector3(-2.4, 0.0, 44.0), "rot": Vector3(0, -8, 0), "scale": Vector3(1.3, 1.3, 1.3)},
+		{"type": "car_stationwagon", "pos": Vector3(3.0, 0.0, 20.0), "rot": Vector3(0, 15, 0), "scale": Vector3(1, 1, 1)},
+		{"type": "vehicle-motorcycle", "pos": Vector3(-1.8, 0.0, 8.0), "rot": Vector3(0, 75, 0), "scale": Vector3(1, 1, 1)},
+		{"type": "car_police", "pos": Vector3(-3.5, 0.0, -15.0), "rot": Vector3(0, -28, 0), "scale": Vector3(1, 1, 1)},
+		{"type": "vehicle-truck-green", "pos": Vector3(2.8, 0.0, -36.0), "rot": Vector3(0, 14, 0), "scale": Vector3(1.25, 1.25, 1.25)}
+	]
+	for v_info in jam_vehicles:
+		var v_scene: PackedScene = load("res://assets/scenes_3d/%s.tscn" % v_info["type"])
+		if v_scene:
+			var v_inst: Node3D = v_scene.instantiate()
+			v_inst.name = "Jam_%s_%.0f" % [v_info["type"], v_info["pos"].z]
+			v_inst.position = v_info["pos"]
+			v_inst.rotation_degrees = v_info["rot"]
+			v_inst.scale = v_info["scale"]
+			add_child(v_inst)
+
+	# 7. Интерактивные лутаемые багажники брошенных автомобилей (LootContainer)
+	var trunk1: Node3D = LootContainerScript.new()
+	trunk1.name = "TrunkSedanLoot"
+	trunk1.set("container_title", "Багажник брошенного седана")
+	trunk1.set("credits_reward", 75)
+	trunk1.set("is_locked", false)
+	trunk1.position = Vector3(-2.8, 0.35, 74.2)
+	trunk1.rotation_degrees = Vector3(0, -18, 0)
+	add_child(trunk1)
+
+	var trunk2: Node3D = LootContainerScript.new()
+	trunk2.name = "TrunkWagonLoot"
+	trunk2.set("container_title", "Багажник универсала")
+	trunk2.set("credits_reward", 90)
+	trunk2.set("is_locked", false)
+	trunk2.position = Vector3(3.0, 0.35, 22.4)
+	trunk2.rotation_degrees = Vector3(0, 15, 0)
+	add_child(trunk2)
+
+	var trunk3: Node3D = LootContainerScript.new()
+	trunk3.name = "TrunkPoliceLoot"
+	trunk3.set("container_title", "Оружейный багажник патруля")
+	trunk3.set("credits_reward", 160)
+	trunk3.set("is_locked", true) # Заперт, взламывается кибер-декой [4]
+	trunk3.position = Vector3(-3.5, 0.35, -17.2)
+	trunk3.rotation_degrees = Vector3(0, -28, 0)
+	add_child(trunk3)
+
+	# Патрульный авто охраны на КПП
 	var cop_scene: PackedScene = load("res://assets/scenes_3d/car_police.tscn")
 	if cop_scene:
 		var cop: Node3D = cop_scene.instantiate()
@@ -220,31 +277,6 @@ func _spawn_highway_world_details() -> void:
 		cop.position = Vector3(6.5, 0.0, 3.5)
 		cop.rotation_degrees = Vector3(0, 160, 0)
 		add_child(cop)
-
-	# 7. Автомобили жителей вдоль обочины шоссе
-	var sedan_scene: PackedScene = load("res://assets/scenes_3d/car_sedan.tscn")
-	if sedan_scene:
-		var car1: Node3D = sedan_scene.instantiate()
-		car1.name = "ShoulderCar_Sedan"
-		car1.position = Vector3(7.2, 0.0, 55.0)
-		car1.rotation_degrees = Vector3(0, 5, 0)
-		add_child(car1)
-
-	var hatch_scene: PackedScene = load("res://assets/scenes_3d/car_hatchback.tscn")
-	if hatch_scene:
-		var car2: Node3D = hatch_scene.instantiate()
-		car2.name = "ShoulderCar_Hatch"
-		car2.position = Vector3(-7.2, 0.0, 32.0)
-		car2.rotation_degrees = Vector3(0, -8, 0)
-		add_child(car2)
-
-	var wagon_scene: PackedScene = load("res://assets/scenes_3d/car_stationwagon.tscn")
-	if wagon_scene:
-		var car3: Node3D = wagon_scene.instantiate()
-		car3.name = "ShoulderCar_Wagon"
-		car3.position = Vector3(7.2, 0.0, -28.0)
-		car3.rotation_degrees = Vector3(0, 10, 0)
-		add_child(car3)
 
 	# 8. Мощный трансляционный маяк на вершине Телебашни
 	tower_beam_light = OmniLight3D.new()
@@ -255,14 +287,13 @@ func _spawn_highway_world_details() -> void:
 	tower_beam_light.omni_range = 35.0
 	add_child(tower_beam_light)
 
-
-	# 8. Отбойники шоссе (wall-low) и придорожные деревья (grass-trees)
+	# 9. Отбойники шоссе (wall-low) и придорожные деревья (grass-trees)
 	var wall_low_res: PackedScene = load("res://assets/scenes_3d/wall-low.tscn")
 	var tree_res: PackedScene = load("res://assets/scenes_3d/grass-trees.tscn")
 	var z_b: float = 90.0
 	var barrier_idx: int = 0
 	while z_b >= -55.0:
-		if abs(z_b) > 4.5: # Проезд на КПП открыт
+		if abs(z_b) > 4.5:
 			for x_side in [-8.4, 8.4]:
 				if wall_low_res:
 					var b_inst: Node3D = wall_low_res.instantiate()
@@ -283,9 +314,7 @@ func _spawn_highway_world_details() -> void:
 			barrier_idx += 1
 		z_b -= 6.0
 
-	# 9. Неоновые рекламные щиты над трассой
-	var mat_neon_cyan: Material = load("res://assets/materials/mat_neon_cyan.tres")
-	var mat_neon_amber: Material = load("res://assets/materials/mat_neon_amber.tres")
+	# 10. Неоновые информационные табло над трассой
 	var gantry_sign := Label3D.new()
 	gantry_sign.name = "HighwayGantrySign"
 	gantry_sign.position = Vector3(0.0, 7.5, 12.0)
@@ -295,7 +324,16 @@ func _spawn_highway_world_details() -> void:
 	gantry_sign.outline_size = 8
 	add_child(gantry_sign)
 
-	# 10. Фонтан и благоустройство Городской Площади у Телебашни
+	var gantry_sign2 := Label3D.new()
+	gantry_sign2.name = "HighwayGantrySign2"
+	gantry_sign2.position = Vector3(0.0, 7.5, 52.0)
+	gantry_sign2.text = "◆ ВНИМАНИЕ: СКОРОСТНОЕ ШОССЕ КРАСНОГРАДА ◆"
+	gantry_sign2.font_size = 24
+	gantry_sign2.modulate = Color(0.2, 0.85, 1.0)
+	gantry_sign2.outline_size = 8
+	add_child(gantry_sign2)
+
+	# 11. Фонтаны и благоустройство Городской Площади у Телебашни
 	var fountain_res: PackedScene = load("res://assets/scenes_3d/pavement-fountain.tscn")
 	if fountain_res:
 		var f1: Node3D = fountain_res.instantiate()
@@ -309,6 +347,28 @@ func _spawn_highway_world_details() -> void:
 		f2.position = Vector3(8.5, 0.0, -82.0)
 		f2.scale = Vector3(2.0, 2.0, 2.0)
 		add_child(f2)
+
+	var bench_res: PackedScene = load("res://assets/scenes_3d/bench.tscn")
+	if bench_res:
+		var b1: Node3D = bench_res.instantiate()
+		b1.name = "PlazaBench_1"
+		b1.position = Vector3(-6.2, 0.0, -74.0)
+		b1.rotation_degrees = Vector3(0, 45, 0)
+		add_child(b1)
+
+		var b2: Node3D = bench_res.instantiate()
+		b2.name = "PlazaBench_2"
+		b2.position = Vector3(6.2, 0.0, -74.0)
+		b2.rotation_degrees = Vector3(0, -45, 0)
+		add_child(b2)
+
+	# Автомат «Кока-Коля» на городской площади для подкрепления
+	var plaza_vend: Node3D = VendingMachineScript.new()
+	plaza_vend.name = "PlazaVendingMachine"
+	plaza_vend.position = Vector3(-5.0, 0.0, -78.0)
+	plaza_vend.rotation_degrees = Vector3(0, 30, 0)
+	add_child(plaza_vend)
+
 
 func _apply_mesh_material_recursive(node: Node, mat: Material) -> void:
 	if node is MeshInstance3D:

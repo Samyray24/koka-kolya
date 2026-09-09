@@ -1,6 +1,10 @@
 class_name CitadelPenthouseLevel
 extends Node3D
 
+const VendingMachineScript = preload("res://scripts/interaction/vending_machine.gd")
+const LootContainerScript = preload("res://scripts/interaction/loot_container.gd")
+const LoreTerminalScript = preload("res://scripts/interaction/lore_terminal.gd")
+
 # Уровень 4: Цитадель Синдиката (Финальная миссия кампании)
 # Коля и СашаV штурмуют пентхаус Цитадели, нейтрализуют элитную охрану,
 # взламывают квантовый мейнфрейм и эвакуируются через вертолётную площадку.
@@ -52,9 +56,134 @@ func _spawn_penthouse_visuals() -> void:
 	var mat_neon_amber: Material = load("res://assets/materials/mat_neon_amber.tres")
 	var mat_concrete: Material = load("res://assets/materials/mat_concrete.tres")
 
-	# 1. Серверные стойки по бокам серверного зала
-	for z_s in [8.0, 12.0, 16.0]:
-		for x_s in [-6.0, 6.0]:
+	# 1. Архитектурный потолок пентхауса со светодиодным трековым освещением
+	var ceiling := MeshInstance3D.new()
+	var c_box := BoxMesh.new()
+	c_box.size = Vector3(42.0, 0.4, 48.0)
+	ceiling.mesh = c_box
+	if mat_concrete:
+		ceiling.material_override = mat_concrete
+	ceiling.position = Vector3(0.0, 6.2, 0.0)
+	add_child(ceiling)
+
+	# Светодиодные трековые полосы на потолке
+	for x_track in [-12.0, -4.0, 4.0, 12.0]:
+		var strip := MeshInstance3D.new()
+		var s_mesh := BoxMesh.new()
+		s_mesh.size = Vector3(0.3, 0.08, 38.0)
+		strip.mesh = s_mesh
+		if mat_neon_cyan:
+			strip.material_override = mat_neon_cyan
+		strip.position = Vector3(x_track, 6.0, 0.0)
+		add_child(strip)
+
+		var strip_light := OmniLight3D.new()
+		strip_light.name = "CeilingLight_%.0f" % x_track
+		strip_light.position = Vector3(x_track, 5.7, 0.0)
+		strip_light.light_color = Color(0.85, 0.95, 1.0)
+		strip_light.light_energy = 1.8
+		strip_light.omni_range = 10.0
+		add_child(strip_light)
+
+	# 2. Панорамное остекление по периметру пентхауса
+	var mat_glass := StandardMaterial3D.new()
+	mat_glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat_glass.albedo_color = Color(0.18, 0.45, 0.7, 0.2)
+	mat_glass.metallic = 0.9
+	mat_glass.roughness = 0.05
+
+	# Восточная и Западная стеклянные стены
+	for x_side in [-20.0, 20.0]:
+		var glass_wall := MeshInstance3D.new()
+		var gw_mesh := BoxMesh.new()
+		gw_mesh.size = Vector3(0.1, 5.8, 44.0)
+		glass_wall.mesh = gw_mesh
+		glass_wall.material_override = mat_glass
+		glass_wall.position = Vector3(x_side, 3.0, 0.0)
+		add_child(glass_wall)
+
+	# Северная стеклянная стена
+	var north_glass := MeshInstance3D.new()
+	var ng_mesh := BoxMesh.new()
+	ng_mesh.size = Vector3(40.0, 5.8, 0.1)
+	north_glass.mesh = ng_mesh
+	north_glass.material_override = mat_glass
+	north_glass.position = Vector3(0.0, 3.0, 23.0)
+	add_child(north_glass)
+
+	# 3. Внутренние архитектурные перегородки (разделение лаунджа и серверного зала)
+	var wall_left := MeshInstance3D.new()
+	var wl_mesh := BoxMesh.new()
+	wl_mesh.size = Vector3(15.0, 5.8, 0.3)
+	wall_left.mesh = wl_mesh
+	if mat_concrete:
+		wall_left.material_override = mat_concrete
+	wall_left.position = Vector3(-12.0, 3.0, 4.0)
+	add_child(wall_left)
+
+	var wall_right := MeshInstance3D.new()
+	var wr_mesh := BoxMesh.new()
+	wr_mesh.size = Vector3(15.0, 5.8, 0.3)
+	wall_right.mesh = wr_mesh
+	if mat_concrete:
+		wall_right.material_override = mat_concrete
+	wall_right.position = Vector3(12.0, 3.0, 4.0)
+	add_child(wall_right)
+
+	# 4. Представительский Лаундж и Зона Ресепшена (z: -10 .. -22)
+	var desk := MeshInstance3D.new()
+	var d_mesh := BoxMesh.new()
+	d_mesh.size = Vector3(3.2, 0.9, 1.2)
+	desk.mesh = d_mesh
+	if mat_metal_ind:
+		desk.material_override = mat_metal_ind
+	desk.position = Vector3(0.0, 0.45, -12.0)
+	add_child(desk)
+
+	# Планшет секретариата с секретными логами Синдиката
+	var sec_pad: Node3D = LoreTerminalScript.new()
+	sec_pad.name = "SecretariatLorePad"
+	sec_pad.set("terminal_title", "Планшет секретариата")
+	sec_pad.set("lore_header", "СВОДКА СИНДИКАТА ДЛЯ ДИРЕКТОРА")
+	sec_pad.set("lore_text", "Код ЧП 1: Потерян контроль над заводом «Красная Линия». Телевышка Краснограда захвачена повстанцами. Вся охрана Цитадели переведена в режим ликвидации.")
+	sec_pad.position = Vector3(0.0, 0.95, -12.0)
+	add_child(sec_pad)
+
+	# Фирменный элитный автомат «Кока-Коля Премиум» в лаундже
+	var lounge_vend: Node3D = VendingMachineScript.new()
+	lounge_vend.name = "ExecutiveVendingMachine"
+	lounge_vend.position = Vector3(12.0, 0.0, -14.0)
+	lounge_vend.rotation_degrees = Vector3(0, -75, 0)
+	add_child(lounge_vend)
+
+	# Диваны и скамьи ожидания
+	var bench_res: PackedScene = load("res://assets/scenes_3d/bench.tscn")
+	if bench_res:
+		var b1: Node3D = bench_res.instantiate()
+		b1.name = "LoungeSofa_1"
+		b1.position = Vector3(-6.0, 0.0, -14.0)
+		b1.rotation_degrees = Vector3(0, 90, 0)
+		add_child(b1)
+
+		var b2: Node3D = bench_res.instantiate()
+		b2.name = "LoungeSofa_2"
+		b2.position = Vector3(-6.0, 0.0, -18.0)
+		b2.rotation_degrees = Vector3(0, 90, 0)
+		add_child(b2)
+
+	# 5. Кабинет генерального директора Синдиката и сейф с наградой
+	var ceo_safe: Node3D = LootContainerScript.new()
+	ceo_safe.name = "DirectorOfficeSafe"
+	ceo_safe.set("container_title", "Сейф директора Цитадели")
+	ceo_safe.set("credits_reward", 250)
+	ceo_safe.set("is_locked", true) # Взламывается кибер-декой [4]
+	ceo_safe.position = Vector3(-16.5, 0.0, -2.0)
+	ceo_safe.rotation_degrees = Vector3(0, 90, 0)
+	add_child(ceo_safe)
+
+	# 6. Квантовый серверный зал (8 стоек с неоновыми лезвиями)
+	for z_s in [6.0, 10.0, 14.0, 18.0]:
+		for x_s in [-6.5, 6.5]:
 			var rack := MeshInstance3D.new()
 			var r_box := BoxMesh.new()
 			r_box.size = Vector3(1.2, 3.2, 2.0)
@@ -68,13 +197,14 @@ func _spawn_penthouse_visuals() -> void:
 			var l_quad := QuadMesh.new()
 			l_quad.size = Vector2(0.8, 1.8)
 			led.mesh = l_quad
-			if mat_neon_cyan:
-				led.material_override = mat_neon_cyan
+			var led_mat = mat_neon_cyan if z_s < 14.0 else mat_neon_amber
+			if led_mat:
+				led.material_override = led_mat
 			led.position = Vector3(x_s + (0.61 if x_s < 0 else -0.61), 1.6, z_s)
 			led.rotation_degrees = Vector3(0, 90 if x_s < 0 else -90, 0)
 			add_child(led)
 
-	# 2. Небоскрёбы Краснограда внизу под окнами пентхауса
+	# 7. Небоскрёбы Краснограда внизу под окнами пентхауса
 	var city_buildings = [
 		{"type": "building_A", "pos": Vector3(-35.0, -40.0, -10.0), "scale": Vector3(6, 12, 6)},
 		{"type": "building_B", "pos": Vector3(35.0, -40.0, -10.0), "scale": Vector3(6, 12, 6)},
@@ -93,7 +223,7 @@ func _spawn_penthouse_visuals() -> void:
 				_apply_material_recursive(inst, mat_concrete)
 			add_child(inst)
 
-	# 3. Неоновая голограмма Синдиката
+	# 8. Неоновая голограмма Синдиката
 	var holo := Label3D.new()
 	holo.name = "SyndicateHologram"
 	holo.position = Vector3(0.0, 4.5, 12.0)
@@ -103,24 +233,34 @@ func _spawn_penthouse_visuals() -> void:
 	holo.outline_size = 8
 	add_child(holo)
 
-
-	# 4. Периметральные колонны и панорамное остекление пентхауса
+	# 9. Периметральные опорные колонны
 	var col_positions = [
 		Vector3(-19.0, 3.0, -20.0), Vector3(-19.0, 3.0, 0.0), Vector3(-19.0, 3.0, 20.0),
 		Vector3(19.0, 3.0, -20.0), Vector3(19.0, 3.0, 0.0), Vector3(19.0, 3.0, 20.0),
-		Vector3(-10.0, 3.0, 24.0), Vector3(10.0, 3.0, 24.0)
+		Vector3(-10.0, 3.0, 23.5), Vector3(10.0, 3.0, 23.5)
 	]
 	for pos in col_positions:
 		var col := MeshInstance3D.new()
-		var c_mesh := BoxMesh.new()
-		c_mesh.size = Vector3(0.8, 6.5, 0.8)
-		col.mesh = c_mesh
+		var col_mesh := BoxMesh.new()
+		col_mesh.size = Vector3(0.8, 6.2, 0.8)
+		col.mesh = col_mesh
 		if mat_metal_ind:
 			col.material_override = mat_metal_ind
 		col.position = pos
 		add_child(col)
 
-	# 5. Ограждения вертолётной площадки на крыше
+	# 10. Промышленное оборудование крыши (HVAC чиллеры и вентиляция)
+	for x_hvac in [-12.0, 12.0]:
+		var hvac := MeshInstance3D.new()
+		var h_box := BoxMesh.new()
+		h_box.size = Vector3(2.8, 2.0, 2.2)
+		hvac.mesh = h_box
+		if mat_metal_ind:
+			hvac.material_override = mat_metal_ind
+		hvac.position = Vector3(x_hvac, 1.0, -36.0)
+		add_child(hvac)
+
+	# 11. Ограждения вертолётной площадки на крыше
 	var wall_low_res: PackedScene = load("res://assets/scenes_3d/wall-low.tscn")
 	if wall_low_res:
 		var heli_edges = [
@@ -136,7 +276,7 @@ func _spawn_penthouse_visuals() -> void:
 				_apply_material_recursive(h_wall, mat_concrete)
 			add_child(h_wall)
 
-	# 6. Угловые проблесковые огни вертолётной площадки
+	# 12. Угловые проблесковые огни вертолётной площадки
 	var heli_lights = [
 		Vector3(-8.5, 0.5, -23.5), Vector3(8.5, 0.5, -23.5),
 		Vector3(-8.5, 0.5, -40.5), Vector3(8.5, 0.5, -40.5)
@@ -150,13 +290,13 @@ func _spawn_penthouse_visuals() -> void:
 		hl.omni_range = 6.0
 		add_child(hl)
 
-	# 7. Лазерные охранные лучи перед мейнфреймом
+	# 13. Лазерные охранные лучи перед мейнфреймом
 	for y_l in [0.8, 1.5, 2.2]:
 		var beam := MeshInstance3D.new()
 		var b_mesh := CylinderMesh.new()
 		b_mesh.top_radius = 0.015
 		b_mesh.bottom_radius = 0.015
-		b_mesh.height = 10.0
+		b_mesh.height = 8.0
 		beam.mesh = b_mesh
 		var b_mat := StandardMaterial3D.new()
 		b_mat.albedo_color = Color(1.0, 0.1, 0.15)
@@ -164,9 +304,10 @@ func _spawn_penthouse_visuals() -> void:
 		b_mat.emission = Color(1.0, 0.1, 0.15)
 		b_mat.emission_energy_multiplier = 4.0
 		beam.material_override = b_mat
-		beam.position = Vector3(0.0, y_l, 6.0)
+		beam.position = Vector3(0.0, y_l, 4.0)
 		beam.rotation_degrees = Vector3(0, 0, 90)
 		add_child(beam)
+
 
 func _apply_material_recursive(node: Node, mat: Material) -> void:
 	if node is MeshInstance3D:
