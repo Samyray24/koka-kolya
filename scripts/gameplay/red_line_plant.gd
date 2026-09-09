@@ -13,6 +13,8 @@ const SyrupCanisterScript = preload("res://scripts/interaction/syrup_canister.gd
 const VendingMachineScript = preload("res://scripts/interaction/vending_machine.gd")
 const LootContainerScript = preload("res://scripts/interaction/loot_container.gd")
 const LoreTerminalScript = preload("res://scripts/interaction/lore_terminal.gd")
+const DestructibleCrateScript = preload("res://scripts/physics/destructible_crate.gd")
+const ExplosiveBarrelScript = preload("res://scripts/physics/explosive_barrel.gd")
 
 @onready var player: CharacterBody3D = get_node_or_null("Player")
 @onready var van: VehicleBody3D = get_node_or_null("DeliveryVan")
@@ -375,7 +377,7 @@ func _spawn_plant_world_details() -> void:
 	loot2.rotation_degrees = Vector3(0, -45, 0)
 	add_child(loot2)
 
-	# 8. Физические бочки горючего (RigidBody3D) — реагируют на толчки и стрельбу
+	# 8. Взрывоопасные бочки горючего (ExplosiveBarrel) — реагируют на стрельбу, толчки и детонацию
 	var barrel_coords = [
 		Vector3(7.0, 0.6, -34.0),
 		Vector3(7.8, 0.6, -34.5),
@@ -384,56 +386,28 @@ func _spawn_plant_world_details() -> void:
 		Vector3(-13.2, 0.6, -30.4),
 		Vector3(15.2, 0.6, -42.0)
 	]
-	var mat_barrel := StandardMaterial3D.new()
-	mat_barrel.albedo_color = Color(0.85, 0.2, 0.15)
-	mat_barrel.metallic = 0.8
-	mat_barrel.roughness = 0.3
 	for i in range(barrel_coords.size()):
-		var b_rb := RigidBody3D.new()
-		b_rb.name = "PhysicsBarrel_%d" % i
-		b_rb.mass = 18.0
-		b_rb.collision_layer = 1 | 4
-		b_rb.collision_mask = 1 | 2 | 4
+		var barrel: RigidBody3D = ExplosiveBarrelScript.new()
+		barrel.name = "PlantExplosiveBarrel_%d" % i
+		barrel.position = barrel_coords[i]
+		add_child(barrel)
 
-		var col_shape := CollisionShape3D.new()
-		var cyl := CylinderShape3D.new()
-		cyl.radius = 0.35
-		cyl.height = 1.0
-		col_shape.shape = cyl
-		b_rb.add_child(col_shape)
-
-		var b_mesh := MeshInstance3D.new()
-		var cm := CylinderMesh.new()
-		cm.top_radius = 0.35
-		cm.bottom_radius = 0.35
-		cm.height = 1.0
-		b_mesh.mesh = cm
-		b_mesh.material_override = mat_barrel
-		b_rb.add_child(b_mesh)
-
-		b_rb.position = barrel_coords[i]
-		add_child(b_rb)
-
-	# 9. Промышленные ящики и контейнеры (box_A, box_B)
-	var box_a_res: PackedScene = load("res://assets/scenes_3d/box_A.tscn")
-	var box_b_res: PackedScene = load("res://assets/scenes_3d/box_B.tscn")
-	if box_a_res and box_b_res:
-		var crate_spots = [
-			Vector3(-6.5, 0.0, 48.0),
-			Vector3(-6.2, 0.0, 51.5),
-			Vector3(-7.0, 0.9, 49.0),
-			Vector3(-14.5, 0.0, -24.0),
-			Vector3(-15.2, 0.0, -25.5),
-			Vector3(12.5, 0.0, -32.0),
-			Vector3(13.2, 0.0, -33.5),
-			Vector3(12.8, 0.9, -32.8)
-		]
-		for i in range(crate_spots.size()):
-			var crate: Node3D = (box_a_res if i % 2 == 0 else box_b_res).instantiate()
-			crate.name = "PlantCrate_%d" % i
-			crate.position = crate_spots[i]
-			crate.scale = Vector3(1.4, 1.4, 1.4)
-			add_child(crate)
+	# 9. Разрушаемые ящики снабжения (DestructibleCrate) с физикой щепок и лутом
+	var crate_spots = [
+		Vector3(-6.5, 0.5, 48.0),
+		Vector3(-6.2, 0.5, 51.5),
+		Vector3(-7.0, 1.4, 49.0),
+		Vector3(-14.5, 0.5, -24.0),
+		Vector3(-15.2, 0.5, -25.5),
+		Vector3(12.5, 0.5, -32.0),
+		Vector3(13.2, 0.5, -33.5),
+		Vector3(12.8, 1.4, -32.8)
+	]
+	for i in range(crate_spots.size()):
+		var crate: RigidBody3D = DestructibleCrateScript.new()
+		crate.name = "PlantDestructibleCrate_%d" % i
+		crate.position = crate_spots[i]
+		add_child(crate)
 
 	# 10. Промышленные прожекторы периметра завода
 	var floodlight_coords = [

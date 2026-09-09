@@ -1,6 +1,8 @@
 class_name TacticalAxe
 extends Node3D
 
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
+
 # Тактический боевой топор Сопротивления
 # Тяжёлое кинетическое оружие ближнего боя для взлома ящиков, баррикад и нейтрализации охраны.
 
@@ -87,17 +89,21 @@ func use(camera: Camera3D) -> Dictionary:
 			var nm: Node = get_node("/root/NoiseManager")
 			nm.call("emit_noise", hit_pos, 14.0, self, "axe_hit")
 
-		if collider is Node and (collider as Node).has_method("apply_stun"):
+		var push_dir := -camera.global_transform.basis.z.normalized()
+		ImpactFX.spawn_sparks(get_tree().root, hit_pos, push_dir, 16)
+
+		if collider is Node and (collider as Node).has_method("take_damage"):
+			(collider as Node).call("take_damage", damage, push_dir, 36.0)
+			result["action"] = "damage_object"
+			LogManager.info("Топор: нанесён урон %.1f по %s." % [damage, (collider as Node).name], "Combat")
+		elif collider is Node and (collider as Node).has_method("apply_stun"):
 			(collider as Node).call("apply_stun", stun_duration)
 			result["action"] = "stun_guard"
 			LogManager.info("Топор: цель оглушена на %.1f с." % stun_duration, "Combat")
-		elif collider is Node and (collider as Node).has_method("take_damage"):
-			(collider as Node).call("take_damage", damage)
-			result["action"] = "damage_object"
-			LogManager.info("Топор: нанесён урон %.1f по %s." % [damage, (collider as Node).name], "Combat")
-		elif collider is RigidBody3D:
-			var push_dir := -camera.global_transform.basis.z.normalized()
-			(collider as RigidBody3D).apply_central_impulse(push_dir * 22.0)
+
+		if collider is RigidBody3D:
+			(collider as RigidBody3D).apply_central_impulse(push_dir * 38.0)
+			(collider as RigidBody3D).apply_torque_impulse(Vector3(randf_range(-12, 12), randf_range(-12, 12), randf_range(-12, 12)))
 			result["action"] = "knockback"
 		else:
 			result["action"] = "hit_wall"

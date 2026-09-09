@@ -1,6 +1,8 @@
 class_name BlasterWeapon
 extends Node3D
 
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
+
 # Высокоточный плазменный бластер Сопротивления
 # Полуавтоматическое энергетическое оружие со световым трассером, вспышкой и отдачей.
 
@@ -112,15 +114,18 @@ func use(camera: Camera3D) -> Dictionary:
 			var nm: Node = get_node("/root/NoiseManager")
 			nm.call("emit_noise", hit_pos, 22.0, self, "blaster_shot")
 
+		var push_dir := -camera.global_transform.basis.z.normalized()
+		ImpactFX.spawn_sparks(get_tree().root, hit_pos, push_dir, 12)
+
 		if collider is Node and (collider as Node).has_method("take_damage"):
-			(collider as Node).call("take_damage", damage)
+			(collider as Node).call("take_damage", damage, push_dir, 20.0)
 			result["action"] = "damage_enemy"
 		elif collider is Node and (collider as Node).has_method("apply_stun"):
 			(collider as Node).call("apply_stun", 3.0)
 			result["action"] = "stun_guard"
-		elif collider is RigidBody3D:
-			var push_dir := -camera.global_transform.basis.z.normalized()
-			(collider as RigidBody3D).apply_central_impulse(push_dir * 16.0)
+
+		if collider is RigidBody3D:
+			(collider as RigidBody3D).apply_central_impulse(push_dir * 22.0)
 			result["action"] = "knockback"
 		else:
 			result["action"] = "hit_wall"

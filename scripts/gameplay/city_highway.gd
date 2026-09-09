@@ -11,6 +11,8 @@ const DialogueManagerScript = preload("res://scripts/core/dialogue_manager.gd")
 const VendingMachineScript = preload("res://scripts/interaction/vending_machine.gd")
 const LootContainerScript = preload("res://scripts/interaction/loot_container.gd")
 const LoreTerminalScript = preload("res://scripts/interaction/lore_terminal.gd")
+const DestructibleCrateScript = preload("res://scripts/physics/destructible_crate.gd")
+const ExplosiveBarrelScript = preload("res://scripts/physics/explosive_barrel.gd")
 
 @onready var player: CharacterBody3D = get_node_or_null("Player")
 @onready var van: VehicleBody3D = get_node_or_null("DeliveryVan")
@@ -368,6 +370,36 @@ func _spawn_highway_world_details() -> void:
 	plaza_vend.position = Vector3(-5.0, 0.0, -78.0)
 	plaza_vend.rotation_degrees = Vector3(0, 30, 0)
 	add_child(plaza_vend)
+
+	# 12. Физические взрывоопасные бочки горючего (ExplosiveBarrel)
+	var highway_barrels = [
+		Vector3(-4.2, 0.6, 2.5),
+		Vector3(4.2, 0.6, 2.5),
+		Vector3(-8.5, 0.6, 3.2),
+		Vector3(-8.0, 0.6, 3.8),
+		Vector3(8.5, 0.6, -72.0),
+		Vector3(-8.5, 0.6, -72.0)
+	]
+	for i in range(highway_barrels.size()):
+		var b_inst: RigidBody3D = ExplosiveBarrelScript.new()
+		b_inst.name = "HighwayExplosiveBarrel_%d" % i
+		b_inst.position = highway_barrels[i]
+		add_child(b_inst)
+
+	# 13. Разрушаемые ящики снабжения (DestructibleCrate)
+	var highway_crates = [
+		Vector3(-7.5, 0.5, -2.5),
+		Vector3(-8.2, 0.5, -3.2),
+		Vector3(5.5, 0.5, 4.0),
+		Vector3(-1.2, 0.5, 32.0),
+		Vector3(3.8, 0.5, -66.0),
+		Vector3(-7.2, 0.5, -76.0)
+	]
+	for i in range(highway_crates.size()):
+		var c_inst: RigidBody3D = DestructibleCrateScript.new()
+		c_inst.name = "HighwayDestructibleCrate_%d" % i
+		c_inst.position = highway_crates[i]
+		add_child(c_inst)
 
 
 func _apply_mesh_material_recursive(node: Node, mat: Material) -> void:

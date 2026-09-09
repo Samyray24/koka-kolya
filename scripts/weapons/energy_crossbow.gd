@@ -1,6 +1,8 @@
 class_name EnergyCrossbow
 extends Node3D
 
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
+
 # Бесшумный энергетический арбалет Спецназа Сопротивления
 # Стреляет высокоскоростными плазменными болтами с повышенным уроном
 
@@ -101,11 +103,15 @@ func use(camera: Camera3D) -> Dictionary:
 		result["hit_point"] = hit_pos
 		result["action"] = "hit"
 
+		var push_dir: Vector3 = -camera.global_transform.basis.z.normalized()
+		ImpactFX.spawn_sparks(get_tree().root, hit_pos, push_dir, 18)
+
 		if collider and collider.has_method("take_damage"):
-			collider.call("take_damage", damage)
-		elif collider is RigidBody3D:
-			var push_dir: Vector3 = -camera.global_transform.basis.z
-			(collider as RigidBody3D).apply_central_impulse(push_dir * 18.0)
+			collider.call("take_damage", damage, push_dir, 38.0)
+
+		if collider is RigidBody3D:
+			(collider as RigidBody3D).apply_central_impulse(push_dir * 42.0)
+			(collider as RigidBody3D).apply_torque_impulse(Vector3(randf_range(-8, 8), randf_range(-8, 8), randf_range(-8, 8)))
 
 		bolt_hit.emit(collider, hit_pos)
 

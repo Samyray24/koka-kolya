@@ -1,5 +1,7 @@
-﻿class_name DeliveryVan
+class_name DeliveryVan
 extends VehicleBody3D
+
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
 
 # Фургон доставки «Кока-Коля» на Jolt Physics 3D (Section 11)
 # Оснащен:
@@ -56,6 +58,10 @@ var radio_label: Label = null
 func _ready() -> void:
 	add_to_group("vehicle")
 	LogManager.info("Фургон доставки инициализирован. Масса шасси: %.1f кг" % mass, "VEHICLE")
+
+	contact_monitor = true
+	max_contacts_reported = 4
+	body_entered.connect(_on_vehicle_collision)
 
 	if door_interactable and door_interactable.has_signal("interacted"):
 		door_interactable.connect("interacted", _on_door_interacted)
@@ -336,3 +342,47 @@ func _refresh_radio_text() -> void:
 		var st_name: String = str(vehicle_radio.call("get_current_station_name"))
 		radio_label.text = "Радио: %s [R]" % st_name
 		radio_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.5))
+
+func _on_vehicle_collision(body: Node) -> void:
+	if not is_instance_valid(body) or body == self or body in secured_crates:
+		return
+
+	var speed_ms: float = linear_velocity.length()
+	if speed_ms < 2.5:
+		return
+
+	var move_dir := linear_velocity.normalized()
+	var collision_point: Vector3 = global_position + move_dir * 2.2
+
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		var vol := clampf(lerpf(-6.0, 4.0, speed_ms / 25.0), -6.0, 4.0)
+		am.call("play_sfx", "impact", vol, randf_range(0.85, 1.05))
+
+	ImpactFX.spawn_sparks(get_parent() if get_parent() else self, collision_point, -move_dir, int(clampf(speed_ms * 1.5, 8.0, 30.0)))
+
+	if is_driven and chase_camera:
+		_apply_camera_shake(clampf(speed_ms * 0.08, 0.2, 1.2))
+
+	if body is RigidBody3D:
+		var rb := body as RigidBody3D
+		var impulse := move_dir * (speed_ms * mass * 0.08) + Vector3.UP * (speed_ms * 1.5)
+		rb.apply_central_impulse(impulse)
+		rb.apply_torque_impulse(Vector3(randf_range(-15, 15), randf_range(-15, 15), randf_range(-15, 15)))
+
+	if body.has_method("take_damage"):
+		body.call("take_damage", speed_ms * 4.0, move_dir, speed_ms * 18.0)
+	elif body.has_method("shatter"):
+		body.call("shatter")
+
+	if body.has_method("apply_stun"):
+		body.call("apply_stun", 4.5)
+
+func _apply_camera_shake(intensity: float) -> void:
+	if not chase_camera:
+		return
+	var tw := create_tween()
+	tw.tween_property(chase_camera, "h_offset", randf_range(-intensity, intensity) * 0.4, 0.05)
+	tw.parallel().tween_property(chase_camera, "v_offset", randf_range(-intensity, intensity) * 0.4, 0.05)
+	tw.tween_property(chase_camera, "h_offset", 0.0, 0.15)
+	tw.parallel().tween_property(chase_camera, "v_offset", 0.0, 0.15)

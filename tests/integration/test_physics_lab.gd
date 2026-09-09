@@ -119,7 +119,7 @@ func run_tests() -> void:
 			errors += 1
 
 	# 6. Проверка сцены PhysicsLab
-	print("[TEST 6/6] Проверка полной загрузки сцены physics_lab.tscn...")
+	print("[TEST 6/8] Проверка полной загрузки сцены physics_lab.tscn...")
 	var lab_res: PackedScene = load("res://scenes/testlabs/physics_lab.tscn")
 	if lab_res:
 		var lab_inst: Node3D = lab_res.instantiate()
@@ -138,9 +138,59 @@ func run_tests() -> void:
 		printerr("  [FAIL] Не удалось загрузить scenes/testlabs/physics_lab.tscn")
 		errors += 1
 
+	# 7. Проверка DestructibleCrate
+	print("[TEST 7/8] Проверка DestructibleCrate (получение урона, спавн обломков, разрушение)...")
+	var crate_script: Script = load("res://scripts/physics/destructible_crate.gd")
+	if crate_script:
+		var crate: RigidBody3D = crate_script.new()
+		root.add_child(crate)
+		crate.call("take_damage", 15.0, Vector3.FORWARD, 10.0)
+		var hp_after: float = crate.get("current_health")
+		if is_equal_approx(hp_after, 25.0):
+			print("  [PASS] DestructibleCrate корректно получил урон (40 -> 25 HP) и применил импульс.")
+		else:
+			printerr("  [FAIL] Неверное здоровье ящика: %f (ожидалось 25)" % hp_after)
+			errors += 1
+		var destroyed_signal_fired: Array = [false]
+		crate.connect("crate_destroyed", func(_pos: Vector3) -> void: destroyed_signal_fired[0] = true)
+		crate.call("take_damage", 30.0, Vector3.FORWARD, 15.0)
+		if destroyed_signal_fired[0]:
+			print("  [PASS] DestructibleCrate успешно разрушился, отправил сигнал crate_destroyed и создал осколки.")
+		else:
+			printerr("  [FAIL] DestructibleCrate не эмитировал сигнал crate_destroyed.")
+			errors += 1
+	else:
+		printerr("  [FAIL] Не удалось загрузить destructible_crate.gd")
+		errors += 1
+
+	# 8. Проверка ExplosiveBarrel
+	print("[TEST 8/8] Проверка ExplosiveBarrel (задымление, взрыв, детонационная волна)...")
+	var barrel_script: Script = load("res://scripts/physics/explosive_barrel.gd")
+	if barrel_script:
+		var barrel: RigidBody3D = barrel_script.new()
+		root.add_child(barrel)
+		barrel.call("take_damage", 18.0, Vector3.FORWARD, 12.0)
+		var is_smoke: bool = barrel.get("is_smoking")
+		if is_smoke:
+			print("  [PASS] ExplosiveBarrel при < 15 HP перешел в состояние задымления (is_smoking = true).")
+		else:
+			printerr("  [FAIL] Бочка не задымилась при критическом уроне.")
+			errors += 1
+		var exploded_signal_fired: Array = [false]
+		barrel.connect("barrel_exploded", func(_pos: Vector3) -> void: exploded_signal_fired[0] = true)
+		barrel.call("take_damage", 20.0, Vector3.FORWARD, 15.0)
+		if exploded_signal_fired[0]:
+			print("  [PASS] ExplosiveBarrel успешно сдетонировал и эмитировал barrel_exploded.")
+		else:
+			printerr("  [FAIL] ExplosiveBarrel не сдетонировал.")
+			errors += 1
+	else:
+		printerr("  [FAIL] Не удалось загрузить explosive_barrel.gd")
+		errors += 1
+
 	print("=======================================================================")
 	if errors == 0:
-		print(">>> ВСЕ 6 ТЕСТОВ ЭТАПА 2 УСПЕШНО ПРОЙДЕНЫ (0 ОШИБОК) <<<")
+		print(">>> ВСЕ 8 ТЕСТОВ ЭТАПА 2 УСПЕШНО ПРОЙДЕНЫ (0 ОШИБОК) <<<")
 		print("=======================================================================")
 		quit(0)
 	else:

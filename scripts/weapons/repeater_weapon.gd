@@ -1,6 +1,8 @@
 class_name RepeaterWeapon
 extends Node3D
 
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
+
 # Скорострельный автоматический импульсный репитер
 # Тяжёлое штурмовое плазменное оружие с высокой скорострельностью, оранжевым трассером и отдачей.
 
@@ -117,14 +119,18 @@ func use(camera: Camera3D) -> Dictionary:
 			var nm: Node = get_node("/root/NoiseManager")
 			nm.call("emit_noise", hit_pos, 25.0, self, "repeater_shot")
 
+		var push_dir := forward_dir
+		ImpactFX.spawn_sparks(get_tree().root, hit_pos, push_dir, 10)
+
 		if collider is Node and (collider as Node).has_method("take_damage"):
-			(collider as Node).call("take_damage", damage)
+			(collider as Node).call("take_damage", damage, push_dir, 16.0)
 			result["action"] = "damage_enemy"
 		elif collider is Node and (collider as Node).has_method("apply_stun"):
 			(collider as Node).call("apply_stun", 1.8)
 			result["action"] = "stun_guard"
-		elif collider is RigidBody3D:
-			(collider as RigidBody3D).apply_central_impulse(forward_dir * 12.0)
+
+		if collider is RigidBody3D:
+			(collider as RigidBody3D).apply_central_impulse(push_dir * 16.0)
 			result["action"] = "knockback"
 		else:
 			result["action"] = "hit_wall"

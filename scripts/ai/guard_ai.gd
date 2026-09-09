@@ -1,6 +1,8 @@
 class_name GuardAI
 extends CharacterBody3D
 
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
+
 # Охранник сети MERIDIAN с честным AI и конечным автоматом (FSM)
 # Состояния: IDLE -> SUSPICIOUS -> INVESTIGATING -> ALERT -> SEARCHING
 
@@ -18,6 +20,8 @@ var target_player: Node3D = null
 var search_timer: float = 0.0
 var stun_timer: float = 0.0
 var patrol_target_b: bool = true
+@export var max_health: float = 100.0
+var current_health: float = 100.0
 
 @onready var vision_sensor: Node3D = get_node_or_null("AISensorVision")
 @onready var hearing_sensor: Node3D = get_node_or_null("AISensorHearing")
@@ -136,6 +140,48 @@ func apply_stun(duration: float) -> void:
 	stun_timer = duration
 	_transition_to(AIState.STUNNED)
 	LogManager.warn("AI оглушён электрошоком на %.1f с!" % duration, "AI")
+
+func take_damage(amount: float, impulse_dir: Vector3 = Vector3.ZERO, impulse_force: float = 0.0) -> void:
+	current_health -= amount
+
+	# Применение физического импульса отдачи к скорости
+	if impulse_force > 0.0:
+		var push := impulse_dir.normalized() * impulse_force
+		velocity.x += push.x
+		velocity.z += push.z
+		velocity.y += clampf(impulse_force * 0.22, 1.2, 5.5)
+
+	_flash_hit()
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "impact", 0.0, randf_range(0.9, 1.1))
+
+	ImpactFX.spawn_sparks(get_parent() if get_parent() else self, global_position + Vector3(0, 1.2, 0), -impulse_dir, 10)
+
+	if impulse_force >= 14.0 or current_health <= 0.0:
+		apply_stun(3.5 if current_health > 0.0 else 100.0)
+		if current_health <= 0.0:
+			_play_anim("Death_A")
+			set_collision_layer_value(2, false)
+	else:
+		if current_state != AIState.STUNNED:
+			_transition_to(AIState.ALERT)
+
+func _flash_hit() -> void:
+	for child in find_children("*", "MeshInstance3D", true, false):
+		if child is MeshInstance3D:
+			var mi: MeshInstance3D = child as MeshInstance3D
+			var prev_mat = mi.material_override
+			var flash_mat := StandardMaterial3D.new()
+			flash_mat.albedo_color = Color(1.0, 0.2, 0.2)
+			flash_mat.emission_enabled = true
+			flash_mat.emission = Color(1.0, 0.1, 0.1)
+			flash_mat.emission_energy_multiplier = 2.0
+			mi.material_override = flash_mat
+			var tw := mi.create_tween()
+			tw.tween_interval(0.12)
+			tw.tween_callback(func(): mi.material_override = prev_mat)
+			break
 
 func _move_towards(dir: Vector3, speed: float, delta: float) -> void:
 	velocity.x = move_toward(velocity.x, dir.x * speed, 18.0 * delta)
