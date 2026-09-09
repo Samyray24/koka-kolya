@@ -238,3 +238,116 @@ static func spawn_bullet_scorch(parent: Node, pos: Vector3, normal: Vector3) -> 
 	tw.tween_interval(4.0)
 	tw.tween_property(mat, "albedo_color:a", 0.0, 1.0)
 	tw.tween_callback(s.queue_free)
+
+static func spawn_exhaust_flame(parent: Node, pos: Vector3, dir: Vector3) -> void:
+	if not is_instance_valid(parent) or not parent.is_inside_tree():
+		return
+	var p := CPUParticles3D.new()
+	p.name = "ExhaustFlameFX"
+	p.emitting = false
+	p.one_shot = true
+	p.explosiveness = 0.95
+	p.amount = 16
+	p.lifetime = 0.22
+	p.direction = dir
+	p.spread = 15.0
+	p.initial_velocity_min = 6.0
+	p.initial_velocity_max = 11.0
+	p.gravity = Vector3(0, 1.5, 0)
+
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.08, 0.08, 0.25)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(1.0, 0.45, 0.1)
+	mat.emission_enabled = true
+	mat.emission = Color(1.0, 0.35, 0.05)
+	mat.emission_energy_multiplier = 5.0
+	mesh.material = mat
+	p.mesh = mesh
+
+	var light := OmniLight3D.new()
+	light.light_color = Color(1.0, 0.5, 0.1)
+	light.light_energy = 3.5
+	light.omni_range = 3.0
+	parent.add_child(light)
+	light.global_position = pos
+
+	parent.add_child(p)
+	p.global_position = pos
+	p.restart()
+
+	var tw := p.create_tween()
+	tw.tween_interval(0.3)
+	tw.tween_callback(p.queue_free)
+	var tw_l := light.create_tween()
+	tw_l.tween_property(light, "light_energy", 0.0, 0.2)
+	tw_l.tween_callback(light.queue_free)
+
+static func spawn_steam_vent(parent: Node, pos: Vector3, count: int = 14) -> void:
+	if not is_instance_valid(parent) or not parent.is_inside_tree():
+		return
+	var p := CPUParticles3D.new()
+	p.name = "SteamVentFX"
+	p.emitting = false
+	p.one_shot = true
+	p.explosiveness = 0.75
+	p.amount = count
+	p.lifetime = 1.1
+	p.direction = Vector3(0, 1, 0)
+	p.spread = 25.0
+	p.initial_velocity_min = 2.0
+	p.initial_velocity_max = 4.5
+	p.gravity = Vector3(0, 1.2, 0)
+
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.25
+	mesh.height = 0.5
+	var mat := StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.9, 0.95, 1.0, 0.22)
+	mat.roughness = 1.0
+	mesh.material = mat
+	p.mesh = mesh
+
+	parent.add_child(p)
+	p.global_position = pos
+	p.restart()
+
+	var tw := p.create_tween()
+	tw.tween_interval(1.3)
+	tw.tween_callback(p.queue_free)
+
+static func spawn_shield_ripple(parent: Node, pos: Vector3, normal: Vector3) -> void:
+	if not is_instance_valid(parent) or not parent.is_inside_tree():
+		return
+	var ripple := MeshInstance3D.new()
+	ripple.name = "ShieldRippleFX"
+	var cyl := CylinderMesh.new()
+	cyl.top_radius = 0.1
+	cyl.bottom_radius = 0.1
+	cyl.height = 0.02
+	ripple.mesh = cyl
+
+	var mat := StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.0, 0.8, 1.0, 0.7)
+	mat.emission_enabled = true
+	mat.emission = Color(0.0, 0.9, 1.0)
+	mat.emission_energy_multiplier = 3.5
+	ripple.material_override = mat
+
+	parent.add_child(ripple)
+	ripple.global_position = pos
+	if normal.abs().is_equal_approx(Vector3.UP):
+		ripple.look_at(ripple.global_position + normal, Vector3.FORWARD)
+	else:
+		ripple.look_at(ripple.global_position + normal, Vector3.UP)
+
+	var tw := ripple.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(ripple, "scale", Vector3(6.0, 1.0, 6.0), 0.25)
+	tw.tween_property(mat, "albedo_color:a", 0.0, 0.25)
+	tw.chain().tween_callback(ripple.queue_free)
+
+	spawn_sparks(parent, pos, normal, 8)
+

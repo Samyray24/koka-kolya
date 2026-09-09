@@ -112,6 +112,9 @@ func _generate_sound_library() -> void:
 	sfx_library["axe_swing"] = _create_axe_swing_sound()
 	sfx_library["impact"] = _create_impact_sound()
 	sfx_library["tire_skid"] = _create_tire_skid_sound()
+	sfx_library["can_pop_fizz"] = _create_can_pop_fizz_sound()
+	sfx_library["backfire"] = _create_backfire_sound()
+	sfx_library["shield_hit"] = _create_shield_hit_sound()
 
 func _create_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	var wav := AudioStreamWAV.new()
@@ -382,4 +385,46 @@ func _create_tire_skid_sound() -> AudioStreamWAV:
 		var screech := sin(t * TAU * 820.0) * 0.45 + sin(t * TAU * 1640.0) * 0.25
 		var noise := (randf() * 2.0 - 1.0) * 0.25
 		samples[i] = (screech * 0.65 + noise * 0.35) * env * 0.35
+	return _create_wav(samples)
+
+func _create_can_pop_fizz_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.42)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var pop := 0.0
+		if t < 0.04:
+			var t_pop := t / 0.04
+			pop = sin(t * TAU * 820.0) * exp(-t_pop * 10.0) * 0.7
+		var fizz_env := 0.0
+		if t > 0.015:
+			var t_fizz := t - 0.015
+			fizz_env = exp(-t_fizz * 6.5) * (0.8 + 0.2 * sin(t * TAU * 18.0))
+		var fizz_noise := (randf() * 2.0 - 1.0) * fizz_env * 0.55
+		samples[i] = clampf(pop + fizz_noise, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_backfire_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.26)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var bass := sin(t * TAU * (120.0 * exp(-t * 24.0) + 45.0)) * exp(-t * 12.0) * 0.8
+		var crack := (randf() * 2.0 - 1.0) * exp(-t * 30.0) * 0.6
+		var rumble := (randf() * 2.0 - 1.0) * exp(-t * 8.0) * 0.25
+		samples[i] = clampf(bass + crack + rumble, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_shield_hit_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.3)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var freq := 1400.0 * exp(-t * 8.0) + 200.0 * sin(t * TAU * 45.0)
+		var env := exp(-t * 9.0)
+		var tone := sin(t * TAU * freq) * env * 0.6
+		samples[i] = clampf(tone, -1.0, 1.0)
 	return _create_wav(samples)

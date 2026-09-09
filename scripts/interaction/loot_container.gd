@@ -175,6 +175,10 @@ func open_container(instigator: Node) -> void:
 		var am: Node = get_node("/root/AudioManager")
 		am.call("play_sfx", "victory", -5.0)
 
+	if has_node("/root/VoiceManager"):
+		var vm: Node = get_node("/root/VoiceManager")
+		vm.call("speak_kolya", "kolya_hack", "Система взломана! Секретная формула настоящей Кока-Коли у нас в руках!")
+
 	var loot := {
 		"credits": credits_reward,
 		"title": container_title

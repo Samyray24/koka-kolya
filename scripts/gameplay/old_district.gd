@@ -310,6 +310,29 @@ func _spawn_world_details() -> void:
 	neon_light.omni_range = 6.0
 	add_child(neon_light)
 
+	# 12.5. Большой светящийся киберпанк-билборд «ИСТИННАЯ СВЕЖЕСТЬ: КОКА-КОЛЯ»
+	var mat_billboard: Material = load("res://assets/materials/mat_neon_billboard.tres")
+	if mat_billboard:
+		var bb := MeshInstance3D.new()
+		bb.name = "CyberpunkNeonBillboard"
+		var b_quad := QuadMesh.new()
+		b_quad.size = Vector2(8.0, 4.0)
+		bb.mesh = b_quad
+		bb.material_override = mat_billboard
+		bb.position = Vector3(-8.5, 6.5, 22.0)
+		bb.rotation_degrees = Vector3(0, 90, 0)
+		add_child(bb)
+
+		var bb_light := SpotLight3D.new()
+		bb_light.name = "BillboardSpotLight"
+		bb_light.light_color = Color(0.0, 0.9, 1.0)
+		bb_light.light_energy = 3.5
+		bb_light.spot_range = 14.0
+		bb_light.spot_angle = 50.0
+		bb_light.position = Vector3(-7.2, 6.5, 22.0)
+		bb_light.rotation_degrees = Vector3(0, -90, 0)
+		add_child(bb_light)
+
 	# 13. Дорожная разметка: Пешеходный переход «зебра» на перекрестке (z = 16)
 	var zebra_parent := Node3D.new()
 	zebra_parent.name = "RoadMarkings_Zebra"
@@ -471,6 +494,9 @@ func _check_crate_loading() -> void:
 			_update_waypoint_for_stage()
 			mission_mgr.call("add_objective", "drive_to_warehouse", "Сесть за руль и доехать до Складского терминала №4", 1)
 			dialogue_mgr.call("queue_message", "СашаV", "Кузов полон! Прыгай за руль [E] и гони на склад. Дорога через промзону свободна!", Color(0.3, 0.8, 1.0), 4.0)
+			if has_node("/root/VoiceManager"):
+				var vm: Node = get_node("/root/VoiceManager")
+				vm.call("speak_sasha", "sasha_radio_order", "Саша Вэ на связи: Коля, ящики надёжно в кузове, двигай на Складской терминал номер четыре!")
 
 func _on_warehouse_entered(body: Node) -> void:
 	if stage == 2 and (body == van or body == player):
@@ -504,6 +530,9 @@ func _on_mission_completed(_title: String) -> void:
 	if player and player.has_method("set_step_guidance"):
 		player.call("set_step_guidance", "МИССИЯ УСПЕШНО ВЫПОЛНЕНА!", "Рецептурный чип «Кока-Коля» в безопасности!")
 	dialogue_mgr.call("queue_message", "Коля", "Груз доставлен, формула у нас. «Кока-Коля» будет жить!", Color(1.0, 0.8, 0.2), 5.0)
+	if has_node("/root/VoiceManager"):
+		var vm: Node = get_node("/root/VoiceManager")
+		vm.call("speak_sasha", "sasha_radio_victory", "Миссия выполнена на отлично! Весь Красноград теперь пьёт настоящую Кока-Колю!")
 	LogManager.info(">>> ВЕРТИКАЛЬНЫЙ СРЕЗ (STAGE 3) УСПЕШНО ПРОЙДЕН! <<<", "QUEST")
 
 func _on_radio_message(speaker: String, text: String, col: Color) -> void:

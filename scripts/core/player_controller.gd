@@ -53,6 +53,11 @@ var base_fov: float = 85.0
 var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
 const COYOTE_TIME: float = 0.15
+
+# Health & Vitals
+var health: float = 100.0
+var max_health: float = 100.0
+var low_hp_warned: bool = false
 const JUMP_BUFFER_TIME: float = 0.12
 
 var was_on_floor: bool = true
@@ -314,3 +319,20 @@ func _physics_process(delta: float) -> void:
 	elif is_crouching:
 		target_fov = base_fov - 5.0
 	camera.fov = lerpf(camera.fov, target_fov, 8.0 * delta)
+
+func take_damage(amount: float, impulse_dir: Vector3 = Vector3.ZERO, impulse_force: float = 0.0) -> void:
+	health = maxf(0.0, health - amount)
+	LogManager.info("Коля получил урон: %.1f. Текущее HP: %.1f" % [amount, health], "PLAYER")
+	if impulse_force > 0.0:
+		velocity += impulse_dir.normalized() * impulse_force
+	if health <= 30.0 and not low_hp_warned:
+		low_hp_warned = true
+		if has_node("/root/VoiceManager"):
+			var vm: Node = get_node("/root/VoiceManager")
+			vm.call("speak_kolya", "kolya_low_hp", "Чёрт, броня трещит... Надо срочно бахнуть баночку ледяной колы!")
+
+func heal(amount: float) -> void:
+	health = minf(max_health, health + amount)
+	if health > 40.0:
+		low_hp_warned = false
+

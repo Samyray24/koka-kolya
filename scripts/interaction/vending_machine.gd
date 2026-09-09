@@ -201,7 +201,10 @@ func _on_interacted(instigator: Node) -> void:
 func _play_dispense_sfx() -> void:
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")
-		am.call("play_sfx", "victory", -4.0)
+		am.call("play_sfx", "can_pop_fizz", 2.0)
+	if has_node("/root/VoiceManager"):
+		var vm: Node = get_node("/root/VoiceManager")
+		vm.call("speak_kolya", "kolya_taste", "Пшшш... Вот это свежесть, аж искры из глаз! Заряжен на все сто процентов!")
 	if dispenser_light:
 		var tw := create_tween()
 		tw.tween_property(dispenser_light, "light_energy", 3.8, 0.08)

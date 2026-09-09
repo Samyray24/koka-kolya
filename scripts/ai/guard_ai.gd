@@ -35,6 +35,15 @@ func _ready() -> void:
 	_update_state_indicator()
 	_play_anim("Idle")
 
+	var mat_guard: Material = load("res://assets/materials/mat_guard_armor.tres")
+	if mat_guard:
+		var model_node: Node3D = get_node_or_null("Model")
+		if model_node:
+			for child in model_node.find_children("*", "MeshInstance3D", true, false):
+				var mi := child as MeshInstance3D
+				if mi:
+					mi.material_override = mat_guard
+
 	if vision_sensor:
 		vision_sensor.awareness_changed.connect(_on_awareness_changed)
 		vision_sensor.target_spotted.connect(_on_target_spotted)
@@ -154,9 +163,12 @@ func take_damage(amount: float, impulse_dir: Vector3 = Vector3.ZERO, impulse_for
 	_flash_hit()
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "shield_hit", -2.0, randf_range(0.95, 1.1))
 		am.call("play_sfx", "impact", 0.0, randf_range(0.9, 1.1))
 
-	ImpactFX.spawn_sparks(get_parent() if get_parent() else self, global_position + Vector3(0, 1.2, 0), -impulse_dir, 10)
+	var parent_node = get_parent() if get_parent() else self
+	ImpactFX.spawn_shield_ripple(parent_node, global_position + Vector3(0, 1.2, 0), -impulse_dir)
+	ImpactFX.spawn_sparks(parent_node, global_position + Vector3(0, 1.2, 0), -impulse_dir, 10)
 
 	if impulse_force >= 14.0 or current_health <= 0.0:
 		apply_stun(3.5 if current_health > 0.0 else 100.0)
@@ -198,8 +210,14 @@ func _look_at_pos(target: Vector3, delta: float) -> void:
 func _transition_to(new_state: AIState) -> void:
 	if current_state == new_state:
 		return
+	var prev_state = current_state
 	current_state = new_state
 	_update_state_indicator()
+
+	if new_state == AIState.ALERT and prev_state != AIState.ALERT:
+		if has_node("/root/VoiceManager"):
+			var vm: Node = get_node("/root/VoiceManager")
+			vm.call("speak_guard", "guard_alert", "Внимание всем постам! Нарушитель на периметре, перекрыть все выходы и открыть огонь!")
 
 func _update_state_indicator() -> void:
 	if not state_label:

@@ -48,6 +48,8 @@ var cam_pitch: float = -0.18
 var base_cam_distance: float = 5.5
 var current_speed_kmh: float = 0.0
 var drift_cooldown: float = 0.0
+var exhaust_timer: float = 0.0
+var drift_voice_cooldown: float = 0.0
 
 # HUD приборной панели
 var dashboard_canvas: CanvasLayer = null
@@ -95,6 +97,10 @@ func enter_vehicle(player: CharacterBody3D) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	LogManager.info("Коля сел за руль фургона доставки.", "VEHICLE")
 	player_entered.emit()
+
+	if has_node("/root/VoiceManager"):
+		var vm: Node = get_node("/root/VoiceManager")
+		vm.call("speak_kolya", "kolya_delivery", "Коля в здании! Доставка ледяной Кока-Коли с двойным зарядом!")
 
 func exit_vehicle() -> void:
 	if not is_driven or not driver_passenger:
@@ -162,6 +168,21 @@ func _physics_process(delta: float) -> void:
 	# Логика торможения, заноса (дрифта) и реверса
 	var forward_speed := -linear_velocity.dot(global_transform.basis.z)
 	drift_cooldown = maxf(0.0, drift_cooldown - delta)
+	exhaust_timer = maxf(0.0, exhaust_timer - delta)
+	drift_voice_cooldown = maxf(0.0, drift_voice_cooldown - delta)
+
+	# Выхлопное пламя и хлопок из трубы при резком разгоне
+	if is_driven and throttle > 0.8 and current_speed_kmh > 15.0 and exhaust_timer <= 0.0:
+		if randf() < 0.35:
+			exhaust_timer = randf_range(1.5, 3.5)
+			var root_node = get_parent() if get_parent() else self
+			var exhaust_left := global_position - global_transform.basis.z * 2.2 + global_transform.basis.x * 0.7 + Vector3.UP * 0.35
+			var exhaust_right := global_position - global_transform.basis.z * 2.2 - global_transform.basis.x * 0.7 + Vector3.UP * 0.35
+			ImpactFX.spawn_exhaust_flame(root_node, exhaust_left, -global_transform.basis.z)
+			ImpactFX.spawn_exhaust_flame(root_node, exhaust_right, -global_transform.basis.z)
+			if has_node("/root/AudioManager"):
+				var am: Node = get_node("/root/AudioManager")
+				am.call("play_sfx", "backfire", -4.0, randf_range(0.95, 1.15))
 
 	if is_handbrake:
 		brake = max_brake_force * 2.8
@@ -182,6 +203,12 @@ func _physics_process(delta: float) -> void:
 					ImpactFX.spawn_drift_smoke(root_node, wheel_rl.global_position, -global_transform.basis.z * 0.5)
 				if wheel_rr and wheel_rr.is_in_contact():
 					ImpactFX.spawn_drift_smoke(root_node, wheel_rr.global_position, -global_transform.basis.z * 0.5)
+
+				if current_speed_kmh > 24.0 and drift_voice_cooldown <= 0.0:
+					drift_voice_cooldown = 12.0
+					if has_node("/root/VoiceManager"):
+						var vm: Node = get_node("/root/VoiceManager")
+						vm.call("speak_kolya", "kolya_drift", "Дрифт на фургоне с газировкой — это классика, детка! Держись крепче!")
 	elif throttle < 0.0 and forward_speed > 0.8:
 		# Нажатие "назад" на скорости тормозит машину
 		brake = max_brake_force * 1.5
@@ -410,6 +437,11 @@ func _on_vehicle_collision(body: Node) -> void:
 
 	if body.has_method("apply_stun"):
 		body.call("apply_stun", 4.5)
+
+	if (body.has_method("take_damage") or body.has_method("apply_stun")) and speed_ms > 4.5:
+		if has_node("/root/VoiceManager"):
+			var vm: Node = get_node("/root/VoiceManager")
+			vm.call("speak_kolya", "kolya_hit_guard", "Кто заказывал ледяную газировку с доставкой в зубы?! Получите, распишитесь!")
 
 func _apply_camera_shake(intensity: float) -> void:
 	if not chase_camera:

@@ -22,6 +22,7 @@ SaveManager="*res://scripts/core/save_manager.gd"
 AudioManager="*res://scripts/core/audio_manager.gd"
 GameManager="*res://scripts/core/game_manager.gd"
 EnvironmentManager="*res://scripts/core/environment_manager.gd"
+VoiceManager="*res://scripts/core/voice_manager.gd"
 
 [display]
 
