@@ -101,6 +101,11 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "10. ШОССЕ КРАСНОГРАДА — МИССИЯ 3 (ОТКРЫТЫЙ МИР v0.7.0)"
 
+[node name="BtnCitadelPenthouse" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "11. ЦИТАДЕЛЬ СИНДИКАТА — МИССИЯ 4 (ФИНАЛ: ПЕНТХАУС И МЕЙНФРЕЙМ)"
+
 [node name="BtnBack" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2

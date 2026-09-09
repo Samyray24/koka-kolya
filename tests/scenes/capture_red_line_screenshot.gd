@@ -1,6 +1,6 @@
 extends SceneTree
 
-# Automated Screenshot Capture for Red Line Plant (Stage 4 Vertical Slice)
+# Cinematic Screenshot Capture for Level 2: Red Line Plant
 
 var frames_waited: int = 0
 var target_scene: Node = null
@@ -14,12 +14,17 @@ func _process(_delta: float) -> bool:
 		if scene_res:
 			target_scene = scene_res.instantiate()
 			root.add_child(target_scene)
-			
+
+			var p_cam: Camera3D = target_scene.get_node_or_null("Player/Head/Camera3D") as Camera3D
+			if p_cam:
+				p_cam.current = false
 			var cam := Camera3D.new()
 			cam.name = "CinematicCam"
-			root.add_child(cam)
-			cam.position = Vector3(-6.8, 2.2, 53.5)
-			cam.look_at(Vector3(-1.0, 1.2, 49.0), Vector3.UP)
+			target_scene.add_child(cam)
+			# Расположим камеру с приподнятого ракурса с видом на ворота, двор, завод и сиропную башню
+			cam.position = Vector3(14.0, 8.5, 20.0)
+			cam.look_at(Vector3(0.0, 4.0, -35.0), Vector3.UP)
+			cam.current = true
 			cam.make_current()
 		else:
 			printerr("[SCREENSHOT] Failed to load red_line_plant.tscn")
@@ -34,8 +39,6 @@ func _process(_delta: float) -> bool:
 			var err := img.save_png(save_path)
 			if err == OK:
 				print("[SCREENSHOT] Successfully saved screenshot to: %s" % save_path)
-			else:
-				printerr("[SCREENSHOT] Failed to save screenshot, error code: %d" % err)
 		quit(0)
 		return true
 

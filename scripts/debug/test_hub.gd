@@ -56,6 +56,11 @@ func _ready() -> void:
 		btn_m3.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/levels/city_highway.tscn")
 		)
+	if has_node("MarginContainer/VBoxContainer/BtnCitadelPenthouse"):
+		var btn_m4: Button = get_node("MarginContainer/VBoxContainer/BtnCitadelPenthouse")
+		btn_m4.pressed.connect(func() -> void:
+			get_tree().change_scene_to_file("res://scenes/levels/citadel_penthouse.tscn")
+		)
 	if btn_back:
 		btn_back.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")

@@ -107,6 +107,10 @@ func _generate_sound_library() -> void:
 	sfx_library["hack"] = _create_hack_sound()
 	sfx_library["alarm"] = _create_alarm_sound()
 	sfx_library["victory"] = _create_victory_sound()
+	sfx_library["laser_shot"] = _create_laser_shot_sound()
+	sfx_library["repeater_shot"] = _create_repeater_shot_sound()
+	sfx_library["axe_swing"] = _create_axe_swing_sound()
+	sfx_library["impact"] = _create_impact_sound()
 
 func _create_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	var wav := AudioStreamWAV.new()
@@ -309,4 +313,59 @@ func _create_victory_sound() -> AudioStreamWAV:
 		var freq: float = notes[mini(note_idx, 3)]
 		var env := exp(-fmod(t, 0.15) * 10.0)
 		samples[i] = sin(t * TAU * freq) * env * 0.55
+	return _create_wav(samples)
+
+func _create_laser_shot_sound() -> AudioStreamWAV:
+	# Энергетический плазменный выстрел (чистый нисходящий питч-глиссандо 750Hz -> 180Hz)
+	var count := int(SAMPLE_RATE * 0.14)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var freq := 750.0 * exp(-t * 14.0) + 180.0
+		var env := exp(-t * 12.0)
+		var tone := sin(t * TAU * freq) * 0.5
+		var sub := sin(t * TAU * (freq * 0.5)) * 0.3
+		samples[i] = tanh((tone + sub) * 1.3) * env * 0.55
+	return _create_wav(samples)
+
+func _create_repeater_shot_sound() -> AudioStreamWAV:
+	# Короткий резкий импульс автоматического плазмомета (620Hz -> 160Hz за 60ms)
+	var count := int(SAMPLE_RATE * 0.07)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var freq := 620.0 * exp(-t * 22.0) + 160.0
+		var env := exp(-t * 20.0)
+		var tone := sin(t * TAU * freq) * 0.5
+		var click := (randf() * 2.0 - 1.0) * 0.2 * exp(-t * 60.0)
+		samples[i] = (tone + click) * env * 0.5
+	return _create_wav(samples)
+
+func _create_axe_swing_sound() -> AudioStreamWAV:
+	# Мягкий свист рассекаемого воздуха при замахе тяжелого лезвия
+	var count := int(SAMPLE_RATE * 0.18)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var env := sin(t / 0.18 * PI)
+		var freq := 180.0 + sin(t * TAU * 3.0) * 60.0
+		var noise := (randf() * 2.0 - 1.0) * 0.35
+		var tone := sin(t * TAU * freq) * 0.3
+		samples[i] = (tone + noise) * env * 0.4
+	return _create_wav(samples)
+
+func _create_impact_sound() -> AudioStreamWAV:
+	# Кинетический удар лезвия или снаряда по преграде (глухой плотный щелчок 140Hz)
+	var count := int(SAMPLE_RATE * 0.12)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var env := exp(-t * 24.0)
+		var bass := sin(t * TAU * 140.0) * 0.6
+		var crunch := (randf() * 2.0 - 1.0) * 0.3 * exp(-t * 40.0)
+		samples[i] = tanh((bass + crunch) * 1.5) * env * 0.6
 	return _create_wav(samples)
