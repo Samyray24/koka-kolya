@@ -111,6 +111,7 @@ func _generate_sound_library() -> void:
 	sfx_library["repeater_shot"] = _create_repeater_shot_sound()
 	sfx_library["axe_swing"] = _create_axe_swing_sound()
 	sfx_library["impact"] = _create_impact_sound()
+	sfx_library["tire_skid"] = _create_tire_skid_sound()
 
 func _create_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	var wav := AudioStreamWAV.new()
@@ -368,4 +369,17 @@ func _create_impact_sound() -> AudioStreamWAV:
 		var bass := sin(t * TAU * 140.0) * 0.6
 		var crunch := (randf() * 2.0 - 1.0) * 0.3 * exp(-t * 40.0)
 		samples[i] = tanh((bass + crunch) * 1.5) * env * 0.6
+	return _create_wav(samples)
+
+func _create_tire_skid_sound() -> AudioStreamWAV:
+	# Процедурный визг покрышек об асфальт при заносе/дрифте
+	var count := int(SAMPLE_RATE * 0.24)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var env := sin(t / 0.24 * PI)
+		var screech := sin(t * TAU * 820.0) * 0.45 + sin(t * TAU * 1640.0) * 0.25
+		var noise := (randf() * 2.0 - 1.0) * 0.25
+		samples[i] = (screech * 0.65 + noise * 0.35) * env * 0.35
 	return _create_wav(samples)

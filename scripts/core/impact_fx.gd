@@ -178,3 +178,63 @@ static func spawn_explosion(parent: Node, pos: Vector3) -> void:
 	tw2.tween_interval(1.8)
 	tw2.tween_callback(p_fire.queue_free)
 	tw2.tween_callback(p_smoke.queue_free)
+
+static func spawn_drift_smoke(parent: Node, pos: Vector3, dir: Vector3 = Vector3.UP) -> void:
+	if not is_instance_valid(parent) or not parent.is_inside_tree():
+		return
+	var p := CPUParticles3D.new()
+	p.name = "DriftSmokeFX"
+	p.emitting = false
+	p.one_shot = true
+	p.explosiveness = 0.85
+	p.amount = 8
+	p.lifetime = 0.55
+	p.direction = dir + Vector3(randf_range(-0.4, 0.4), 0.3, randf_range(-0.4, 0.4))
+	p.spread = 50.0
+	p.initial_velocity_min = 1.0
+	p.initial_velocity_max = 3.2
+	p.gravity = Vector3(0, 1.2, 0)
+
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.22
+	mesh.height = 0.44
+	var mat := StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.85, 0.85, 0.88, 0.35)
+	mesh.material = mat
+	p.mesh = mesh
+
+	parent.add_child(p)
+	p.global_position = pos
+	p.restart()
+
+	var tw := p.create_tween()
+	tw.tween_interval(0.65)
+	tw.tween_callback(p.queue_free)
+
+static func spawn_bullet_scorch(parent: Node, pos: Vector3, normal: Vector3) -> void:
+	if not is_instance_valid(parent) or not parent.is_inside_tree():
+		return
+	var s := MeshInstance3D.new()
+	s.name = "BulletScorch"
+	var qm := QuadMesh.new()
+	qm.size = Vector2(0.16, 0.16)
+	s.mesh = qm
+
+	var mat := StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.1, 0.1, 0.12, 0.85)
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	s.material_override = mat
+
+	parent.add_child(s)
+	s.global_position = pos + normal * 0.01
+	if normal.abs().is_equal_approx(Vector3.UP):
+		s.look_at(s.global_position + normal, Vector3.FORWARD)
+	else:
+		s.look_at(s.global_position + normal, Vector3.UP)
+
+	var tw := s.create_tween()
+	tw.tween_interval(4.0)
+	tw.tween_property(mat, "albedo_color:a", 0.0, 1.0)
+	tw.tween_callback(s.queue_free)

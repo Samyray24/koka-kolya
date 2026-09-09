@@ -1,6 +1,8 @@
 class_name LootContainer
 extends Node3D
 
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
+
 # Детализированный армейский контейнер снабжения с объёмными уголками, ручками и замком
 signal container_opened(loot_data: Dictionary)
 
@@ -160,6 +162,10 @@ func open_container(instigator: Node) -> void:
 	if lid_node:
 		var tw := create_tween()
 		tw.tween_property(lid_node, "rotation_degrees:x", -80.0, 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	var root_n = get_parent() if get_parent() else self
+	ImpactFX.spawn_sparks(root_n, global_position + Vector3(0, 0.45, 0), Vector3.UP, 10)
+	ImpactFX.spawn_dust(root_n, global_position + Vector3(0, 0.45, 0), 6)
 
 	if has_node("/root/GameManager"):
 		var gm: Node = get_node("/root/GameManager")

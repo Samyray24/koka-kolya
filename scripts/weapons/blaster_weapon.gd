@@ -131,6 +131,11 @@ func use(camera: Camera3D) -> Dictionary:
 			result["action"] = "knockback"
 		else:
 			result["action"] = "hit_wall"
+			var hit_norm: Vector3 = hit.get("normal", -push_dir)
+			var root_node = get_tree().root if get_tree() else get_parent()
+			if root_node:
+				ImpactFX.spawn_bullet_scorch(root_node, hit_pos, hit_norm)
+				ImpactFX.spawn_dust(root_node, hit_pos, 5)
 
 	# Трассер выстрела
 	_spawn_tracer(global_position + global_transform.basis * muzzle_offset, end_point)

@@ -47,6 +47,7 @@ var cam_yaw: float = 0.0
 var cam_pitch: float = -0.18
 var base_cam_distance: float = 5.5
 var current_speed_kmh: float = 0.0
+var drift_cooldown: float = 0.0
 
 # HUD приборной панели
 var dashboard_canvas: CanvasLayer = null
@@ -160,12 +161,27 @@ func _physics_process(delta: float) -> void:
 
 	# Логика торможения, заноса (дрифта) и реверса
 	var forward_speed := -linear_velocity.dot(global_transform.basis.z)
+	drift_cooldown = maxf(0.0, drift_cooldown - delta)
+
 	if is_handbrake:
 		brake = max_brake_force * 2.8
 		if wheel_rl:
 			wheel_rl.wheel_friction_slip = 1.25
 		if wheel_rr:
 			wheel_rr.wheel_friction_slip = 1.25
+
+		# Дрифт: дым из-под задних колес и визг покрышек на скорости > 10 км/ч
+		if current_speed_kmh > 10.0:
+			if drift_cooldown <= 0.0:
+				drift_cooldown = 0.22
+				if has_node("/root/AudioManager"):
+					var am: Node = get_node("/root/AudioManager")
+					am.call("play_sfx", "tire_skid", -10.0, randf_range(0.95, 1.15))
+				var root_node = get_parent() if get_parent() else self
+				if wheel_rl and wheel_rl.is_in_contact():
+					ImpactFX.spawn_drift_smoke(root_node, wheel_rl.global_position, -global_transform.basis.z * 0.5)
+				if wheel_rr and wheel_rr.is_in_contact():
+					ImpactFX.spawn_drift_smoke(root_node, wheel_rr.global_position, -global_transform.basis.z * 0.5)
 	elif throttle < 0.0 and forward_speed > 0.8:
 		# Нажатие "назад" на скорости тормозит машину
 		brake = max_brake_force * 1.5

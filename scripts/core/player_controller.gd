@@ -1,6 +1,8 @@
 class_name PlayerController
 extends CharacterBody3D
 
+const ImpactFX = preload("res://scripts/core/impact_fx.gd")
+
 # First-Person Character Controller for «Кока-Коля»
 # Features: Плавная кинестетика, присед (Crouch), покачивание головы (Headbob),
 # наклон камеры при стрейфах, амортизация приземления, динамический FOV и отзывчивый HUD.
@@ -203,6 +205,8 @@ func _physics_process(delta: float) -> void:
 			if has_node("/root/AudioManager"):
 				var am: Node = get_node("/root/AudioManager")
 				am.call("play_sfx", "land", -5.0)
+			var root_n = get_parent() if get_parent() else self
+			ImpactFX.spawn_dust(root_n, global_position + Vector3(0, 0.05, 0), 10)
 	else:
 		coyote_timer = maxf(0.0, coyote_timer - delta)
 		velocity.y -= gravity * delta

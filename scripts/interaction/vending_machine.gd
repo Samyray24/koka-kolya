@@ -202,13 +202,25 @@ func _play_dispense_sfx() -> void:
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")
 		am.call("play_sfx", "victory", -4.0)
+	if dispenser_light:
+		var tw := create_tween()
+		tw.tween_property(dispenser_light, "light_energy", 3.8, 0.08)
+		tw.tween_property(dispenser_light, "light_energy", 1.6, 0.28)
 
 func _spawn_physics_can() -> void:
 	var can := RigidBody3D.new()
 	can.name = "SodaCan_%d" % remaining_uses
 	can.mass = 0.35
+	can.continuous_cd = true
+	can.linear_damp = 0.4
+	can.angular_damp = 0.6
 	can.collision_layer = 1 | 4
 	can.collision_mask = 1 | 2 | 4
+
+	var pmat := PhysicsMaterial.new()
+	pmat.friction = 0.55
+	pmat.bounce = 0.22
+	can.physics_material_override = pmat
 
 	var c_shape := CollisionShape3D.new()
 	var cyl := CylinderShape3D.new()
@@ -230,7 +242,9 @@ func _spawn_physics_can() -> void:
 	c_mesh.material_override = mat
 	can.add_child(c_mesh)
 
-	can.position = global_position + Vector3(0, 0.32, 0.55)
-	get_parent().add_child(can)
-	can.apply_central_impulse(global_transform.basis.z * 1.8 + Vector3(0, 0.9, 0))
-	can.apply_torque_impulse(Vector3(randf_range(-2, 2), randf_range(-2, 2), randf_range(-2, 2)))
+	var root_parent = get_parent() if get_parent() else get_tree().root
+	if root_parent:
+		root_parent.add_child(can)
+		can.global_position = global_position + global_transform.basis * Vector3(0, 0.32, 0.55)
+		can.apply_impulse(global_transform.basis.z * 2.0 + Vector3(0, 1.1, 0), Vector3(0.01, 0.04, 0.01))
+		can.apply_torque_impulse(Vector3(randf_range(-2, 2), randf_range(-2, 2), randf_range(-2, 2)))
