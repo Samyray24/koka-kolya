@@ -1,0 +1,14 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/van_livery_chrome_albedo.png" id="1_wxabu"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/van_livery_chrome_metallic.png" id="2_welec"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/van_livery_chrome_normal.png" id="3_kd2gh"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/van_livery_chrome_roughness.png" id="4_43b44"]
+
+[resource]
+resource_name = "van_livery_chrome"
+albedo_texture = ExtResource("1_wxabu")
+metallic_texture = ExtResource("2_welec")
+roughness_texture = ExtResource("4_43b44")
+normal_enabled = true
+normal_texture = ExtResource("3_kd2gh")

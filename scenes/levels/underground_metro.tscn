@@ -1,0 +1,189 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/underground_metro.gd" id="1_metro"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/characters/bubble_drone.tscn" id="3_drone"]
+[ext_resource type="PackedScene" path="res://scenes/characters/guard.tscn" id="4_guard"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="5_pause"]
+[ext_resource type="Material" path="res://assets/materials/mat_underground_brick_grunge.tres" id="6_brick"]
+[ext_resource type="Material" path="res://assets/materials/mat_sci_fi_server_rack.tres" id="7_server"]
+[ext_resource type="Material" path="res://assets/materials/mat_meridian_white_marble.tres" id="8_marble"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_metro"]
+sky_top_color = Color(0.01, 0.01, 0.02, 1)
+sky_horizon_color = Color(0.05, 0.05, 0.08, 1)
+ground_bottom_color = Color(0.01, 0.01, 0.02, 1)
+ground_horizon_color = Color(0.04, 0.04, 0.06, 1)
+
+[sub_resource type="Sky" id="Sky_metro"]
+sky_material = SubResource("ProceduralSkyMaterial_metro")
+
+[sub_resource type="Environment" id="Environment_metro"]
+background_mode = 2
+sky = SubResource("Sky_metro")
+ambient_light_source = 3
+ambient_light_color = Color(0.18, 0.22, 0.28, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 3
+tonemap_exposure = 1.2
+glow_enabled = true
+glow_intensity = 1.0
+ssao_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.03, 0.05, 0.08, 1)
+fog_density = 0.015
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(25, 1, 200)
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = ExtResource("6_brick")
+size = Vector3(25, 1, 200)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_platform"]
+size = Vector3(10, 1.2, 160)
+
+[sub_resource type="BoxMesh" id="BoxMesh_platform"]
+material = ExtResource("8_marble")
+size = Vector3(10, 1.2, 160)
+
+[node name="UndergroundMetro" type="Node3D"]
+script = ExtResource("1_metro")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_metro")
+
+[node name="MetroTrackFloor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MetroTrackFloor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MetroTrackFloor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="PassengerPlatform" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0.6, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PassengerPlatform"]
+shape = SubResource("BoxShape3D_platform")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PassengerPlatform"]
+mesh = SubResource("BoxMesh_platform")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.4, 70)
+
+[node name="BubbleDrone" parent="." instance=ExtResource("3_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 2.5, 71)
+
+[node name="MetroGuard" parent="." instance=ExtResource("4_guard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.4, 0)
+patrol_point_a = Vector3(6, 1.2, 25)
+patrol_point_b = Vector3(6, 1.2, -25)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="QuestPanel" type="PanelContainer" parent="HUD"]
+offset_left = 30.0
+offset_top = 25.0
+offset_right = 500.0
+offset_bottom = 170.0
+
+[node name="Margin" type="MarginContainer" parent="HUD/QuestPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/QuestPanel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "РАЙОН: ПОДЗЕМНЫЙ МЕТРОПОЛИТЕН (СТАНЦИЯ РЕВОЛЮЦИИ)"
+
+[node name="ObjectiveLabel" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "[ ] Исследовать перрон заброшенной станции"
+
+[node name="RadioPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = -140.0
+offset_right = 350.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="HUD/RadioPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/RadioPanel/Margin"]
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "[РАДИО: СашаV]"
+
+[node name="MessageLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "..."
+
+[node name="VictoryPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -100.0
+offset_right = 280.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/VictoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="HUD/VictoryPanel/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 22
+text = "МЕТРО ПОД КОНТРОЛЕМ!"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Секретные архивы скачаны, сеть метро запитана!
++1200 КР на баланс."
+horizontal_alignment = 1
+
+[node name="PauseMenu" parent="." instance=ExtResource("5_pause")]
+visible = false

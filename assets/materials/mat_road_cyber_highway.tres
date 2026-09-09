@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/road_cyber_highway_albedo.png" id="1_7w4im"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/road_cyber_highway_emission.png" id="2_2v4dn"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/road_cyber_highway_normal.png" id="3_er153"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/road_cyber_highway_roughness.png" id="4_wfess"]
+
+[resource]
+resource_name = "road_cyber_highway"
+albedo_texture = ExtResource("1_7w4im")
+roughness_texture = ExtResource("4_wfess")
+emission_enabled = true
+emission_energy_multiplier = 3.0
+emission_texture = ExtResource("2_2v4dn")
+normal_enabled = true
+normal_texture = ExtResource("3_er153")

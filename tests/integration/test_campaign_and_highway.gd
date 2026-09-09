@@ -115,6 +115,7 @@ func _test_3_vehicle_radio() -> void:
 
 	var station_2: String = radio.call("cycle_station")
 	var station_3: String = radio.call("cycle_station")
+	var station_4: String = radio.call("cycle_station")
 	var off_station: String = radio.call("cycle_station")
 	var is_playing_off: bool = radio.get("is_playing")
 

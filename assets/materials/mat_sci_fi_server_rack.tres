@@ -1,0 +1,18 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/sci_fi_server_rack_albedo.png" id="1_jf65f"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/sci_fi_server_rack_emission.png" id="2_wl0eh"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/sci_fi_server_rack_metallic.png" id="3_451bq"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/sci_fi_server_rack_normal.png" id="4_6ln5l"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/sci_fi_server_rack_roughness.png" id="5_6bb1k"]
+
+[resource]
+resource_name = "sci_fi_server_rack"
+albedo_texture = ExtResource("1_jf65f")
+metallic_texture = ExtResource("3_451bq")
+roughness_texture = ExtResource("5_6bb1k")
+emission_enabled = true
+emission_energy_multiplier = 3.0
+emission_texture = ExtResource("2_wl0eh")
+normal_enabled = true
+normal_texture = ExtResource("4_6ln5l")

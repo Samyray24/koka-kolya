@@ -61,6 +61,23 @@ func _ready() -> void:
 		btn_m4.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/levels/citadel_penthouse.tscn")
 		)
+	var vbox: VBoxContainer = get_node_or_null("MarginContainer/VBoxContainer") as VBoxContainer
+	if vbox:
+		var new_districts = [
+			{"name": "Неоновый Бульвар (Миссия 4)", "path": "res://scenes/levels/neon_boulevard.tscn"},
+			{"name": "Логистический Хаб (Миссия 5)", "path": "res://scenes/levels/logistics_hub.tscn"},
+			{"name": "Подземный Метрополитен (Миссия 6)", "path": "res://scenes/levels/underground_metro.tscn"}
+		]
+		for dist in new_districts:
+			var btn := Button.new()
+			btn.text = dist["name"]
+			var p: String = dist["path"]
+			btn.pressed.connect(func() -> void:
+				get_tree().change_scene_to_file(p)
+			)
+			vbox.add_child(btn)
+			if btn_back:
+				vbox.move_child(btn_back, vbox.get_child_count() - 1)
 	if btn_back:
 		btn_back.pressed.connect(func() -> void:
 			get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")

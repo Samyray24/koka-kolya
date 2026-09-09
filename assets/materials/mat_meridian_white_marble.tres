@@ -1,0 +1,14 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/meridian_white_marble_albedo.png" id="1_8hlgy"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/meridian_white_marble_metallic.png" id="2_hej0v"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/meridian_white_marble_normal.png" id="3_2m8pq"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/meridian_white_marble_roughness.png" id="4_feue0"]
+
+[resource]
+resource_name = "meridian_white_marble"
+albedo_texture = ExtResource("1_8hlgy")
+metallic_texture = ExtResource("2_hej0v")
+roughness_texture = ExtResource("4_feue0")
+normal_enabled = true
+normal_texture = ExtResource("3_2m8pq")

@@ -1,0 +1,189 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/logistics_hub.gd" id="1_logistics"]
+[ext_resource type="PackedScene" path="res://scenes/characters/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/vehicles/delivery_van.tscn" id="3_van"]
+[ext_resource type="PackedScene" path="res://scenes/characters/bubble_drone.tscn" id="4_drone"]
+[ext_resource type="PackedScene" path="res://scenes/characters/guard.tscn" id="5_guard"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="6_pause"]
+[ext_resource type="Material" path="res://assets/materials/mat_road_wet_asphalt.tres" id="7_wet_asphalt"]
+[ext_resource type="Material" path="res://assets/materials/mat_metal_industrial_diamond.tres" id="8_diamond"]
+[ext_resource type="Material" path="res://assets/materials/mat_metal_corrugated_slum.tres" id="9_container"]
+[ext_resource type="Material" path="res://assets/materials/mat_meridian_titanium_wall.tres" id="10_titanium"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hub"]
+sky_top_color = Color(0.08, 0.08, 0.12, 1)
+sky_horizon_color = Color(0.25, 0.22, 0.2, 1)
+ground_bottom_color = Color(0.05, 0.05, 0.06, 1)
+ground_horizon_color = Color(0.18, 0.16, 0.15, 1)
+
+[sub_resource type="Sky" id="Sky_hub"]
+sky_material = SubResource("ProceduralSkyMaterial_hub")
+
+[sub_resource type="Environment" id="Environment_hub"]
+background_mode = 2
+sky = SubResource("Sky_hub")
+ambient_light_source = 3
+ambient_light_color = Color(0.35, 0.35, 0.38, 1)
+ambient_light_energy = 0.5
+tonemap_mode = 3
+tonemap_exposure = 1.1
+glow_enabled = true
+glow_intensity = 0.7
+ssao_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.12, 0.12, 0.15, 1)
+fog_density = 0.008
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(350, 1, 350)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = ExtResource("7_wet_asphalt")
+size = Vector3(350, 1, 350)
+
+[node name="LogisticsHub" type="Node3D"]
+script = ExtResource("1_logistics")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_hub")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 0, 35, 0)
+light_color = Color(1, 0.85, 0.65, 1)
+light_energy = 0.9
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.2, 90)
+
+[node name="BubbleDrone" parent="." instance=ExtResource("4_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1.8, 91)
+
+[node name="DeliveryVan" parent="." instance=ExtResource("3_van")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.8, 85)
+
+[node name="GuardPatrol1" parent="." instance=ExtResource("5_guard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 20)
+patrol_point_a = Vector3(-15, 0, 20)
+patrol_point_b = Vector3(15, 0, 20)
+
+[node name="GuardPatrol2" parent="." instance=ExtResource("5_guard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.1, -40)
+patrol_point_a = Vector3(20, 0, -40)
+patrol_point_b = Vector3(20, 0, 10)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="QuestPanel" type="PanelContainer" parent="HUD"]
+offset_left = 30.0
+offset_top = 25.0
+offset_right = 500.0
+offset_bottom = 170.0
+
+[node name="Margin" type="MarginContainer" parent="HUD/QuestPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/QuestPanel/Margin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.1, 1)
+theme_override_font_sizes/font_size = 15
+text = "РАЙОН: ЛОГИСТИЧЕСКИЙ ХАБ СИНДИКАТА"
+
+[node name="ObjectiveLabel" type="Label" parent="HUD/QuestPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "[ ] Проникнуть на территорию терминала"
+
+[node name="RadioPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = -140.0
+offset_right = 350.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="HUD/RadioPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/RadioPanel/Margin"]
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "[РАДИО: СашаV]"
+
+[node name="MessageLabel" type="Label" parent="HUD/RadioPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "..."
+
+[node name="VictoryPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -100.0
+offset_right = 280.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="HUD/VictoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="HUD/VictoryPanel/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 22
+text = "ХАБ ЗАХВАЧЕН!"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="HUD/VictoryPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Секретный концентрат сиропа погружен в фургон!
++1000 КР на баланс."
+horizontal_alignment = 1
+
+[node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
+visible = false

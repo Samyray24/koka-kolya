@@ -82,6 +82,28 @@ var radio_label: Label = null
 var nitro_label: Label = null
 var health_label: Label = null
 var headlight_label: Label = null
+var livery_label: Label = null
+var underglow_label: Label = null
+
+# Кастомизация кузова (Liveries)
+const LIVERIES: Array[Dictionary] = [
+	{"name": "Бунтарский Алый", "path": "res://assets/materials/mat_van_livery_rebel.tres"},
+	{"name": "Кибер-Неон Синдикат", "path": "res://assets/materials/mat_van_livery_cyber.tres"},
+	{"name": "Хром Гипердрайв", "path": "res://assets/materials/mat_van_livery_chrome.tres"},
+	{"name": "Пустошный Воин (Ржавчина)", "path": "res://assets/materials/mat_van_livery_rust.tres"}
+]
+var current_livery_idx: int = 0
+
+# Неоновая подсветка днища (Underglow Neon)
+const UNDERGLOW_COLORS: Array[Dictionary] = [
+	{"name": "ВЫКЛ", "color": Color.BLACK, "enabled": false},
+	{"name": "Неоновый Циан", "color": Color(0.0, 0.9, 1.0), "enabled": true},
+	{"name": "Маджента Киберпанк", "color": Color(1.0, 0.05, 0.8), "enabled": true},
+	{"name": "Кислотный Лайм", "color": Color(0.1, 1.0, 0.2), "enabled": true},
+	{"name": "Янтарный Взрыв", "color": Color(1.0, 0.7, 0.0), "enabled": true}
+]
+var current_underglow_idx: int = 0
+var underglow_lights: Array[OmniLight3D] = []
 
 func _ready() -> void:
 	add_to_group("vehicle")
@@ -99,6 +121,8 @@ func _ready() -> void:
 		interactable_node.connect("interacted", _on_door_interacted)
 
 	_setup_headlights()
+	_setup_underglow()
+	_apply_livery(current_livery_idx)
 	_build_dashboard_ui()
 
 func _on_door_interacted(instigator: Node) -> void:
@@ -206,6 +230,73 @@ func toggle_headlights() -> void:
 
 	_refresh_dashboard_accessories()
 
+func _setup_underglow() -> void:
+	underglow_lights.clear()
+	var offsets: Array[Vector3] = [
+		Vector3(-0.75, 0.1, 1.2),
+		Vector3(0.75, 0.1, 1.2),
+		Vector3(-0.75, 0.1, -1.2),
+		Vector3(0.75, 0.1, -1.2)
+	]
+	for i in range(offsets.size()):
+		var light := OmniLight3D.new()
+		light.name = "UnderglowLight_%d" % i
+		light.position = offsets[i]
+		light.omni_range = 3.5
+		light.omni_attenuation = 1.8
+		light.light_energy = 0.0
+		light.visible = false
+		add_child(light)
+		underglow_lights.append(light)
+
+func cycle_underglow() -> void:
+	current_underglow_idx = (current_underglow_idx + 1) % UNDERGLOW_COLORS.size()
+	var cfg: Dictionary = UNDERGLOW_COLORS[current_underglow_idx]
+	var is_on: bool = cfg["enabled"]
+	var col: Color = cfg["color"]
+	for l in underglow_lights:
+		if is_instance_valid(l):
+			l.visible = is_on
+			l.light_color = col
+			l.light_energy = 3.0 if is_on else 0.0
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "click", -2.0, 1.4)
+	_refresh_dashboard_accessories()
+
+func cycle_livery() -> void:
+	current_livery_idx = (current_livery_idx + 1) % LIVERIES.size()
+	_apply_livery(current_livery_idx)
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "click", -1.0, 1.1)
+	_refresh_dashboard_accessories()
+
+func _apply_livery(idx: int) -> void:
+	if idx < 0 or idx >= LIVERIES.size():
+		return
+	var liv: Dictionary = LIVERIES[idx]
+	var path: String = liv["path"]
+	if ResourceLoader.exists(path):
+		var mat: Material = load(path)
+		if mat:
+			var bm: MeshInstance3D = get_node_or_null("BodyMesh") as MeshInstance3D
+			if bm:
+				bm.material_override = mat
+			var truck_model: Node3D = get_node_or_null("VisualTruckModel") as Node3D
+			if truck_model:
+				_apply_livery_recursive(truck_model, mat)
+			LogManager.info("[ТЮНИНГ]: Установлена окраска «%s»" % liv["name"], "VEHICLE")
+
+func _apply_livery_recursive(node: Node, mat: Material) -> void:
+	if node is MeshInstance3D:
+		var mi := node as MeshInstance3D
+		var n_name := mi.name.to_lower()
+		if not ("wheel" in n_name or "glass" in n_name):
+			mi.material_override = mat
+	for child in node.get_children():
+		_apply_livery_recursive(child, mat)
+
 func honk_horn() -> void:
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")
@@ -222,18 +313,26 @@ func honk_horn() -> void:
 			vm.call("speak_kolya", "kolya_horn", "Бип-бип, посторонись, корпораты! Доставка свежести летит!")
 
 func _refresh_dashboard_accessories() -> void:
-	if not headlight_label:
-		return
-	match headlight_mode:
-		HeadlightMode.OFF:
-			headlight_label.text = "Фары: ВЫКЛ [L]"
-			headlight_label.modulate = Color(0.6, 0.6, 0.6)
-		HeadlightMode.LOW:
-			headlight_label.text = "Фары: БЛИЖНИЙ [L]"
-			headlight_label.modulate = Color(1.0, 0.9, 0.3)
-		HeadlightMode.HIGH:
-			headlight_label.text = "Фары: ДАЛЬНИЙ [L]"
-			headlight_label.modulate = Color(0.3, 0.9, 1.0)
+	if headlight_label:
+		match headlight_mode:
+			HeadlightMode.OFF:
+				headlight_label.text = "Фары: ВЫКЛ [L]"
+				headlight_label.modulate = Color(0.6, 0.6, 0.6)
+			HeadlightMode.LOW:
+				headlight_label.text = "Фары: БЛИЖНИЙ [L]"
+				headlight_label.modulate = Color(1.0, 0.9, 0.3)
+			HeadlightMode.HIGH:
+				headlight_label.text = "Фары: ДАЛЬНИЙ [L]"
+				headlight_label.modulate = Color(0.3, 0.9, 1.0)
+
+	if livery_label:
+		var liv: Dictionary = LIVERIES[current_livery_idx]
+		livery_label.text = "Окраска: %s [T]" % liv["name"]
+
+	if underglow_label:
+		var ug: Dictionary = UNDERGLOW_COLORS[current_underglow_idx]
+		underglow_label.text = "Неон днища: %s [U]" % ug["name"]
+		underglow_label.modulate = ug["color"] if ug["enabled"] else Color(0.6, 0.6, 0.6)
 
 func _physics_process(delta: float) -> void:
 	_update_cargo_mass()
@@ -400,6 +499,10 @@ func _input(event: InputEvent) -> void:
 			toggle_headlights()
 		elif event.keycode == KEY_H:
 			honk_horn()
+		elif event.keycode == KEY_T:
+			cycle_livery()
+		elif event.keycode == KEY_U:
+			cycle_underglow()
 
 func _update_chase_camera(delta: float) -> void:
 	if not spring_arm or not chase_camera:
@@ -530,6 +633,18 @@ func _build_dashboard_ui() -> void:
 	cargo_label.add_theme_font_size_override("font_size", 13)
 	vbox.add_child(cargo_label)
 
+	livery_label = Label.new()
+	livery_label.text = "Окраска: Бунтарский Алый [T]"
+	livery_label.add_theme_font_size_override("font_size", 12)
+	livery_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+	vbox.add_child(livery_label)
+
+	underglow_label = Label.new()
+	underglow_label.text = "Неон днища: ВЫКЛ [U]"
+	underglow_label.add_theme_font_size_override("font_size", 12)
+	underglow_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+	vbox.add_child(underglow_label)
+
 	radio_label = Label.new()
 	radio_label.text = "Радио: ВЫКЛ [R]"
 	radio_label.add_theme_font_size_override("font_size", 12)
@@ -537,10 +652,12 @@ func _build_dashboard_ui() -> void:
 	vbox.add_child(radio_label)
 
 	var hint := Label.new()
-	hint.text = "[W/S] Газ/Тормоз | [A/D] Руль | [Shift] Нитро | [L] Фары | [H] Гудок | [Space] Ручник | [E] Выход"
+	hint.text = "[W/S] Газ/Тормоз | [A/D] Руль | [Shift] Нитро | [L] Фары | [H] Гудок | [T] Покраска | [U] Неон | [Space] Ручник | [E] Выход"
 	hint.add_theme_font_size_override("font_size", 10)
 	hint.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
 	vbox.add_child(hint)
+
+	_refresh_dashboard_accessories()
 
 func _update_dashboard_ui(_throttle: float, forward_speed: float, is_handbrake: bool) -> void:
 	if not dashboard_canvas or not dashboard_canvas.visible:

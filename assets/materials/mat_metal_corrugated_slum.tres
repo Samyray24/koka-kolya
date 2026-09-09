@@ -1,0 +1,14 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/metal_corrugated_slum_albedo.png" id="1_04gkt"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/metal_corrugated_slum_metallic.png" id="2_qo0am"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/metal_corrugated_slum_normal.png" id="3_ia2io"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/metal_corrugated_slum_roughness.png" id="4_wsmrf"]
+
+[resource]
+resource_name = "metal_corrugated_slum"
+albedo_texture = ExtResource("1_04gkt")
+metallic_texture = ExtResource("2_qo0am")
+roughness_texture = ExtResource("4_wsmrf")
+normal_enabled = true
+normal_texture = ExtResource("3_ia2io")

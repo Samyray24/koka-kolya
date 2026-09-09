@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/neon_hologram_grid_albedo.png" id="1_rpq4r"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/neon_hologram_grid_emission.png" id="2_qqtdg"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/neon_hologram_grid_normal.png" id="3_g5j84"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/neon_hologram_grid_roughness.png" id="4_6nmk5"]
+
+[resource]
+resource_name = "neon_hologram_grid"
+albedo_texture = ExtResource("1_rpq4r")
+roughness_texture = ExtResource("4_6nmk5")
+emission_enabled = true
+emission_energy_multiplier = 3.0
+emission_texture = ExtResource("2_qqtdg")
+normal_enabled = true
+normal_texture = ExtResource("3_g5j84")

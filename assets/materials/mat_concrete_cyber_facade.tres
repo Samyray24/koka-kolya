@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/concrete_cyber_facade_albedo.png" id="1_orgja"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/concrete_cyber_facade_normal.png" id="2_yaej7"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/concrete_cyber_facade_roughness.png" id="3_rkeal"]
+
+[resource]
+resource_name = "concrete_cyber_facade"
+albedo_texture = ExtResource("1_orgja")
+roughness_texture = ExtResource("3_rkeal")
+normal_enabled = true
+normal_texture = ExtResource("2_yaej7")

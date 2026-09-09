@@ -17,6 +17,9 @@ const DISTRICT_SCENES: Dictionary = {
 	"old_district": "res://scenes/levels/old_district.tscn",
 	"city_highway": "res://scenes/levels/city_highway.tscn",
 	"red_line_plant": "res://scenes/levels/red_line_plant.tscn",
+	"neon_boulevard": "res://scenes/levels/neon_boulevard.tscn",
+	"logistics_hub": "res://scenes/levels/logistics_hub.tscn",
+	"underground_metro": "res://scenes/levels/underground_metro.tscn",
 	"test_hub": "res://scenes/testlabs/test_hub.tscn",
 	"main_menu": "res://scenes/ui/main_menu.tscn"
 }

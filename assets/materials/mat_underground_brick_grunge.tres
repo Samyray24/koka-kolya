@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/underground_brick_grunge_albedo.png" id="1_31s7l"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/underground_brick_grunge_normal.png" id="2_prnqv"]
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/underground_brick_grunge_roughness.png" id="3_rdjm4"]
+
+[resource]
+resource_name = "underground_brick_grunge"
+albedo_texture = ExtResource("1_31s7l")
+roughness_texture = ExtResource("3_rdjm4")
+normal_enabled = true
+normal_texture = ExtResource("2_prnqv")
