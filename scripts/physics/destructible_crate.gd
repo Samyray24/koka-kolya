@@ -15,17 +15,41 @@ var mesh_node: Node3D = null
 
 func _ready() -> void:
 	current_health = max_health
-	mass = 14.0
+	mass = 16.0
+	linear_damp = 0.6
+	angular_damp = 1.8
+	continuous_cd = true
+	contact_monitor = true
+	max_contacts_reported = 4
 	collision_layer = 4 # Объекты / AI / Захват
 	collision_mask = 7 # Мир, Игрок, Объекты
 	add_to_group("destructible")
 
 	var p_mat := PhysicsMaterial.new()
-	p_mat.friction = 0.8
-	p_mat.bounce = 0.15
+	p_mat.friction = 0.78
+	p_mat.bounce = 0.08
 	physics_material_override = p_mat
 
+	body_entered.connect(_on_crate_impact)
 	_build_visuals()
+
+func _on_crate_impact(body: Node) -> void:
+	if is_broken:
+		return
+	var rel_speed: float = linear_velocity.length()
+	if body is RigidBody3D:
+		rel_speed = (linear_velocity - (body as RigidBody3D).linear_velocity).length()
+
+	if rel_speed > 1.4:
+		if has_node("/root/AudioManager"):
+			var am: Node = get_node("/root/AudioManager")
+			var vol: float = clampf(lerpf(-16.0, 0.0, (rel_speed - 1.4) / 7.0), -16.0, 0.0)
+			var pitch: float = randf_range(1.05, 1.25)
+			am.call("play_sfx", "impact", vol, pitch)
+		if rel_speed > 4.5 and is_inside_tree():
+			var root_n = get_parent() if get_parent() else get_tree().root
+			if root_n:
+				ImpactFX.spawn_splinters(root_n, global_position + Vector3(0, 0.3, 0), -linear_velocity.normalized(), 6)
 
 func _build_visuals() -> void:
 	var box_scene: PackedScene = load("res://assets/scenes_3d/box_A.tscn")
@@ -49,13 +73,17 @@ func _build_visuals() -> void:
 	cs.shape = bs
 	add_child(cs)
 
-func take_damage(amount: float, impulse_dir: Vector3 = Vector3.ZERO, impulse_force: float = 0.0) -> void:
+func take_damage(amount: float, impulse_dir: Vector3 = Vector3.ZERO, impulse_force: float = 0.0, hit_pos: Vector3 = Vector3.ZERO) -> void:
 	if is_broken:
 		return
 
 	current_health -= amount
-	if impulse_force > 0.0:
-		apply_central_impulse(impulse_dir.normalized() * impulse_force)
+	if impulse_force > 0.0 and is_inside_tree():
+		if hit_pos != Vector3.ZERO:
+			var local_contact: Vector3 = hit_pos - global_position
+			apply_impulse(impulse_dir.normalized() * impulse_force, local_contact)
+		else:
+			apply_central_impulse(impulse_dir.normalized() * impulse_force)
 
 	# Звук удара по дереву
 	if has_node("/root/AudioManager"):
@@ -63,7 +91,8 @@ func take_damage(amount: float, impulse_dir: Vector3 = Vector3.ZERO, impulse_for
 		am.call("play_sfx", "impact", -3.0, randf_range(1.1, 1.3))
 
 	# Спавн щепок
-	ImpactFX.spawn_splinters(get_parent() if get_parent() else self, global_position + Vector3(0, 0.4, 0), -impulse_dir)
+	var spark_pos: Vector3 = hit_pos if hit_pos != Vector3.ZERO else (global_position + Vector3(0, 0.4, 0))
+	ImpactFX.spawn_splinters(get_parent() if get_parent() else self, spark_pos, -impulse_dir)
 
 	if current_health <= 0.0:
 		destroy(impulse_dir, impulse_force)
@@ -88,13 +117,23 @@ func destroy(hit_dir: Vector3 = Vector3.ZERO, force: float = 12.0) -> void:
 func _spawn_debris(hit_dir: Vector3, force: float) -> void:
 	var root_node = get_parent() if get_parent() else get_tree().root
 
-	# Спавним 5 физических обломков досок
+	# Спавним 5 физических обломков досок с честной физикой Jolt
 	for i in range(5):
 		var plank := RigidBody3D.new()
 		plank.name = "PlankDebris_%d" % randi()
-		plank.mass = 2.0
+		plank.mass = randf_range(2.5, 3.8)
+		plank.linear_damp = 0.8
+		plank.angular_damp = 2.4
+		plank.continuous_cd = true
+		plank.contact_monitor = true
+		plank.max_contacts_reported = 2
 		plank.collision_layer = 4
 		plank.collision_mask = 1 | 4
+
+		var pmat_phys := PhysicsMaterial.new()
+		pmat_phys.friction = 0.82
+		pmat_phys.bounce = 0.06
+		plank.physics_material_override = pmat_phys
 
 		var col := CollisionShape3D.new()
 		var box := BoxShape3D.new()
@@ -116,9 +155,16 @@ func _spawn_debris(hit_dir: Vector3, force: float) -> void:
 		root_node.add_child(plank)
 		plank.global_position = global_position + offset
 
+		plank.body_entered.connect(func(_b: Node) -> void:
+			if is_instance_valid(plank) and plank.linear_velocity.length() > 1.8:
+				if plank.has_node("/root/AudioManager"):
+					var am: Node = plank.get_node("/root/AudioManager")
+					am.call("play_sfx", "impact", -18.0, randf_range(1.3, 1.6))
+		)
+
 		var launch_dir := (hit_dir * 0.6 + offset.normalized() * 0.8 + Vector3.UP * 0.8).normalized()
 		var blast_impulse := launch_dir * randf_range(force * 0.6, force * 1.3 + 6.0)
-		plank.apply_central_impulse(blast_impulse)
+		plank.apply_impulse(blast_impulse, offset * 0.5)
 		plank.apply_torque_impulse(Vector3(randf_range(-6, 6), randf_range(-6, 6), randf_range(-6, 6)))
 
 		var tw := plank.create_tween()
@@ -131,9 +177,17 @@ func _spawn_loot() -> void:
 	if randf() > 0.4:
 		var can := RigidBody3D.new()
 		can.name = "LootSodaCan_%d" % randi()
-		can.mass = 0.4
+		can.mass = 0.35
+		can.linear_damp = 0.4
+		can.angular_damp = 0.6
+		can.continuous_cd = true
 		can.collision_layer = 4
 		can.collision_mask = 1 | 4
+
+		var can_mat_phys := PhysicsMaterial.new()
+		can_mat_phys.friction = 0.55
+		can_mat_phys.bounce = 0.22
+		can.physics_material_override = can_mat_phys
 
 		var col := CollisionShape3D.new()
 		var cyl := CylinderShape3D.new()
@@ -157,7 +211,7 @@ func _spawn_loot() -> void:
 
 		root_node.add_child(can)
 		can.global_position = global_position + Vector3(0, 0.45, 0)
-		can.apply_central_impulse(Vector3(randf_range(-1.2, 1.2), 3.2, randf_range(-1.2, 1.2)))
+		can.apply_impulse(Vector3(randf_range(-1.2, 1.2), 3.2, randf_range(-1.2, 1.2)), Vector3(0.02, 0.05, 0.02))
 	else:
 		if has_node("/root/GameManager"):
 			var gm: Node = get_node("/root/GameManager")

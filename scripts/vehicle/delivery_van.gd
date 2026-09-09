@@ -57,6 +57,8 @@ var radio_label: Label = null
 
 func _ready() -> void:
 	add_to_group("vehicle")
+	center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+	center_of_mass = Vector3(0.0, -0.32, 0.1)
 	LogManager.info("Фургон доставки инициализирован. Масса шасси: %.1f кг" % mass, "VEHICLE")
 
 	contact_monitor = true
@@ -156,16 +158,28 @@ func _physics_process(delta: float) -> void:
 	var speed_steer_damping := clampf(1.0 - (current_speed_kmh / 80.0) * 0.4, 0.6, 1.0)
 	steering = move_toward(steering, target_steer * speed_steer_damping, 3.2 * delta)
 
-	# Логика торможения и реверса
+	# Логика торможения, заноса (дрифта) и реверса
 	var forward_speed := -linear_velocity.dot(global_transform.basis.z)
 	if is_handbrake:
-		brake = max_brake_force * 2.5
+		brake = max_brake_force * 2.8
+		if wheel_rl:
+			wheel_rl.wheel_friction_slip = 1.25
+		if wheel_rr:
+			wheel_rr.wheel_friction_slip = 1.25
 	elif throttle < 0.0 and forward_speed > 0.8:
 		# Нажатие "назад" на скорости тормозит машину
 		brake = max_brake_force * 1.5
 		engine_force = 0.0
+		if wheel_rl:
+			wheel_rl.wheel_friction_slip = move_toward(wheel_rl.wheel_friction_slip, 2.8, 4.0 * delta)
+		if wheel_rr:
+			wheel_rr.wheel_friction_slip = move_toward(wheel_rr.wheel_friction_slip, 2.8, 4.0 * delta)
 	else:
 		brake = 0.0
+		if wheel_rl:
+			wheel_rl.wheel_friction_slip = move_toward(wheel_rl.wheel_friction_slip, 2.8, 4.0 * delta)
+		if wheel_rr:
+			wheel_rr.wheel_friction_slip = move_toward(wheel_rr.wheel_friction_slip, 2.8, 4.0 * delta)
 
 	# Плавное авто-центрирование камеры при движении вперед
 	if absf(throttle) > 0.1 and current_speed_kmh > 2.0:
@@ -367,8 +381,11 @@ func _on_vehicle_collision(body: Node) -> void:
 	if body is RigidBody3D:
 		var rb := body as RigidBody3D
 		var impulse := move_dir * (speed_ms * mass * 0.08) + Vector3.UP * (speed_ms * 1.5)
-		rb.apply_central_impulse(impulse)
+		var rel_pos: Vector3 = (global_position - rb.global_position).limit_length(1.0)
+		rb.apply_impulse(impulse, rel_pos)
 		rb.apply_torque_impulse(Vector3(randf_range(-15, 15), randf_range(-15, 15), randf_range(-15, 15)))
+		# 3-й закон Ньютона: импульс отдачи на сам фургон
+		apply_central_impulse(-move_dir * minf(rb.mass * speed_ms * 0.05, mass * 0.35))
 
 	if body.has_method("take_damage"):
 		body.call("take_damage", speed_ms * 4.0, move_dir, speed_ms * 18.0)

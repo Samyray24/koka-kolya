@@ -123,14 +123,16 @@ func use(camera: Camera3D) -> Dictionary:
 		ImpactFX.spawn_sparks(get_tree().root, hit_pos, push_dir, 10)
 
 		if collider is Node and (collider as Node).has_method("take_damage"):
-			(collider as Node).call("take_damage", damage, push_dir, 16.0)
+			(collider as Node).call("take_damage", damage, push_dir, 16.0, hit_pos)
 			result["action"] = "damage_enemy"
 		elif collider is Node and (collider as Node).has_method("apply_stun"):
 			(collider as Node).call("apply_stun", 1.8)
 			result["action"] = "stun_guard"
 
 		if collider is RigidBody3D:
-			(collider as RigidBody3D).apply_central_impulse(push_dir * 16.0)
+			var rb := collider as RigidBody3D
+			var local_contact: Vector3 = hit_pos - rb.global_position
+			rb.apply_impulse(push_dir * 16.0, local_contact)
 			result["action"] = "knockback"
 		else:
 			result["action"] = "hit_wall"

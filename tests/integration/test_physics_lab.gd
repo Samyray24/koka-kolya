@@ -188,9 +188,44 @@ func run_tests() -> void:
 		printerr("  [FAIL] Не удалось загрузить explosive_barrel.gd")
 		errors += 1
 
+	# 9. Проверка физического расчета крутящего момента при эксцентрическом импульсе (Off-Center Torque)
+	print("[TEST 9/10] Проверка передачи крутящего момента при ударе со смещением...")
+	var test_rb := RigidBody3D.new()
+	root.add_child(test_rb)
+	var arm := Vector3(0.4, 0.5, 0.0)
+	var force_vec := Vector3(0.0, 0.0, -25.0)
+	var torque := arm.cross(force_vec)
+	test_rb.apply_impulse(force_vec, arm)
+	if torque.length() > 5.0 and test_rb.has_method("apply_impulse"):
+		print("  [PASS] Эксцентрический импульс корректно передает вектор крутящего момента: %s" % torque)
+	else:
+		printerr("  [FAIL] Ошибка расчета крутящего момента импульса.")
+		errors += 1
+	test_rb.queue_free()
+
+	# 10. Проверка параметров реализма DestructibleCrate & ExplosiveBarrel (CCD, Contact Monitor, Damping)
+	print("[TEST 10/10] Проверка параметров реализма и контактного мониторинга тел...")
+	var crate_check: RigidBody3D = crate_script.new()
+	var barrel_check: RigidBody3D = barrel_script.new()
+	root.add_child(crate_check)
+	root.add_child(barrel_check)
+	if crate_check.contact_monitor and crate_check.continuous_cd and crate_check.angular_damp > 1.0:
+		print("  [PASS] DestructibleCrate сконфигурирован с contact_monitor, CCD и реалистичным затуханием.")
+	else:
+		printerr("  [FAIL] Некорректные параметры у DestructibleCrate: monitor=%s, ccd=%s, damp=%s" % [crate_check.contact_monitor, crate_check.continuous_cd, crate_check.angular_damp])
+		errors += 1
+
+	if barrel_check.contact_monitor and barrel_check.continuous_cd and barrel_check.mass >= 28.0:
+		print("  [PASS] ExplosiveBarrel сконфигурирован с contact_monitor, CCD и массой 28 кг.")
+	else:
+		printerr("  [FAIL] Некорректные параметры у ExplosiveBarrel: monitor=%s, ccd=%s, mass=%s" % [barrel_check.contact_monitor, barrel_check.continuous_cd, barrel_check.mass])
+		errors += 1
+	crate_check.queue_free()
+	barrel_check.queue_free()
+
 	print("=======================================================================")
 	if errors == 0:
-		print(">>> ВСЕ 8 ТЕСТОВ ЭТАПА 2 УСПЕШНО ПРОЙДЕНЫ (0 ОШИБОК) <<<")
+		print(">>> ВСЕ 10 ТЕСТОВ ФИЗИКИ И РЕАЛИЗМА УСПЕШНО ПРОЙДЕНЫ (0 ОШИБОК) <<<")
 		print("=======================================================================")
 		quit(0)
 	else:

@@ -107,11 +107,12 @@ func use(camera: Camera3D) -> Dictionary:
 		ImpactFX.spawn_sparks(get_tree().root, hit_pos, push_dir, 18)
 
 		if collider and collider.has_method("take_damage"):
-			collider.call("take_damage", damage, push_dir, 38.0)
+			collider.call("take_damage", damage, push_dir, 38.0, hit_pos)
 
 		if collider is RigidBody3D:
-			(collider as RigidBody3D).apply_central_impulse(push_dir * 42.0)
-			(collider as RigidBody3D).apply_torque_impulse(Vector3(randf_range(-8, 8), randf_range(-8, 8), randf_range(-8, 8)))
+			var rb := collider as RigidBody3D
+			var local_contact: Vector3 = hit_pos - rb.global_position
+			rb.apply_impulse(push_dir * 42.0, local_contact)
 
 		bolt_hit.emit(collider, hit_pos)
 

@@ -93,7 +93,7 @@ func use(camera: Camera3D) -> Dictionary:
 		ImpactFX.spawn_sparks(get_tree().root, hit_pos, push_dir, 16)
 
 		if collider is Node and (collider as Node).has_method("take_damage"):
-			(collider as Node).call("take_damage", damage, push_dir, 36.0)
+			(collider as Node).call("take_damage", damage, push_dir, 36.0, hit_pos)
 			result["action"] = "damage_object"
 			LogManager.info("Топор: нанесён урон %.1f по %s." % [damage, (collider as Node).name], "Combat")
 		elif collider is Node and (collider as Node).has_method("apply_stun"):
@@ -102,8 +102,11 @@ func use(camera: Camera3D) -> Dictionary:
 			LogManager.info("Топор: цель оглушена на %.1f с." % stun_duration, "Combat")
 
 		if collider is RigidBody3D:
-			(collider as RigidBody3D).apply_central_impulse(push_dir * 38.0)
-			(collider as RigidBody3D).apply_torque_impulse(Vector3(randf_range(-12, 12), randf_range(-12, 12), randf_range(-12, 12)))
+			var rb := collider as RigidBody3D
+			var local_contact: Vector3 = hit_pos - rb.global_position
+			rb.apply_impulse(push_dir * 38.0, local_contact)
+			var swing_torque: Vector3 = (push_dir.cross(Vector3.UP) + Vector3.UP * 0.25).normalized() * 10.0
+			rb.apply_torque_impulse(swing_torque)
 			result["action"] = "knockback"
 		else:
 			result["action"] = "hit_wall"

@@ -85,12 +85,15 @@ func use(camera: Camera3D) -> Dictionary:
 			LogManager.info("Электродубинка: охранник успешно нейтрализован на %.1f с." % stun_duration, "Combat")
 		# Проверка на разрушаемый объект (стекло/ящик)
 		elif collider is Node and (collider as Node).has_method("take_damage"):
-			(collider as Node).call("take_damage", damage)
+			var push_dir := -camera.global_transform.basis.z.normalized()
+			(collider as Node).call("take_damage", damage, push_dir, 14.0, hit_pos)
 			result["action"] = "damage_object"
 			LogManager.info("Электродубинка: нанесён урон %.1f объекту %s." % [damage, (collider as Node).name], "Combat")
 		elif collider is RigidBody3D:
 			var push_dir := -camera.global_transform.basis.z.normalized()
-			(collider as RigidBody3D).apply_central_impulse(push_dir * 14.0)
+			var rb := collider as RigidBody3D
+			var local_contact: Vector3 = hit_pos - rb.global_position
+			rb.apply_impulse(push_dir * 14.0, local_contact)
 			result["action"] = "knockback_rigid"
 		else:
 			result["action"] = "hit_wall"

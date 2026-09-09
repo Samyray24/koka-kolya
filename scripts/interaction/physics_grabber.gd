@@ -258,7 +258,8 @@ func drop_object() -> void:
 		held_body.remove_collision_exception_with(player_body)
 
 	held_body.angular_damp = original_angular_damp
-	held_body.linear_velocity = held_body.linear_velocity * 0.4
+	var player_v := player_body.velocity if player_body and is_instance_valid(player_body) else Vector3.ZERO
+	held_body.linear_velocity = held_body.linear_velocity * 0.4 + player_v * 0.75
 	held_body = null
 	is_charging_throw = false
 	throw_charge = 0.0
@@ -282,7 +283,9 @@ func _execute_charged_throw(force_mult: float = -1.0) -> void:
 
 	var forward := -global_transform.basis.z.normalized()
 	held_body.angular_damp = original_angular_damp
-	held_body.apply_central_impulse(forward * final_impulse)
+	var p_vel := player_body.velocity if player_body and is_instance_valid(player_body) else Vector3.ZERO
+	var throw_vec: Vector3 = forward * final_impulse + p_vel * 0.8
+	held_body.apply_central_impulse(throw_vec)
 	held_body.apply_torque_impulse(global_transform.basis.x * (final_impulse * 0.4))
 
 	held_body = null

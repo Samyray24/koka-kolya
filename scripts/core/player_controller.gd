@@ -58,6 +58,9 @@ var footstep_distance: float = 0.0
 const FOOTSTEP_INTERVAL: float = 2.2
 
 func _ready() -> void:
+	floor_snap_length = 0.35
+	floor_stop_on_slope = true
+	floor_max_angle = deg_to_rad(46.0)
 	capture_mouse(true)
 	if camera:
 		base_fov = camera.fov
@@ -239,18 +242,19 @@ func _physics_process(delta: float) -> void:
 	elif is_sprinting:
 		target_speed = sprint_speed
 
-	var accel := 32.0 if is_on_floor() else 14.0
+	var accel := 32.0 if is_on_floor() else 3.8
 	if direction.length_squared() > 0.001:
 		velocity.x = move_toward(velocity.x, direction.x * target_speed, accel * delta)
 		velocity.z = move_toward(velocity.z, direction.z * target_speed, accel * delta)
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, 36.0 * delta)
-		velocity.z = move_toward(velocity.z, 0.0, 36.0 * delta)
+		var decel := 36.0 if is_on_floor() else 1.2
+		velocity.x = move_toward(velocity.x, 0.0, decel * delta)
+		velocity.z = move_toward(velocity.z, 0.0, decel * delta)
 
 	# 6. Физическое перемещение
 	move_and_slide()
 
-	# 7. Физическое расталкивание легких RigidBody3D
+	# 7. Физическое расталкивание RigidBody3D с учетом массы и точки контакта
 	for i in range(get_slide_collision_count()):
 		var collision := get_slide_collision(i)
 		var collider := collision.get_collider()
@@ -261,8 +265,15 @@ func _physics_process(delta: float) -> void:
 				continue
 			var push_dir := -collision.get_normal()
 			push_dir.y = 0.0
-			push_dir = push_dir.normalized()
-			rb.apply_central_impulse(push_dir * push_force)
+			if push_dir.length_squared() > 0.001:
+				push_dir = push_dir.normalized()
+				var player_mass: float = 75.0
+				var obj_mass: float = maxf(rb.mass, 1.0)
+				var effective_mass: float = (player_mass * obj_mass) / (player_mass + obj_mass)
+				var player_speed: float = Vector2(velocity.x, velocity.z).length()
+				var impulse_mag: float = effective_mass * maxf(player_speed, 1.2) * 0.14 * push_force
+				var rel_contact: Vector3 = collision.get_position() - rb.global_position
+				rb.apply_impulse(push_dir * impulse_mag, rel_contact)
 
 	# 8. Headbob (покачивание головы при ходьбе) и наклон камеры
 	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
