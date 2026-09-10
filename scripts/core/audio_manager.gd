@@ -117,6 +117,9 @@ func _generate_sound_library() -> void:
 	sfx_library["shield_hit"] = _create_shield_hit_sound()
 	sfx_library["nitro_boost"] = _create_nitro_boost_sound()
 	sfx_library["horn"] = _create_horn_sound()
+	sfx_library["ui_pda_open"] = _create_pda_open_sound()
+	sfx_library["ui_pda_close"] = _create_pda_close_sound()
+	sfx_library["upgrade_purchase"] = _create_upgrade_purchase_sound()
 
 func _create_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	var wav := AudioStreamWAV.new()
@@ -461,4 +464,44 @@ func _create_horn_sound() -> AudioStreamWAV:
 		elif t > 0.35:
 			env = (0.45 - t) / 0.10
 		samples[i] = clampf(tone * env * 0.65, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_pda_open_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.22)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var freq := 520.0 + 580.0 * (t / 0.22)
+		var tone := sin(t * TAU * freq) * 0.4 + sin(t * TAU * (freq * 1.5)) * 0.2
+		var env := sin(t / 0.22 * PI)
+		samples[i] = clampf(tone * env * 0.6, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_pda_close_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.18)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var freq := 880.0 - 460.0 * (t / 0.18)
+		var tone := sin(t * TAU * freq) * 0.4
+		var env := exp(-t * 22.0)
+		samples[i] = clampf(tone * env * 0.5, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_upgrade_purchase_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.32)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var freq: float = 440.0
+		if t > 0.2:
+			freq = 880.0
+		elif t > 0.1:
+			freq = 659.25
+		var tone := sin(t * TAU * freq) * 0.45 + sin(t * TAU * (freq * 2.0)) * 0.2
+		var env := exp(-fmod(t, 0.1) * 35.0)
+		samples[i] = clampf(tone * env * 0.7, -1.0, 1.0)
 	return _create_wav(samples)

@@ -31,6 +31,23 @@ var held_object: RigidBody3D = null
 
 func _ready() -> void:
 	LogManager.info("Дрон BUBBLE инициализирован. Режим: FOLLOW", "BUBBLE")
+	if has_node("/root/CyberdeckManager"):
+		var cdm: Node = get_node("/root/CyberdeckManager")
+		if "purchased_upgrades" in cdm:
+			apply_cyberdeck_upgrades(cdm.purchased_upgrades)
+		if cdm.has_signal("upgrade_purchased"):
+			cdm.connect("upgrade_purchased", func(_id: String) -> void:
+				apply_cyberdeck_upgrades(cdm.purchased_upgrades)
+			)
+
+func apply_cyberdeck_upgrades(upgrades: Dictionary) -> void:
+	if upgrades.get("drone_battery", false):
+		rc_speed = 12.0
+		follow_speed = 9.5
+	if upgrades.get("drone_scanner", false):
+		if scanner_area:
+			scanner_area.scale = Vector3(1.8, 1.8, 1.8)
+	LogManager.info("[АПГРЕЙД]: Применены улучшения КПК к дрону BUBBLE (RC Speed: %.1f)" % rc_speed, "BUBBLE")
 
 func set_follow_target(target: Node3D) -> void:
 	target_follow_node = target

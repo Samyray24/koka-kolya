@@ -43,6 +43,13 @@ var secured_crates: Array[RigidBody3D] = []
 @onready var interactable_node: Node = get_node_or_null("Interactable")
 
 # Камера и обзор мышью
+enum CameraViewMode { CHASE = 0, COCKPIT = 1 }
+var camera_view_mode: int = CameraViewMode.CHASE
+var cockpit_camera: Camera3D = null
+var cockpit_yaw: float = 0.0
+var cockpit_pitch: float = 0.0
+var steering_wheel_mesh: MeshInstance3D = null
+
 var cam_yaw: float = 0.0
 var cam_pitch: float = -0.18
 var base_cam_distance: float = 5.5
@@ -122,8 +129,15 @@ func _ready() -> void:
 
 	_setup_headlights()
 	_setup_underglow()
+	_setup_cockpit_camera()
 	_apply_livery(current_livery_idx)
 	_build_dashboard_ui()
+
+	if has_node("/root/CyberdeckManager"):
+		var cdm: Node = get_node("/root/CyberdeckManager")
+		var ups = cdm.get("purchased_upgrades")
+		if ups is Dictionary:
+			apply_cyberdeck_upgrades(ups)
 
 func _on_door_interacted(instigator: Node) -> void:
 	if not is_driven and instigator is CharacterBody3D:
@@ -137,8 +151,12 @@ func enter_vehicle(player: CharacterBody3D) -> void:
 
 	cam_yaw = 0.0
 	cam_pitch = -0.18
+	cockpit_yaw = 0.0
+	cockpit_pitch = 0.0
 
-	if chase_camera:
+	if camera_view_mode == CameraViewMode.COCKPIT and cockpit_camera:
+		cockpit_camera.make_current()
+	elif chase_camera:
 		chase_camera.make_current()
 
 	if dashboard_canvas:
@@ -229,6 +247,53 @@ func toggle_headlights() -> void:
 		am.call("play_sfx", "click", -3.0, 1.25)
 
 	_refresh_dashboard_accessories()
+
+func _setup_cockpit_camera() -> void:
+	cockpit_camera = Camera3D.new()
+	cockpit_camera.name = "CockpitCamera3D"
+	cockpit_camera.position = Vector3(-0.45, 1.25, -0.15)
+	cockpit_camera.fov = 78.0
+	add_child(cockpit_camera)
+
+	steering_wheel_mesh = MeshInstance3D.new()
+	steering_wheel_mesh.name = "CockpitSteeringWheel"
+	steering_wheel_mesh.position = Vector3(-0.45, 1.02, -0.65)
+	steering_wheel_mesh.rotation_degrees = Vector3(25, 0, 0)
+	var t_mesh := TorusMesh.new()
+	t_mesh.inner_radius = 0.16
+	t_mesh.outer_radius = 0.22
+	var mat_wheel := StandardMaterial3D.new()
+	mat_wheel.albedo_color = Color(0.15, 0.15, 0.18)
+	mat_wheel.roughness = 0.4
+	t_mesh.material = mat_wheel
+	steering_wheel_mesh.mesh = t_mesh
+	add_child(steering_wheel_mesh)
+
+func toggle_camera_view() -> void:
+	if camera_view_mode == CameraViewMode.CHASE:
+		camera_view_mode = CameraViewMode.COCKPIT
+		if cockpit_camera:
+			cockpit_camera.make_current()
+		LogManager.info("[КАМЕРА]: Включен вид от первого лица из кабины [Cockpit]", "VEHICLE")
+	else:
+		camera_view_mode = CameraViewMode.CHASE
+		if chase_camera:
+			chase_camera.make_current()
+		LogManager.info("[КАМЕРА]: Включен вид от третьего лица [Chase]", "VEHICLE")
+	if has_node("/root/AudioManager"):
+		var am: Node = get_node("/root/AudioManager")
+		am.call("play_sfx", "click", -1.0, 1.3)
+
+func apply_cyberdeck_upgrades(upgrades: Dictionary) -> void:
+	if upgrades.get("van_armor", false):
+		max_chassis_health = 150.0
+		chassis_health = max_chassis_health
+	if upgrades.get("van_nitro", false):
+		max_nitro = 150.0
+		nitro_fuel = max_nitro
+	if upgrades.get("van_engine", false):
+		max_engine_force = 540.0
+	LogManager.info("[АПГРЕЙД]: Применены улучшения КПК к фургону (HP: %.0f, Nitro: %.0f, Force: %.0f)" % [max_chassis_health, max_nitro, max_engine_force], "VEHICLE")
 
 func _setup_underglow() -> void:
 	underglow_lights.clear()
@@ -483,6 +548,9 @@ func _physics_process(delta: float) -> void:
 	if absf(throttle) > 0.1 and current_speed_kmh > 2.0:
 		cam_yaw = lerp_angle(cam_yaw, 0.0, 2.5 * delta)
 
+	if is_instance_valid(steering_wheel_mesh):
+		steering_wheel_mesh.rotation.z = -steering * 3.2
+
 	_update_chase_camera(delta)
 	_update_dashboard_ui(throttle, forward_speed, is_handbrake)
 
@@ -497,12 +565,22 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		cam_yaw -= event.relative.x * 0.003
 		cam_pitch = clampf(cam_pitch - event.relative.y * 0.003, deg_to_rad(-45.0), deg_to_rad(15.0))
+		if camera_view_mode == CameraViewMode.COCKPIT and cockpit_camera:
+			cockpit_camera.rotation.y = clampf(cam_yaw, deg_to_rad(-80.0), deg_to_rad(80.0))
+			cockpit_camera.rotation.x = clampf(cam_pitch, deg_to_rad(-35.0), deg_to_rad(30.0))
 
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_R:
 			if vehicle_radio and vehicle_radio.has_method("cycle_station"):
 				vehicle_radio.call("cycle_station")
 				_refresh_radio_text()
+				if has_node("/root/CyberdeckManager"):
+					var cdm: Node = get_node("/root/CyberdeckManager")
+					var st_name: String = vehicle_radio.get("current_station_name") if "current_station_name" in vehicle_radio else "98.4 FM"
+					var tr_title: String = vehicle_radio.get("current_track_title") if "current_track_title" in vehicle_radio else "Neon Waves"
+					cdm.call("show_radio_banner", st_name, tr_title)
+		elif event.keycode == KEY_V:
+			toggle_camera_view()
 		elif event.keycode == KEY_L:
 			toggle_headlights()
 		elif event.keycode == KEY_H:
@@ -660,7 +738,7 @@ func _build_dashboard_ui() -> void:
 	vbox.add_child(radio_label)
 
 	var hint := Label.new()
-	hint.text = "[W/S] Газ/Тормоз | [A/D] Руль | [Shift] Нитро | [L] Фары | [H] Гудок | [T] Покраска | [U] Неон | [Space] Ручник | [E] Выход"
+	hint.text = "[W/S] Газ/Тормоз | [A/D] Руль | [Shift] Нитро | [L] Фары | [H] Гудок | [V] Кабина | [T] Покраска | [U] Неон | [Tab] КПК | [Space] Ручник | [E] Выход"
 	hint.add_theme_font_size_override("font_size", 10)
 	hint.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
 	vbox.add_child(hint)

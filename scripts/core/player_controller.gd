@@ -100,6 +100,15 @@ func _ready() -> void:
 				inventory_label.text = "Слот [%d]: %s" % [slot_idx + 1, slot_name]
 			)
 
+	if has_node("/root/CyberdeckManager"):
+		var cdm: Node = get_node("/root/CyberdeckManager")
+		if "purchased_upgrades" in cdm:
+			apply_cyberdeck_upgrades(cdm.purchased_upgrades)
+		if cdm.has_signal("upgrade_purchased"):
+			cdm.connect("upgrade_purchased", func(_id: String) -> void:
+				apply_cyberdeck_upgrades(cdm.purchased_upgrades)
+			)
+
 func _on_target_state_changed(state: String) -> void:
 	current_target_state = state
 	if not crosshair:
@@ -366,3 +375,10 @@ func heal(amount: float) -> void:
 	if health > 40.0:
 		low_hp_warned = false
 
+func apply_cyberdeck_upgrades(upgrades: Dictionary) -> void:
+	if upgrades.get("player_suit", false):
+		max_health = 150.0
+		health = max_health
+		sprint_speed = 8.5
+		walk_speed = 5.2
+	LogManager.info("[АПГРЕЙД]: Применены улучшения КПК к Коле (Max HP: %.0f, Sprint: %.1f)" % [max_health, sprint_speed], "PLAYER")
