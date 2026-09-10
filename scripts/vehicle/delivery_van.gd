@@ -360,9 +360,9 @@ func _physics_process(delta: float) -> void:
 
 	var is_handbrake := Input.is_action_pressed("crouch") or Input.is_action_pressed("jump")
 
-	# Динамика с учетом массы груза
+	# Динамика с учетом массы груза (в Godot отрицательное engine_force толкает фургон вперед в -Z)
 	var mass_penalty := clampf(1.0 - (current_cargo_mass / 500.0) * 0.35, 0.65, 1.0)
-	engine_force = throttle * max_engine_force * mass_penalty
+	engine_force = -throttle * max_engine_force * mass_penalty
 
 	var target_steer: float = steer_input * max_steer_angle
 	# На высокой скорости чувствительность руля плавно уменьшается для стабильности
@@ -457,7 +457,15 @@ func _physics_process(delta: float) -> void:
 						var vm: Node = get_node("/root/VoiceManager")
 						vm.call("speak_kolya", "kolya_drift", "Дрифт на фургоне с газировкой — это классика, детка! Держись крепче!")
 	elif throttle < 0.0 and forward_speed > 0.8:
-		# Нажатие "назад" на скорости тормозит машину
+		# Нажатие "назад" (S) на скорости движения вперед тормозит машину
+		brake = max_brake_force * 1.5
+		engine_force = 0.0
+		if wheel_rl:
+			wheel_rl.wheel_friction_slip = move_toward(wheel_rl.wheel_friction_slip, 2.8, 4.0 * delta)
+		if wheel_rr:
+			wheel_rr.wheel_friction_slip = move_toward(wheel_rr.wheel_friction_slip, 2.8, 4.0 * delta)
+	elif throttle > 0.0 and forward_speed < -0.8:
+		# Нажатие "вперед" (W) на скорости движения назад тормозит машину
 		brake = max_brake_force * 1.5
 		engine_force = 0.0
 		if wheel_rl:
