@@ -157,6 +157,15 @@ var radio_track_label: Label = null
 var radio_bars_label: Label = null
 var radio_banner_timer: float = 0.0
 
+# Постоянная подсказка в HUD
+var hud_hints_panel: PanelContainer = null
+var hud_hints_btn: Button = null
+
+# Навигационный тост / баннер
+var nav_toast_panel: PanelContainer = null
+var nav_toast_label: Label = null
+var nav_toast_timer: float = 0.0
+
 var pda_overlay: Control:
 	get: return pda_root
 
@@ -210,6 +219,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
 	LogManager.info("CyberdeckManager (КПК и Навигация) инициализирован.", "CORE")
+	show_nav_toast("💡 Нажмите [Tab] или [M] для вызова карты Краснограда и выбора района", 7.0)
 
 func _build_ui() -> void:
 	# 1. Верхний навигационный компас
@@ -218,7 +228,13 @@ func _build_ui() -> void:
 	# 2. Анимированный баннер радио
 	_build_radio_banner_ui()
 
-	# 3. Главное модальное окно Кибер-КПК
+	# 3. Нижняя навигационная панель подсказок управления
+	_build_hud_hints_ui()
+
+	# 4. Всплывающий навигационный тост
+	_build_nav_toast_ui()
+
+	# 5. Главное модальное окно Кибер-КПК
 	_build_pda_ui()
 
 func _build_compass_ui() -> void:
@@ -287,6 +303,57 @@ func _build_radio_banner_ui() -> void:
 	radio_bars_label.add_theme_font_size_override("font_size", 12)
 	radio_bars_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5))
 	vbox.add_child(radio_bars_label)
+
+func _build_hud_hints_ui() -> void:
+	hud_hints_panel = PanelContainer.new()
+	hud_hints_panel.name = "HUDHintsBar"
+	hud_hints_panel.anchors_preset = Control.PRESET_BOTTOM_RIGHT
+	hud_hints_panel.anchor_left = 1.0
+	hud_hints_panel.anchor_right = 1.0
+	hud_hints_panel.anchor_top = 1.0
+	hud_hints_panel.anchor_bottom = 1.0
+	hud_hints_panel.offset_left = -460.0
+	hud_hints_panel.offset_right = -18.0
+	hud_hints_panel.offset_top = -50.0
+	hud_hints_panel.offset_bottom = -14.0
+	add_child(hud_hints_panel)
+
+	hud_hints_btn = Button.new()
+	hud_hints_btn.flat = true
+	hud_hints_btn.text = " [Tab / M] Карта районов  |  [Q] Оружие  |  [E] Действие "
+	hud_hints_btn.add_theme_font_size_override("font_size", 12)
+	hud_hints_btn.add_theme_color_override("font_color", Color(0.25, 0.92, 1.0))
+	hud_hints_btn.pressed.connect(toggle_pda)
+	hud_hints_panel.add_child(hud_hints_btn)
+
+func _build_nav_toast_ui() -> void:
+	nav_toast_panel = PanelContainer.new()
+	nav_toast_panel.name = "NavToastBanner"
+	nav_toast_panel.anchors_preset = Control.PRESET_CENTER_TOP
+	nav_toast_panel.anchor_left = 0.5
+	nav_toast_panel.anchor_right = 0.5
+	nav_toast_panel.anchor_top = 0.0
+	nav_toast_panel.anchor_bottom = 0.0
+	nav_toast_panel.offset_left = -340.0
+	nav_toast_panel.offset_right = 340.0
+	nav_toast_panel.offset_top = 68.0
+	nav_toast_panel.offset_bottom = 110.0
+	nav_toast_panel.visible = false
+	add_child(nav_toast_panel)
+
+	nav_toast_label = Label.new()
+	nav_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	nav_toast_label.text = "💡 Совет: Нажмите [Tab] или [M] для вызова карты Краснограда и выбора района"
+	nav_toast_label.add_theme_font_size_override("font_size", 12)
+	nav_toast_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.35))
+	nav_toast_panel.add_child(nav_toast_label)
+
+func show_nav_toast(text: String, duration: float = 6.0) -> void:
+	if not nav_toast_panel or not nav_toast_label:
+		return
+	nav_toast_label.text = text
+	nav_toast_panel.visible = true
+	nav_toast_timer = duration
 
 func _build_pda_ui() -> void:
 	pda_root = Control.new()
@@ -663,6 +730,10 @@ func open_pda() -> void:
 	if is_pda_open:
 		return
 	is_pda_open = true
+	if hud_hints_panel:
+		hud_hints_panel.visible = false
+	if nav_toast_panel:
+		nav_toast_panel.visible = false
 	previous_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	pda_root.visible = true
@@ -678,6 +749,8 @@ func close_pda() -> void:
 	if not is_pda_open:
 		return
 	is_pda_open = false
+	if hud_hints_panel:
+		hud_hints_panel.visible = true
 	pda_root.visible = false
 	Input.mouse_mode = previous_mouse_mode
 	_play_sfx("ui_pda_close")
@@ -692,6 +765,11 @@ func show_radio_banner(station: String, track: String) -> void:
 	radio_banner_timer = 4.0
 
 func _process(delta: float) -> void:
+	if nav_toast_panel and nav_toast_panel.visible:
+		nav_toast_timer -= delta
+		if nav_toast_timer <= 0.0:
+			nav_toast_panel.visible = false
+
 	if radio_banner and radio_banner.visible:
 		radio_banner_timer -= delta
 		var bars := ""

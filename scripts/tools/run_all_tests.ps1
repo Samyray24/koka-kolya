@@ -16,7 +16,8 @@ $tests = @(
     "res://tests/integration/test_standalone_packaging.gd",
     "res://tests/integration/test_new_districts_and_radio.gd",
     "res://tests/integration/test_pda_and_cockpit_systems.gd",
-    "res://tests/integration/test_threat_radar_radial_systems.gd"
+    "res://tests/integration/test_threat_radar_radial_systems.gd",
+    "res://tests/integration/test_district_navigation_systems.gd"
 )
 
 $allPassed = $true
@@ -27,7 +28,7 @@ if (-not (Test-Path $godotExe)) {
 }
 
 Write-Host "========================================================" -ForegroundColor Cyan
-Write-Host "--- TEST RUNNER: KOKA-KOLYA (18 SUITES - AAA EXPANSION) ---" -ForegroundColor Cyan
+Write-Host "--- TEST RUNNER: KOKA-KOLYA (19 SUITES - AAA EXPANSION) ---" -ForegroundColor Cyan
 Write-Host "========================================================" -ForegroundColor Cyan
 
 foreach ($t in $tests) {
@@ -49,7 +50,7 @@ Write-Host "`n========================================================" -Foregro
 Write-Host "QUALITY GATE SUMMARY:" -ForegroundColor Cyan
 $results | Format-Table -AutoSize
 if ($allPassed) {
-    Write-Host "SUCCESS: ALL 18 TEST SUITES PASSED (0 ERRORS) - AAA EXPANSION READY" -ForegroundColor Green
+    Write-Host "SUCCESS: ALL 19 TEST SUITES PASSED (0 ERRORS) - AAA EXPANSION READY" -ForegroundColor Green
 } else {
     Write-Host "FAILURE: ERRORS ENCOUNTERED IN TEST SUITES" -ForegroundColor Red
 }

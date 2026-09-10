@@ -56,6 +56,11 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "НАЧАТЬ МИССИЮ: СТАРЫЙ РАЙОН"
 
+[node name="BtnDistricts" type="Button" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "🗺️ ВЫБОР РАЙОНА (КАРТА ГОРОДА)"
+
 [node name="BtnSettings" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2

@@ -56,6 +56,7 @@ func _ready() -> void:
 	_build_neon_skyline()
 	_build_flyover_bridge()
 	_build_neon_plaza()
+	_spawn_road_exit_gates()
 	_create_waypoint_beacon()
 	_start_mission()
 	_update_waypoint()
@@ -338,12 +339,90 @@ func _on_exit_entered(body: Node) -> void:
 func _on_mission_victory(_title: String) -> void:
 	if victory_panel:
 		victory_panel.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		_setup_victory_panel_buttons()
+
 	if has_node("/root/GameManager"):
 		var gm: Node = get_node("/root/GameManager")
 		gm.call("mark_mission_completed", "mission_neon_boulevard")
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")
 		am.call("play_sfx", "victory", 2.0)
+
+func _setup_victory_panel_buttons() -> void:
+	if not victory_panel:
+		return
+	var vbox = victory_panel.get_node_or_null("Margin/VBox")
+	if not vbox or vbox.has_node("BtnNextDistrict"):
+		return
+
+	var sep := HSeparator.new()
+	vbox.add_child(sep)
+
+	var btn_next := Button.new()
+	btn_next.name = "BtnNextDistrict"
+	btn_next.text = " ▶ СЛЕДУЮЩИЙ РАЙОН: ЗАВОД КРАСНОЙ ЛИНИИ "
+	btn_next.custom_minimum_size = Vector2(0, 44)
+	btn_next.add_theme_font_size_override("font_size", 15)
+	btn_next.add_theme_color_override("font_color", Color(0.2, 1.0, 0.4))
+	btn_next.pressed.connect(func() -> void:
+		var gm: Node = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("change_district"):
+			gm.call("change_district", "red_line_plant", true)
+		else:
+			get_tree().change_scene_to_file("res://scenes/levels/red_line_plant.tscn")
+	)
+	vbox.add_child(btn_next)
+
+	var btn_map := Button.new()
+	btn_map.name = "BtnOpenMap"
+	btn_map.text = " 🗺️ КАРТА ГОРОДА (ВЫБОР РАЙОНА) "
+	btn_map.custom_minimum_size = Vector2(0, 38)
+	btn_map.pressed.connect(func() -> void:
+		victory_panel.visible = false
+		var cdm: Node = get_node_or_null("/root/CyberdeckManager")
+		if cdm and cdm.has_method("open_pda"):
+			cdm.call("open_pda")
+	)
+	vbox.add_child(btn_map)
+
+	var btn_menu := Button.new()
+	btn_menu.name = "BtnReturnMenu"
+	btn_menu.text = " 🏠 В ГЛАВНОЕ МЕНЮ "
+	btn_menu.custom_minimum_size = Vector2(0, 38)
+	btn_menu.pressed.connect(func() -> void:
+		var gm: Node = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("change_district"):
+			gm.call("change_district", "main_menu", true)
+		else:
+			get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
+	)
+	vbox.add_child(btn_menu)
+
+func _spawn_road_exit_gates() -> void:
+	var gate_script = load("res://scripts/world/road_exit_gate.gd")
+	if not gate_script:
+		return
+
+	# 1. Северный выезд на Завод Красной Линии
+	var north_gate = Node3D.new()
+	north_gate.set_script(gate_script)
+	north_gate.name = "ExitGate_RedLinePlant"
+	north_gate.set("target_district_id", "red_line_plant")
+	north_gate.set("gate_title", "ЗАВОД КРАСНОЙ ЛИНИИ")
+	north_gate.set("direction_hint", "Промышленный комплекс розлива синтетической колы")
+	north_gate.position = Vector3(0, 0, -135)
+	add_child(north_gate)
+
+	# 2. Южный возврат на Скоростное шоссе
+	var south_gate = Node3D.new()
+	south_gate.set_script(gate_script)
+	south_gate.name = "ExitGate_Highway"
+	south_gate.set("target_district_id", "city_highway")
+	south_gate.set("gate_title", "СКОРОСТНОЕ ШОССЕ")
+	south_gate.set("direction_hint", "Выезд на автомагистраль через реку")
+	south_gate.position = Vector3(0, 0, 115)
+	add_child(south_gate)
 
 func _on_radio_message(speaker: String, text: String, col: Color) -> void:
 	if radio_panel:

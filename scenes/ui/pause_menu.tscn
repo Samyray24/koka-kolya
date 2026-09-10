@@ -67,6 +67,11 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "ПРОДОЛЖИТЬ ИГРУ"
 
+[node name="BtnDistricts" type="Button" parent="Center/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "🗺️ ВЫБОР РАЙОНА (КАРТА ГОРОДА)"
+
 [node name="BtnSettings" type="Button" parent="Center/Panel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2

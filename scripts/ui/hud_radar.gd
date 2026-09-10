@@ -171,6 +171,15 @@ class RadarDrawControl extends Control:
 				]
 				draw_colored_polygon(diamond, Color(1.0, 0.85, 0.2, 0.95))
 
+		# Дорожные выезды и порталы районов
+		var exit_gates = get_tree().get_nodes_in_group("exit_gate")
+		for eg in exit_gates:
+			if is_instance_valid(eg) and eg is Node3D:
+				var eg_screen := _world_to_radar(eg.global_position, p_pos, cam_yaw, center, r)
+				draw_rect(Rect2(eg_screen.x - 5, eg_screen.y - 5, 10, 10), Color(0.1, 0.95, 0.7, 0.9), false, 1.5)
+				draw_line(Vector2(eg_screen.x - 3, eg_screen.y), Vector2(eg_screen.x + 3, eg_screen.y), Color(0.1, 1.0, 0.7, 0.95), 1.5)
+				draw_line(Vector2(eg_screen.x, eg_screen.y - 3), Vector2(eg_screen.x, eg_screen.y + 3), Color(0.1, 1.0, 0.7, 0.95), 1.5)
+
 	func _world_to_radar(world_pos: Vector3, player_pos: Vector3, cam_yaw: float, center: Vector2, max_r: float) -> Vector2:
 		var diff := world_pos - player_pos
 		# Проекция на горизонтальную плоскость XZ
