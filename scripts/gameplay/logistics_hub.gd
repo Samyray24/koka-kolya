@@ -226,6 +226,67 @@ func _build_laser_security() -> void:
 	exit_trig.body_entered.connect(_on_hub_exit_entered)
 	add_child(exit_trig)
 
+	# AAA РАСШИРЕНИЕ Хаб v2.0
+	# дождь
+	var lh_rain := CPUParticles3D.new()
+	lh_rain.name = "HubRain"
+	lh_rain.position = Vector3(0, 30.0, 0.0)
+	lh_rain.amount = 700; lh_rain.lifetime = 2.5; lh_rain.preprocess = 1.0
+	lh_rain.direction = Vector3(0.1, -1, 0.1); lh_rain.spread = 4.0
+	lh_rain.gravity = Vector3(0, -11.0, 0)
+	lh_rain.initial_velocity_min = 14.0; lh_rain.initial_velocity_max = 18.0
+	var lh_rm := SphereMesh.new(); lh_rm.radius = 0.015; lh_rm.height = 0.3
+	var lh_rmt := StandardMaterial3D.new()
+	lh_rmt.albedo_color = Color(0.45, 0.55, 0.65, 0.35)
+	lh_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; lh_rmt.roughness = 0.1
+	lh_rm.material = lh_rmt; lh_rain.mesh = lh_rm
+	add_child(lh_rain)
+	
+	# небоскрёбы фона
+	var bg_mat := StandardMaterial3D.new(); bg_mat.albedo_color = Color(0.12, 0.12, 0.18)
+	for bi in range(5):
+		var bg_b := MeshInstance3D.new()
+		var bg_bm := BoxMesh.new(); bg_bm.size = Vector3(20, randf_range(40, 60), 20)
+		bg_b.mesh = bg_bm; bg_b.material_override = bg_mat
+		bg_b.position = Vector3(randf_range(-120, 120), bg_bm.size.y / 2, randf_range(-150, -100))
+		add_child(bg_b)
+
+	# лужи
+	for pl in [Vector3(-15,0.02,20), Vector3(15,0.02,10), Vector3(0,0.02,-10), Vector3(-20,0.02,-30), Vector3(20,0.02,-50)]:
+		var pd := MeshInstance3D.new()
+		var pq := QuadMesh.new(); pq.size=Vector2(5.0,3.0); pq.orientation=PlaneMesh.FACE_Y
+		var pm := StandardMaterial3D.new()
+		pm.albedo_color=Color(0.15,0.15,0.15,0.8); pm.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+		pm.metallic=0.85; pm.roughness=0.08
+		pd.mesh=pq; pd.material_override=pm; pd.position=pl; add_child(pd)
+
+	# граффити
+	for gd in [{"p":Vector3(-17.9, 1.5, 40),"r":90,"t":"СВОБОДНАЯ ДОСТАВКА!"}, {"p":Vector3(17.9, 1.5, 30),"r":-90,"t":"ДОЛОЙ СИНДИКАТ!"}]:
+		var g:=Label3D.new(); g.text=gd["t"]; g.font_size=28; g.modulate=Color(0.9,0.5,0.1); g.outline_size=6
+		g.position=gd["p"]; g.rotation_degrees=Vector3(0,gd["r"],0); add_child(g)
+
+	# 4 NPC грузчика
+	var npc_h:PackedScene=load("res://scenes/characters/npc_character.tscn")
+	if npc_h:
+		for wp in [Vector3(-10,0,30), Vector3(10,0,20), Vector3(-5,0,-5), Vector3(12,0,-25)]:
+			var n:Node3D=npc_h.instantiate(); n.position=wp; n.rotation_degrees=Vector3(0,randf_range(0,360),0); add_child(n)
+
+	# трубы с дымом
+	for sp in [Vector3(-25,10,-20), Vector3(25,10,-20), Vector3(-15,12,-70), Vector3(15,12,-70)]:
+		var sm := CPUParticles3D.new()
+		sm.position = sp; sm.amount = 25; sm.lifetime = 3.5
+		sm.direction = Vector3(0.3,1,0); sm.spread = 12.0; sm.gravity = Vector3(0,1,0)
+		sm.initial_velocity_min = 1.5; sm.initial_velocity_max = 3.5
+		var sm_m := SphereMesh.new(); sm_m.radius = 1.2; sm_m.height = 2.4
+		var sm_mat := StandardMaterial3D.new(); sm_mat.albedo_color = Color(0.3,0.3,0.3,0.5)
+		sm_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; sm_m.material = sm_mat; sm.mesh = sm_m
+		add_child(sm)
+
+	# рекламные щиты логистики
+	for rd in [{"p":Vector3(-18,5,15),"r":90,"t":"MERIDIAN LOGISTICS"}, {"p":Vector3(18,6,-5),"r":-90,"t":"GLOBAL CARGO"}]:
+		var s:=Label3D.new(); s.text=rd["t"]; s.font_size=40; s.modulate=Color(0.2,0.6,1.0)
+		s.position=rd["p"]; s.rotation_degrees=Vector3(0,rd["r"],0); s.outline_size=8; add_child(s)
+
 func _create_waypoint_beacon() -> void:
 	waypoint_node = Node3D.new()
 	waypoint_node.name = "HubWaypoint"

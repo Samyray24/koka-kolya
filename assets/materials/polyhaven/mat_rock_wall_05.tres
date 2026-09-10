@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/pbr/polyhaven/rock_wall_05/rock_wall_05_normal_4k.jpg" id=1]
+
+[resource]
+roughness = 1.0
+normal_enabled = true
+normal_texture = ExtResource(1)

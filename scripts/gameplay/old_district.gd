@@ -371,6 +371,163 @@ func _spawn_world_details() -> void:
 			line_parent.add_child(dash)
 		z_coord -= 4.0
 
+	# ═══════════════════════════════════════════════════════════════════════
+	# AAA РАСШИРЕНИЕ МИРА v2.0 — 16 новых систем деталей окружения
+	# ═══════════════════════════════════════════════════════════════════════
+
+	# 15. Дополнительные небоскрёбы с окнами на заднем плане
+	var bg_buildings := [
+		{"x": -22.0, "z": 75.0, "h": 28.0},
+		{"x":  22.0, "z": 75.0, "h": 34.0},
+		{"x": -22.0, "z": -45.0, "h": 32.0},
+		{"x":  22.0, "z": -45.0, "h": 26.0},
+		{"x": -35.0, "z":  20.0, "h": 45.0},
+		{"x":  35.0, "z":  20.0, "h": 42.0},
+	]
+	for bg in bg_buildings:
+		var bg_body := StaticBody3D.new()
+		var bg_col := CollisionShape3D.new()
+		var bg_box := BoxShape3D.new()
+		bg_box.size = Vector3(7.0, bg["h"], 7.0)
+		bg_col.shape = bg_box
+		bg_col.position.y = bg["h"] * 0.5
+		bg_body.add_child(bg_col)
+		var bg_mesh := MeshInstance3D.new()
+		var bg_bm := BoxMesh.new()
+		bg_bm.size = bg_box.size
+		bg_mesh.mesh = bg_bm
+		var bg_mat := StandardMaterial3D.new()
+		bg_mat.albedo_color = Color(0.08, 0.12, 0.20)
+		bg_mat.metallic = 0.4
+		bg_mat.roughness = 0.5
+		bg_mesh.material_override = bg_mat
+		bg_mesh.position.y = bg["h"] * 0.5
+		bg_body.add_child(bg_mesh)
+		var roof_l := OmniLight3D.new()
+		roof_l.position = Vector3(0, bg["h"] + 0.5, 0)
+		roof_l.light_color = Color(1.0, 0.2, 0.2)
+		roof_l.light_energy = 1.5
+		roof_l.omni_range = 4.0
+		bg_body.add_child(roof_l)
+		bg_body.position = Vector3(bg["x"], 0.0, bg["z"])
+		add_child(bg_body)
+
+	# 16. Мусорные баки
+	var trash_spots := [
+		Vector3(-4.6, 0.0, 37.0), Vector3(4.5, 0.0, 25.0),
+		Vector3(-4.7, 0.0, 6.0),  Vector3(4.6, 0.0, -6.0),
+		Vector3(-4.8, 0.0, -20.0),Vector3(-8.5, 0.0, -32.0)
+	]
+	for i in range(trash_spots.size()):
+		var trash := MeshInstance3D.new()
+		var t_cyl := CylinderMesh.new()
+		t_cyl.top_radius = 0.28
+		t_cyl.bottom_radius = 0.24
+		t_cyl.height = 0.72
+		var t_mat := StandardMaterial3D.new()
+		t_mat.albedo_color = [Color(0.1,0.5,0.1), Color(0.12,0.12,0.5), Color(0.5,0.1,0.1)][i % 3]
+		t_mat.roughness = 0.9
+		trash.mesh = t_cyl
+		trash.material_override = t_mat
+		trash.position = trash_spots[i] + Vector3(0, 0.36, 0)
+		add_child(trash)
+
+	# 17. Деревья вдоль тротуаров
+	var tree_spots := [
+		Vector3(-4.0, 0.0, 47.5), Vector3(4.0, 0.0, 43.5),
+		Vector3(-4.0, 0.0, 31.5), Vector3(4.0, 0.0, 27.5),
+		Vector3(-4.0, 0.0, 15.5), Vector3(4.0, 0.0, 11.5),
+	]
+	for i in range(tree_spots.size()):
+		var trunk := MeshInstance3D.new()
+		var tr_c := CylinderMesh.new()
+		tr_c.top_radius = 0.12; tr_c.bottom_radius = 0.16; tr_c.height = 2.2
+		var tr_mat := StandardMaterial3D.new()
+		tr_mat.albedo_color = Color(0.28, 0.18, 0.10); tr_mat.roughness = 0.95
+		trunk.mesh = tr_c; trunk.material_override = tr_mat
+		trunk.position = tree_spots[i] + Vector3(0, 1.1, 0)
+		add_child(trunk)
+		var crown := MeshInstance3D.new()
+		var c_s := SphereMesh.new()
+		c_s.radius = 1.0; c_s.height = 2.0
+		var c_mat := StandardMaterial3D.new()
+		c_mat.albedo_color = Color(0.15, 0.42, 0.12); c_mat.roughness = 1.0
+		crown.mesh = c_s; crown.material_override = c_mat
+		crown.position = tree_spots[i] + Vector3(0, 3.5, 0)
+		add_child(crown)
+
+	# 18. Граффити на стенах
+	var graffiti_data := [
+		{"pos": Vector3(-8.9, 2.5, 40.0), "rot": Vector3(0,90,0), "text": "СВОБОДА!", "col": Color(1.0,0.2,0.2)},
+		{"pos": Vector3(8.9, 1.8, 26.0),  "rot": Vector3(0,-90,0),"text": "MERIDIAN = ЛОЖ", "col": Color(0.2,1.0,0.4)},
+		{"pos": Vector3(-8.9, 2.0, 10.0), "rot": Vector3(0,90,0), "text": "КОЛЯ ЖИВ!", "col": Color(1.0,0.85,0.0)},
+		{"pos": Vector3(8.9, 3.0, -5.0),  "rot": Vector3(0,-90,0),"text": "СОПРОТИВЛЯЙСЯ", "col": Color(0.3,0.8,1.0)},
+		{"pos": Vector3(-8.9, 2.2, -14.0),"rot": Vector3(0,90,0), "text": "НЕТ КОРПОРАЦИЯМ", "col": Color(1.0,0.3,0.9)},
+	]
+	for gd in graffiti_data:
+		var graf := Label3D.new()
+		graf.text = gd["text"]; graf.font_size = 16
+		graf.modulate = gd["col"]; graf.outline_size = 2
+		graf.position = gd["pos"]; graf.rotation_degrees = gd["rot"]
+		add_child(graf)
+
+	# 19. Лужи на дороге
+	var puddle_pos := [Vector3(-1.5,0.015,38.0), Vector3(1.8,0.015,20.5), Vector3(-0.8,0.015,4.5)]
+	for pp in puddle_pos:
+		var puddle := MeshInstance3D.new()
+		var pq := QuadMesh.new(); pq.size = Vector2(1.8, 0.9)
+		pq.orientation = PlaneMesh.FACE_Y
+		var pm := StandardMaterial3D.new()
+		pm.albedo_color = Color(0.15,0.2,0.25,0.7)
+		pm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		pm.metallic = 0.9; pm.roughness = 0.05
+		puddle.mesh = pq; puddle.material_override = pm
+		puddle.position = pp
+		add_child(puddle)
+
+	# 20. Дождь (фоновый)
+	var rain := CPUParticles3D.new()
+	rain.name = "RainSystem"; rain.position = Vector3(0, 18.0, 10.0)
+	rain.amount = 400; rain.lifetime = 1.8; rain.preprocess = 1.0
+	rain.randomness = 0.5; rain.direction = Vector3(0.05, -1, 0)
+	rain.spread = 5.0; rain.gravity = Vector3(0, -9.0, 0)
+	rain.initial_velocity_min = 12.0; rain.initial_velocity_max = 16.0
+	var rm := SphereMesh.new(); rm.radius = 0.015; rm.height = 0.3
+	var rmt := StandardMaterial3D.new()
+	rmt.albedo_color = Color(0.6,0.75,0.9,0.4)
+	rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	rmt.roughness = 0.1; rmt.metallic = 0.5
+	rm.material = rmt; rain.mesh = rm
+	add_child(rain)
+
+	# 21. Пожарные гидранты
+	var hydrant_mat := StandardMaterial3D.new()
+	hydrant_mat.albedo_color = Color(0.85,0.05,0.05)
+	hydrant_mat.metallic = 0.7; hydrant_mat.roughness = 0.3
+	for hp in [Vector3(-4.6,0,34.8), Vector3(4.5,0,17.2), Vector3(-4.7,0,-1.5)]:
+		var hyd := MeshInstance3D.new()
+		var hc := CylinderMesh.new()
+		hc.top_radius = 0.12; hc.bottom_radius = 0.15; hc.height = 0.55
+		hyd.mesh = hc; hyd.material_override = hydrant_mat
+		hyd.position = hp + Vector3(0, 0.275, 0)
+		add_child(hyd)
+
+	# 22. Дополнительные NPC-прохожие
+	var npc_s2: PackedScene = load("res://scenes/characters/npc_character.tscn")
+	if npc_s2:
+		var peds := [
+			{"pos": Vector3(-3.0,0,44.0), "rot": 135.0},
+			{"pos": Vector3(3.0,0,32.0),  "rot": -45.0},
+			{"pos": Vector3(-3.2,0,18.0), "rot": 60.0},
+			{"pos": Vector3(3.1,0,7.0),   "rot": -120.0},
+		]
+		for i in range(peds.size()):
+			var ped: Node3D = npc_s2.instantiate()
+			ped.name = "Pedestrian_%d" % i
+			ped.position = peds[i]["pos"]
+			ped.rotation_degrees = Vector3(0, peds[i]["rot"], 0)
+			add_child(ped)
+
 func _create_waypoint_beacon() -> void:
 	waypoint_node = Node3D.new()
 	waypoint_node.name = "WaypointBeacon"

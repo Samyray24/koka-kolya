@@ -138,6 +138,86 @@ func _build_metro_tunnel_and_props() -> void:
 	crate_loot.position = Vector3(10.5, 1.2, -62.5)
 	add_child(crate_loot)
 
+	# --- Расширенные детали мира ---
+	# Пар над метро
+	for i in range(10):
+		var steam := CPUParticles3D.new()
+		steam.name = "MetroSteam_%d" % i
+		steam.position = Vector3(randf_range(-10, 10), 1.0, randf_range(-80, 80))
+		steam.amount = 16
+		steam.lifetime = 3.0
+		steam.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+		steam.emission_box_extents = Vector3(1.0, 0.5, 1.0)
+		steam.gravity = Vector3(0, 1.5, 0)
+		var s_mat := StandardMaterial3D.new()
+		s_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		s_mat.albedo_color = Color(0.8, 0.8, 0.8, 0.3)
+		steam.material_override = s_mat
+		add_child(steam)
+
+	# Граффити
+	var graffiti_texts = ["ПОДЗЕМНАЯ СЕТЬ", "СВОБОДА ПОД ЗЕМЛЁЙ", "МЕТРО = СОПРОТИВЛЕНИЕ"]
+	for i in range(graffiti_texts.size()):
+		var graf := Label3D.new()
+		graf.text = graffiti_texts[i]
+		graf.font_size = 64
+		graf.modulate = Color(randf(), randf(), randf())
+		graf.position = Vector3(-12.4, 2.5, -30 + i * 20)
+		graf.rotation_degrees = Vector3(0, 90, 0)
+		add_child(graf)
+
+	# Светящиеся рекламы на стенах
+	for i in range(3):
+		var ad_light := OmniLight3D.new()
+		ad_light.position = Vector3(12.0, 3.0, -10 - i * 30)
+		ad_light.light_color = Color(randf(), randf(), randf())
+		ad_light.light_energy = 2.0
+		add_child(ad_light)
+
+	# 4 NPC
+	for i in range(4):
+		var npc := CharacterBody3D.new()
+		npc.position = Vector3(randf_range(5, 10), 1.0, randf_range(-70, 0))
+		var npc_mesh := MeshInstance3D.new()
+		npc_mesh.mesh = CapsuleMesh.new()
+		npc.add_child(npc_mesh)
+		add_child(npc)
+
+	# Брошенные мешки (боксы)
+	for i in range(8):
+		var bag := StaticBody3D.new()
+		bag.position = Vector3(randf_range(5, 12), 0.5, randf_range(-80, 10))
+		var b_mesh := MeshInstance3D.new()
+		var box = BoxMesh.new()
+		box.size = Vector3(0.8, 0.6, 0.5)
+		b_mesh.mesh = box
+		bag.add_child(b_mesh)
+		add_child(bag)
+
+	# Лужи на полу метро
+	for i in range(5):
+		var puddle := MeshInstance3D.new()
+		puddle.position = Vector3(randf_range(-10, 12), 0.05, randf_range(-80, 20))
+		var p_mesh := PlaneMesh.new()
+		p_mesh.size = Vector2(2.0, 2.0)
+		puddle.mesh = p_mesh
+		var p_mat := StandardMaterial3D.new()
+		p_mat.albedo_color = Color(0.1, 0.1, 0.1, 0.8)
+		p_mat.roughness = 0.1
+		p_mat.metallic = 0.8
+		puddle.material_override = p_mat
+		puddle.rotation_degrees = Vector3(-90, 0, 0)
+		add_child(puddle)
+
+	# Дополнительные фоновые небоскрёбы снаружи
+	for i in range(6):
+		var bldg := MeshInstance3D.new()
+		bldg.position = Vector3(randf_range(-100, 100), 20.0, randf_range(-150, -80))
+		var b_mesh := BoxMesh.new()
+		b_mesh.size = Vector3(15, 60, 15)
+		bldg.mesh = b_mesh
+		add_child(bldg)
+
 func _build_server_room() -> void:
 	var mat_server: Material = load("res://assets/materials/mat_sci_fi_server_rack.tres")
 

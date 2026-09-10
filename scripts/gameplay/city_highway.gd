@@ -402,6 +402,107 @@ func _spawn_highway_world_details() -> void:
 		c_inst.position = highway_crates[i]
 		add_child(c_inst)
 
+	# ═══ AAA РАСШИРЕНИЕ v2.0 ═══════════════════════════════════════════════
+
+	# 14. Дождь над шоссе
+	var hw_rain := CPUParticles3D.new()
+	hw_rain.name = "HighwayRain"
+	hw_rain.position = Vector3(0, 22.0, 20.0)
+	hw_rain.amount = 500; hw_rain.lifetime = 2.0; hw_rain.preprocess = 1.0
+	hw_rain.direction = Vector3(0.05, -1, 0); hw_rain.spread = 4.0
+	hw_rain.gravity = Vector3(0, -11.0, 0)
+	hw_rain.initial_velocity_min = 14.0; hw_rain.initial_velocity_max = 18.0
+	var hw_rm := SphereMesh.new(); hw_rm.radius = 0.012; hw_rm.height = 0.28
+	var hw_rmt := StandardMaterial3D.new()
+	hw_rmt.albedo_color = Color(0.65, 0.78, 0.92, 0.35)
+	hw_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	hw_rmt.roughness = 0.05
+	hw_rm.material = hw_rmt; hw_rain.mesh = hw_rm
+	add_child(hw_rain)
+
+	# 15. Лужи на шоссе
+	for pp in [Vector3(-2.0,0.22,45.0), Vector3(3.0,0.22,25.0), Vector3(-1.5,0.22,-18.0), Vector3(2.5,0.22,-50.0)]:
+		var pd := MeshInstance3D.new()
+		var pq := QuadMesh.new(); pq.size = Vector2(2.5, 1.2)
+		pq.orientation = PlaneMesh.FACE_Y
+		var pm := StandardMaterial3D.new()
+		pm.albedo_color = Color(0.1,0.15,0.22,0.65)
+		pm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		pm.metallic = 0.95; pm.roughness = 0.02
+		pd.mesh = pq; pd.material_override = pm; pd.position = pp
+		add_child(pd)
+
+	# 16. Граффити на отбойниках КПП
+	var hw_graffiti := [
+		{"pos": Vector3(-13.0,1.2,1.0), "rot": Vector3(0,90,0), "text": "СВОБОДУ КРАСНОГРАДУ!", "col": Color(1.0,0.1,0.1)},
+		{"pos": Vector3(13.5,1.0,-1.0), "rot": Vector3(0,-90,0), "text": "ДОЛОЙ СИНДИКАТ!", "col": Color(0.2,1.0,0.3)},
+		{"pos": Vector3(0.0,1.5,98.0),  "rot": Vector3(0,180,0), "text": "КОЛЯ ЗДЕСЬ БЫЛ", "col": Color(1.0,0.85,0.0)},
+	]
+	for gd in hw_graffiti:
+		var g := Label3D.new()
+		g.text = gd["text"]; g.font_size = 14; g.modulate = gd["col"]; g.outline_size = 2
+		g.position = gd["pos"]; g.rotation_degrees = gd["rot"]
+		add_child(g)
+
+	# 17. Дополнительные небоскрёбы на горизонте (фон)
+	var bg_hw := [
+		{"x": -42.0, "z": 40.0, "h": 50.0}, {"x": 42.0, "z": 40.0, "h": 55.0},
+		{"x": -42.0, "z": -20.0, "h": 45.0}, {"x": 42.0, "z": -20.0, "h": 48.0},
+		{"x": -42.0, "z": -80.0, "h": 60.0}, {"x": 42.0, "z": -80.0, "h": 58.0},
+	]
+	for bh in bg_hw:
+		var bb := MeshInstance3D.new()
+		var bm := BoxMesh.new(); bm.size = Vector3(8.0, bh["h"], 8.0)
+		bb.mesh = bm
+		var bmat := StandardMaterial3D.new()
+		bmat.albedo_color = Color(0.06, 0.09, 0.16)
+		bmat.metallic = 0.5; bmat.roughness = 0.4
+		bb.material_override = bmat
+		bb.position = Vector3(bh["x"], bh["h"]*0.5, bh["z"])
+		add_child(bb)
+		# Сигнальный свет на крыше
+		var sl := OmniLight3D.new()
+		sl.position = Vector3(bh["x"], bh["h"] + 0.5, bh["z"])
+		sl.light_color = Color(1.0, 0.2, 0.2); sl.light_energy = 2.0; sl.omni_range = 5.0
+		add_child(sl)
+
+	# 18. Рекламные щиты над шоссе
+	var hw_billboard_data := [
+		{"pos": Vector3(-18.0, 10.0, 55.0), "rot": Vector3(0,90,0), "text": "КОКА-КОЛЯ: ВКУС СВОБОДЫ ★"},
+		{"pos": Vector3(18.0, 10.0, 25.0),  "rot": Vector3(0,-90,0), "text": "MERIDIAN CORP — МЫ ЗАБОТИМСЯ"},
+		{"pos": Vector3(-18.0, 10.0, -15.0),"rot": Vector3(0,90,0),  "text": "★ НОВЫЙ ВКУС: КОЛА ПЛЮС ★"},
+	]
+	for bd in hw_billboard_data:
+		var sign := Label3D.new()
+		sign.text = bd["text"]; sign.font_size = 20
+		sign.modulate = Color(0.2, 0.9, 1.0); sign.outline_size = 6
+		sign.position = bd["pos"]; sign.rotation_degrees = bd["rot"]
+		add_child(sign)
+		var sl2 := SpotLight3D.new()
+		sl2.position = bd["pos"] + Vector3(0, 2.0, 0)
+		sl2.rotation_degrees = Vector3(-30, bd["rot"].y, 0)
+		sl2.light_color = Color(0.2, 0.9, 1.0); sl2.light_energy = 3.0
+		sl2.spot_range = 10.0; sl2.spot_angle = 40.0
+		add_child(sl2)
+
+	# 19. Предупреждающие конусы на дороге
+	var cone_mat := StandardMaterial3D.new()
+	cone_mat.albedo_color = Color(1.0, 0.42, 0.0); cone_mat.roughness = 0.8
+	for cx in [Vector3(-3.5, 0.22, 6.0), Vector3(-2.8, 0.22, -2.0), Vector3(3.2, 0.22, 4.5), Vector3(2.6, 0.22, -4.0)]:
+		var cone := MeshInstance3D.new()
+		var con_m := CylinderMesh.new()
+		con_m.top_radius = 0.01; con_m.bottom_radius = 0.2; con_m.height = 0.55
+		cone.mesh = con_m; cone.material_override = cone_mat
+		cone.position = cx; add_child(cone)
+
+	# 20. Дополнительные NPC у КПП и площади
+	var npc_hw: PackedScene = load("res://scenes/characters/npc_character.tscn")
+	if npc_hw:
+		for nd in [{"p": Vector3(-9.5,0,-2.5),"r":45.0}, {"p":Vector3(5.0,0,-80.0),"r":-30.0}, {"p":Vector3(-5.0,0,-78.0),"r":120.0}]:
+			var n: Node3D = npc_hw.instantiate()
+			n.position = nd["p"]; n.rotation_degrees = Vector3(0, nd["r"], 0)
+			add_child(n)
+
 
 func _apply_mesh_material_recursive(node: Node, mat: Material) -> void:
 	if node is MeshInstance3D:

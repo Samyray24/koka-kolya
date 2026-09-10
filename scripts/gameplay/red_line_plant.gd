@@ -482,6 +482,67 @@ func _spawn_plant_world_details() -> void:
 	tower_strobe.omni_range = 14.0
 	add_child(tower_strobe)
 
+	# AAA РАСШИРЕНИЕ Завод v2.0
+	# дождь над заводом
+	var rp_rain := CPUParticles3D.new()
+	rp_rain.name = "PlantRain"
+	rp_rain.position = Vector3(0, 30.0, 0.0)
+	rp_rain.amount = 800; rp_rain.lifetime = 2.5; rp_rain.preprocess = 1.0
+	rp_rain.direction = Vector3(0.05, -1, 0.05); rp_rain.spread = 5.0
+	rp_rain.gravity = Vector3(0, -12.0, 0)
+	rp_rain.initial_velocity_min = 15.0; rp_rain.initial_velocity_max = 20.0
+	var rp_rm := SphereMesh.new(); rp_rm.radius = 0.015; rp_rm.height = 0.3
+	var rp_rmt := StandardMaterial3D.new()
+	rp_rmt.albedo_color = Color(0.4, 0.5, 0.6, 0.3)
+	rp_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; rp_rmt.roughness = 0.1
+	rp_rm.material = rp_rmt; rp_rain.mesh = rp_rm
+	add_child(rp_rain)
+	
+	# 6 дополнительных небоскрёбов фона
+	var bg_b_mat := StandardMaterial3D.new(); bg_b_mat.albedo_color = Color(0.1, 0.1, 0.15)
+	for bi in range(6):
+		var bg_b := MeshInstance3D.new()
+		var bg_bm := BoxMesh.new(); bg_bm.size = Vector3(15, randf_range(30, 50), 15)
+		bg_b.mesh = bg_bm; bg_b.material_override = bg_b_mat
+		bg_b.position = Vector3(randf_range(-100, 100), bg_bm.size.y / 2, randf_range(-120, -80))
+		add_child(bg_b)
+
+	# лужи
+	for pl in [Vector3(-10,0.02,-10), Vector3(15,0.02,-20), Vector3(0,0.02,-35), Vector3(-18,0.02,-40), Vector3(5,0.02,-50)]:
+		var pd := MeshInstance3D.new()
+		var pq := QuadMesh.new(); pq.size=Vector2(4.0,2.5); pq.orientation=PlaneMesh.FACE_Y
+		var pm := StandardMaterial3D.new()
+		pm.albedo_color=Color(0.1,0.1,0.1,0.8); pm.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+		pm.metallic=0.9; pm.roughness=0.05
+		pd.mesh=pq; pd.material_override=pm; pd.position=pl; add_child(pd)
+
+	# граффити
+	for gd in [{"p":Vector3(-21.9, 2.5, -30),"r":90,"t":"СТАЧКА!"}, {"p":Vector3(21.9, 2.5, -40),"r":-90,"t":"ДОЛОЙ ЗАВОД!"}, {"p":Vector3(0, 3.0, -80),"r":0,"t":"РАБОЧИЕ ОБЪЕДИНЯЙТЕСЬ"}]:
+		var g:=Label3D.new(); g.text=gd["t"]; g.font_size=26; g.modulate=Color(0.8,0.1,0.1); g.outline_size=5
+		g.position=gd["p"]; g.rotation_degrees=Vector3(0,gd["r"],0); add_child(g)
+
+	# 5 NPC рабочих
+	var npc_w:PackedScene=load("res://scenes/characters/npc_character.tscn")
+	if npc_w:
+		for wp in [Vector3(-15,0,-25), Vector3(12,0,-30), Vector3(-5,0,-40), Vector3(8,0,-45), Vector3(18,0,-35)]:
+			var n:Node3D=npc_w.instantiate(); n.position=wp; n.rotation_degrees=Vector3(0,randf_range(0,360),0); add_child(n)
+
+	# промышленные дымовые трубы (5 CPUParticles3D с серым дымом)
+	for sp in [Vector3(-20,15,-50), Vector3(20,15,-50), Vector3(-15,18,-60), Vector3(15,18,-60), Vector3(0,20,-70)]:
+		var sm := CPUParticles3D.new()
+		sm.position = sp; sm.amount = 30; sm.lifetime = 4.0
+		sm.direction = Vector3(0.5,1,0); sm.spread = 15.0; sm.gravity = Vector3(0,1,0)
+		sm.initial_velocity_min = 2.0; sm.initial_velocity_max = 4.0
+		var sm_m := SphereMesh.new(); sm_m.radius = 1.0; sm_m.height = 2.0
+		var sm_mat := StandardMaterial3D.new(); sm_mat.albedo_color = Color(0.4,0.4,0.4,0.4)
+		sm_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; sm_m.material = sm_mat; sm.mesh = sm_m
+		add_child(sm)
+
+	# предупреждающие знаки
+	for sd in [{"p":Vector3(-10,2,-18),"t":"⚠️ ОПАСНАЯ ЗОНА"}, {"p":Vector3(10,2,-18),"t":"☠️ ХИМИЧЕСКАЯ ОПАСНОСТЬ"}]:
+		var s:=Label3D.new(); s.text=sd["t"]; s.font_size=20; s.modulate=Color(1,0.8,0)
+		s.position=sd["p"]; s.outline_size=4; add_child(s)
+
 
 func _apply_mesh_material_recursive(node: Node, mat: Material) -> void:
 	if node is MeshInstance3D:

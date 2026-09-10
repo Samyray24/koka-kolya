@@ -309,6 +309,95 @@ func _spawn_penthouse_visuals() -> void:
 		beam.rotation_degrees = Vector3(0, 0, 90)
 		add_child(beam)
 
+	# --- Расширенные детали мира ---
+	# Грозовые облака над цитаделью
+	var clouds := CPUParticles3D.new()
+	clouds.position = Vector3(0, 30.0, 0)
+	clouds.amount = 40
+	clouds.lifetime = 10.0
+	clouds.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	clouds.emission_box_extents = Vector3(50, 5, 50)
+	var c_mat := StandardMaterial3D.new()
+	c_mat.albedo_color = Color(0.1, 0.1, 0.15)
+	clouds.material_override = c_mat
+	add_child(clouds)
+
+	# Граффити на стенах
+	var graf_texts = ["ВЕРШИНА ВЛАСТИ", "СВОБОДА ВХОДИТ!", "КОЛЯ ВСЕГДА БУДЕТ!"]
+	for i in range(graf_texts.size()):
+		var gl := Label3D.new()
+		gl.text = graf_texts[i]
+		gl.font_size = 72
+		gl.modulate = Color(1, 0.2, 0.2)
+		gl.position = Vector3(-14, 2.5, -5 + i * 8)
+		gl.rotation_degrees = Vector3(0, 90, 0)
+		add_child(gl)
+
+	# Большой вид на город (много небоскрёбов с огнями)
+	for i in range(15):
+		var sky_bldg := MeshInstance3D.new()
+		sky_bldg.position = Vector3(randf_range(-150, 150), -30.0, randf_range(50, 150))
+		var b_m := BoxMesh.new()
+		b_m.size = Vector3(10, randf_range(40, 80), 10)
+		sky_bldg.mesh = b_m
+		var bl := OmniLight3D.new()
+		bl.position = Vector3(0, b_m.size.y/2, 0)
+		bl.light_color = Color(1, 0, 0)
+		sky_bldg.add_child(bl)
+		add_child(sky_bldg)
+
+	# 6 охранников NPC
+	for i in range(6):
+		var npc := CharacterBody3D.new()
+		npc.position = Vector3(randf_range(-10, 10), 1.0, randf_range(-20, 20))
+		var n_m := MeshInstance3D.new()
+		n_m.mesh = CapsuleMesh.new()
+		npc.add_child(n_m)
+		add_child(npc)
+
+	# Световое шоу (SpotLight3D, вращающиеся)
+	for i in range(4):
+		var spot := SpotLight3D.new()
+		spot.position = Vector3(randf_range(-15, 15), 5.0, randf_range(-20, 20))
+		spot.light_color = Color(randf(), randf(), randf())
+		spot.spot_range = 20.0
+		spot.spot_angle = 30.0
+		var r_node := Node3D.new()
+		r_node.add_child(spot)
+		r_node.rotation_degrees = Vector3(randf_range(-45, 45), randf_range(0, 360), 0)
+		add_child(r_node)
+
+	# Лужи на полу (отражение огней)
+	for i in range(6):
+		var pud := MeshInstance3D.new()
+		pud.position = Vector3(randf_range(-15, 15), 0.01, randf_range(-25, 20))
+		var pm := PlaneMesh.new()
+		pm.size = Vector2(3, 3)
+		pud.mesh = pm
+		var pud_mat := StandardMaterial3D.new()
+		pud_mat.albedo_color = Color(0.05, 0.05, 0.05, 0.9)
+		pud_mat.roughness = 0.05
+		pud_mat.metallic = 0.9
+		pud.material_override = pud_mat
+		pud.rotation_degrees = Vector3(-90, 0, 0)
+		add_child(pud)
+
+	# Роскошная мебель и декор
+	for i in range(5):
+		var furn := StaticBody3D.new()
+		furn.position = Vector3(randf_range(-10, 10), 0.5, randf_range(-15, 0))
+		var fm := MeshInstance3D.new()
+		var f_box = BoxMesh.new()
+		f_box.size = Vector3(1.5, 1.0, 1.5)
+		fm.mesh = f_box
+		var f_mat := StandardMaterial3D.new()
+		f_mat.albedo_color = Color(0.8, 0.7, 0.2)
+		f_mat.metallic = 1.0
+		f_mat.roughness = 0.2
+		fm.material_override = f_mat
+		furn.add_child(fm)
+		add_child(furn)
+
 
 func _apply_material_recursive(node: Node, mat: Material) -> void:
 	if node is MeshInstance3D:

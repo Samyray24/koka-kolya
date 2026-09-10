@@ -246,6 +246,52 @@ func _build_neon_plaza() -> void:
 		barrel.position = Vector3(randf_range(-10, 10), 0.6, randf_range(10, 60))
 		add_child(barrel)
 
+	# AAA РАСШИРЕНИЕ Неон Бульвар v2.0
+	# Дождь неонового бульвара
+	var nb_rain := CPUParticles3D.new()
+	nb_rain.name = "NeonRain"
+	nb_rain.position = Vector3(0, 25.0, 0.0)
+	nb_rain.amount = 600; nb_rain.lifetime = 2.2; nb_rain.preprocess = 1.0
+	nb_rain.direction = Vector3(0.02, -1, 0); nb_rain.spread = 3.0
+	nb_rain.gravity = Vector3(0, -10.0, 0)
+	nb_rain.initial_velocity_min = 13.0; nb_rain.initial_velocity_max = 17.0
+	var nb_rm := SphereMesh.new(); nb_rm.radius = 0.01; nb_rm.height = 0.25
+	var nb_rmt := StandardMaterial3D.new()
+	nb_rmt.albedo_color = Color(0.5, 0.65, 1.0, 0.3)
+	nb_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; nb_rmt.roughness = 0.05
+	nb_rm.material = nb_rmt; nb_rain.mesh = nb_rm
+	add_child(nb_rain)
+	# Неоновые лужи
+	for np in [Vector3(-5.0,0.01,80.0),Vector3(5.0,0.01,50.0),Vector3(-3.0,0.01,20.0),Vector3(4.0,0.01,-10.0),Vector3(-2.0,0.01,-50.0)]:
+		var pd := MeshInstance3D.new()
+		var pq := QuadMesh.new(); pq.size=Vector2(3.0,1.5); pq.orientation=PlaneMesh.FACE_Y
+		var pm := StandardMaterial3D.new()
+		pm.albedo_color=Color(0.05,0.1,0.2,0.7); pm.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+		pm.metallic=0.98; pm.roughness=0.01
+		pd.mesh=pq; pd.material_override=pm; pd.position=np; add_child(pd)
+	# Граффити бульвара
+	for gd in [{"pos":Vector3(-25.5,3.0,70.0),"rot":Vector3(0,90,0),"text":"НEON=СВОБОДА","col":Color(0.2,1.0,0.9)},{"pos":Vector3(25.5,2.5,40.0),"rot":Vector3(0,-90,0),"text":"СОПРОТИВЛЕНИЕ!","col":Color(1.0,0.2,0.8)},{"pos":Vector3(-25.5,3.5,0.0),"rot":Vector3(0,90,0),"text":"КОЛЯ ВСЕГДА ЖИВ","col":Color(1.0,0.9,0.1)}]:
+		var g:=Label3D.new(); g.text=gd["text"]; g.font_size=22; g.modulate=gd["col"]; g.outline_size=4
+		g.position=gd["pos"]; g.rotation_degrees=gd["rot"]; add_child(g)
+	# Уличные торговые лотки (3 штуки)
+	for si in range(3):
+		var stall:=StaticBody3D.new(); stall.name="StreetStall_%d"%si
+		var sc:=CollisionShape3D.new(); var sb:=BoxShape3D.new(); sb.size=Vector3(2.0,1.5,1.0); sc.shape=sb; sc.position.y=0.75; stall.add_child(sc)
+		var sm:=MeshInstance3D.new(); var smm:=BoxMesh.new(); smm.size=sb.size; sm.mesh=smm
+		var smt:=StandardMaterial3D.new(); smt.albedo_color=Color(0.6,0.1,0.05); smt.roughness=0.8; sm.material_override=smt; sm.position.y=0.75; stall.add_child(sm)
+		var sl2:=Label3D.new(); sl2.text=["КОЛА\n50₽","ЧИПСЫ\n30₽","ВОДА\n20₽"][si]; sl2.font_size=12; sl2.position=Vector3(0,1.6,0.6); stall.add_child(sl2)
+		stall.position=Vector3([-9.5,-9.5,9.5][si],0.0,[60.0,30.0,60.0][si]); add_child(stall)
+	# Дополнительные NPC на бульваре
+	var npc_nb:PackedScene=load("res://scenes/characters/npc_character.tscn")
+	if npc_nb:
+		for nd in [{"p":Vector3(-8.0,0,75.0),"r":30.0},{"p":Vector3(7.0,0,50.0),"r":-45.0},{"p":Vector3(-7.0,0,20.0),"r":90.0},{"p":Vector3(8.0,0,-5.0),"r":-60.0},{"p":Vector3(-6.0,0,-30.0),"r":120.0}]:
+			var n:Node3D=npc_nb.instantiate(); n.position=nd["p"]; n.rotation_degrees=Vector3(0,nd["r"],0); add_child(n)
+	# Неоновые вывески на небоскрёбах (Label3D)
+	for nd2 in [{"pos":Vector3(-26,28,90),"text":"MEGACORP\nSYNDICATE"},{"pos":Vector3(26,32,90),"text":"NEON\nDREAMS"},{"pos":Vector3(-26,36,40),"text":"KOLA\nCORPORA"},{"pos":Vector3(26,30,40),"text":"MERIDIAN\nTOWER"}]:
+		var sign:=Label3D.new(); sign.text=nd2["text"]; sign.font_size=28
+		sign.modulate=Color(randf_range(0.2,1.0),randf_range(0.2,1.0),randf_range(0.2,1.0)); sign.outline_size=6
+		sign.position=nd2["pos"]; sign.billboard=BaseMaterial3D.BILLBOARD_ENABLED; add_child(sign)
+
 func _create_waypoint_beacon() -> void:
 	waypoint_node = Node3D.new()
 	waypoint_node.name = "BoulevardWaypoint"

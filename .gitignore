@@ -23,3 +23,6 @@ tools/godot/
 *.dll
 *.so
 *.dylib
+
+# Heavy source textures (downloaded locally via scripts/tools/download_4k_textures.py)
+assets/textures/pbr/polyhaven/
