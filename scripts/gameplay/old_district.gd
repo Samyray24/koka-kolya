@@ -9,6 +9,42 @@ extends Node3D
 
 const MissionManagerScript = preload("res://scripts/core/mission_manager.gd")
 const DialogueManagerScript = preload("res://scripts/core/dialogue_manager.gd")
+const RoadExitGateScript = preload("res://scripts/world/road_exit_gate.gd")
+
+# Предзагрузка PBR-материалов для устранения фризов основного потока
+const MAT_ASPHALT: Material = preload("res://assets/materials/mat_asphalt.tres")
+const MAT_PAVING: Material = preload("res://assets/materials/mat_paving.tres")
+const MAT_GRASS: Material = preload("res://assets/materials/mat_grass.tres")
+const MAT_FOLIAGE: Material = preload("res://assets/materials/mat_foliage.tres")
+const MAT_BRICK: Material = preload("res://assets/materials/mat_brick.tres")
+const MAT_CONCRETE: Material = preload("res://assets/materials/mat_concrete.tres")
+const MAT_BRICK_DARK: Material = preload("res://assets/materials/mat_brick_dark.tres")
+const MAT_SANDSTONE: Material = preload("res://assets/materials/mat_sandstone.tres")
+const MAT_METAL: Material = preload("res://assets/materials/mat_metal.tres")
+const MAT_BILLBOARD: Material = preload("res://assets/materials/mat_neon_billboard.tres")
+
+# Предзагрузка 3D-моделей и сцен
+const NPC_SCENE: PackedScene = preload("res://scenes/characters/npc_character.tscn")
+const CAR_POLICE_SCENE: PackedScene = preload("res://assets/scenes_3d/car_police.tscn")
+const CAR_SEDAN_SCENE: PackedScene = preload("res://assets/scenes_3d/car_sedan.tscn")
+const CAR_HATCH_SCENE: PackedScene = preload("res://assets/scenes_3d/car_hatchback.tscn")
+const CAR_WAGON_SCENE: PackedScene = preload("res://assets/scenes_3d/car_stationwagon.tscn")
+const CAR_TRUCK_SCENE: PackedScene = preload("res://assets/scenes_3d/vehicle-truck-purple.tscn")
+const BENCH_SCENE: PackedScene = preload("res://assets/scenes_3d/bench.tscn")
+const WALL_HIGH_SCENE: PackedScene = preload("res://assets/scenes_3d/wall-high.tscn")
+const BOX_A_SCENE: PackedScene = preload("res://assets/scenes_3d/box_A.tscn")
+const BOX_B_SCENE: PackedScene = preload("res://assets/scenes_3d/box_B.tscn")
+
+const BUILDING_SCENES: Array[PackedScene] = [
+	preload("res://assets/scenes_3d/building_A.tscn"),
+	preload("res://assets/scenes_3d/building_B.tscn"),
+	preload("res://assets/scenes_3d/building_C.tscn"),
+	preload("res://assets/scenes_3d/building_D.tscn"),
+	preload("res://assets/scenes_3d/building_E.tscn"),
+	preload("res://assets/scenes_3d/building_F.tscn"),
+	preload("res://assets/scenes_3d/building_G.tscn"),
+	preload("res://assets/scenes_3d/building_H.tscn")
+]
 
 @onready var player: CharacterBody3D = get_node_or_null("Player")
 @onready var van: VehicleBody3D = get_node_or_null("DeliveryVan")
@@ -72,24 +108,13 @@ func _ready() -> void:
 
 func _spawn_world_details() -> void:
 	# 0. Инициализация и наложение фотореалистичных PBR материалов на геометрию уровня
-	var mat_asphalt: Material = load("res://assets/materials/mat_asphalt.tres")
-	var mat_paving: Material = load("res://assets/materials/mat_paving.tres")
-	var mat_grass: Material = load("res://assets/materials/mat_grass.tres")
-	var mat_foliage: Material = load("res://assets/materials/mat_foliage.tres")
-	var mat_brick: Material = load("res://assets/materials/mat_brick.tres")
-	var mat_concrete: Material = load("res://assets/materials/mat_concrete.tres")
-	var mat_brick_dark: Material = load("res://assets/materials/mat_brick_dark.tres")
-	var mat_sandstone: Material = load("res://assets/materials/mat_sandstone.tres")
-	var mat_metal: Material = load("res://assets/materials/mat_metal.tres")
-
 	var city_arch: Node3D = get_node_or_null("CityArchitecture")
 	if city_arch:
-		_apply_city_materials_recursive(city_arch, mat_asphalt, mat_paving, mat_grass, mat_foliage)
+		_apply_city_materials_recursive(city_arch, MAT_ASPHALT, MAT_PAVING, MAT_GRASS, MAT_FOLIAGE)
 
 	# 1. Спавн 3D-модели связного Саши V (Rogue_Hooded) возле гаража Коли
-	var npc_scene: PackedScene = load("res://scenes/characters/npc_character.tscn")
-	if npc_scene:
-		var sasha: Node3D = npc_scene.instantiate()
+	if NPC_SCENE:
+		var sasha: Node3D = NPC_SCENE.instantiate()
 		sasha.name = "SashaV_NPC"
 		sasha.set("is_sasha", true)
 		sasha.set("npc_name", "Саша V (Сопротивление)")
@@ -98,44 +123,39 @@ func _spawn_world_details() -> void:
 		add_child(sasha)
 
 	# 2. Спавн патрульной машины (car_police) на обочине улицы
-	var police_scene: PackedScene = load("res://assets/scenes_3d/car_police.tscn")
-	if police_scene:
-		var cop_car: Node3D = police_scene.instantiate()
+	if CAR_POLICE_SCENE:
+		var cop_car: Node3D = CAR_POLICE_SCENE.instantiate()
 		cop_car.name = "PoliceCruiser_Deco"
 		cop_car.position = Vector3(-6.2, 0.0, 18.0)
 		cop_car.rotation_degrees = Vector3(0, 15, 0)
 		add_child(cop_car)
 
 	# 3. Спавн седана горожан (car_sedan) у площади
-	var sedan_scene: PackedScene = load("res://assets/scenes_3d/car_sedan.tscn")
-	if sedan_scene:
-		var sedan: Node3D = sedan_scene.instantiate()
+	if CAR_SEDAN_SCENE:
+		var sedan: Node3D = CAR_SEDAN_SCENE.instantiate()
 		sedan.name = "CitySedan_Deco"
 		sedan.position = Vector3(6.5, 0.0, 5.0)
 		sedan.rotation_degrees = Vector3(0, -10, 0)
 		add_child(sedan)
 
 	# 4. Хэтчбек и универсал жителей города
-	var hatch_scene: PackedScene = load("res://assets/scenes_3d/car_hatchback.tscn")
-	if hatch_scene:
-		var hatch: Node3D = hatch_scene.instantiate()
+	if CAR_HATCH_SCENE:
+		var hatch: Node3D = CAR_HATCH_SCENE.instantiate()
 		hatch.name = "CityHatch_Deco"
 		hatch.position = Vector3(-6.2, 0.0, 34.0)
 		hatch.rotation_degrees = Vector3(0, 20, 0)
 		add_child(hatch)
 
-	var wagon_scene: PackedScene = load("res://assets/scenes_3d/car_stationwagon.tscn")
-	if wagon_scene:
-		var wagon: Node3D = wagon_scene.instantiate()
+	if CAR_WAGON_SCENE:
+		var wagon: Node3D = CAR_WAGON_SCENE.instantiate()
 		wagon.name = "CityWagon_Deco"
 		wagon.position = Vector3(6.2, 0.0, -8.0)
 		wagon.rotation_degrees = Vector3(0, -15, 0)
 		add_child(wagon)
 
 	# 5. Грузовой фургон корпорации в переулке
-	var truck_scene: PackedScene = load("res://assets/scenes_3d/vehicle-truck-purple.tscn")
-	if truck_scene:
-		var truck: Node3D = truck_scene.instantiate()
+	if CAR_TRUCK_SCENE:
+		var truck: Node3D = CAR_TRUCK_SCENE.instantiate()
 		truck.name = "CargoTruck_Deco"
 		truck.position = Vector3(-7.5, 0.0, -16.0)
 		truck.rotation_degrees = Vector3(0, 90, 0)
@@ -143,8 +163,7 @@ func _spawn_world_details() -> void:
 		add_child(truck)
 
 	# 6. Уличные скамейки (bench.tscn) вдоль тротуаров
-	var bench_scene: PackedScene = load("res://assets/scenes_3d/bench.tscn")
-	if bench_scene:
+	if BENCH_SCENE:
 		var bench_spots = [
 			Vector3(-4.1, 0.12, 42.0),
 			Vector3(4.1, 0.12, 40.0),
@@ -154,7 +173,7 @@ func _spawn_world_details() -> void:
 			Vector3(4.1, 0.12, -4.0)
 		]
 		for i in range(bench_spots.size()):
-			var b: Node3D = bench_scene.instantiate()
+			var b: Node3D = BENCH_SCENE.instantiate()
 			b.name = "Bench_%d" % i
 			b.position = bench_spots[i]
 			b.rotation_degrees = Vector3(0, 90 if bench_spots[i].x < 0 else -90, 0)
@@ -171,8 +190,8 @@ func _spawn_world_details() -> void:
 			p_mesh.bottom_radius = 0.1
 			p_mesh.height = 3.2
 			pole.mesh = p_mesh
-			if mat_metal:
-				pole.material_override = mat_metal
+			if MAT_METAL:
+				pole.material_override = MAT_METAL
 			pole.position = Vector3(x_side, 1.6, z_pos)
 			add_child(pole)
 
@@ -201,14 +220,12 @@ func _spawn_world_details() -> void:
 			add_child(lamp)
 
 	# 8. Настоящие 3D здания (building_A - building_H) вдоль улицы с PBR отделкой
-	var b_types = ["building_A", "building_B", "building_C", "building_D", "building_E", "building_F", "building_G", "building_H"]
-	var bld_materials: Array[Material] = [mat_brick, mat_concrete, mat_brick_dark, mat_sandstone]
+	var bld_materials: Array[Material] = [MAT_BRICK, MAT_CONCRETE, MAT_BRICK_DARK, MAT_SANDSTONE]
 	var street_z_list = [52.0, 44.0, 36.0, 28.0, 20.0, 12.0, 4.0, -4.0, -12.0, -20.0, -28.0]
 	for idx in range(street_z_list.size()):
 		var z_val = street_z_list[idx]
 		# Левая сторона
-		var left_type = b_types[idx % b_types.size()]
-		var left_res: PackedScene = load("res://assets/scenes_3d/%s.tscn" % left_type)
+		var left_res: PackedScene = BUILDING_SCENES[idx % BUILDING_SCENES.size()]
 		if left_res:
 			var lb: Node3D = left_res.instantiate()
 			lb.name = "StreetBld_L_%d" % idx
@@ -219,8 +236,7 @@ func _spawn_world_details() -> void:
 				_apply_mesh_material_recursive(lb, bld_materials[idx % bld_materials.size()])
 			add_child(lb)
 		# Правая сторона
-		var right_type = b_types[(idx + 3) % b_types.size()]
-		var right_res: PackedScene = load("res://assets/scenes_3d/%s.tscn" % right_type)
+		var right_res: PackedScene = BUILDING_SCENES[(idx + 3) % BUILDING_SCENES.size()]
 		if right_res:
 			var rb: Node3D = right_res.instantiate()
 			rb.name = "StreetBld_R_%d" % idx
@@ -232,8 +248,7 @@ func _spawn_world_details() -> void:
 			add_child(rb)
 
 	# 9. Защитные стены периметра склада (wall-high, wall-low)
-	var wall_high_res: PackedScene = load("res://assets/scenes_3d/wall-high.tscn")
-	if wall_high_res:
+	if WALL_HIGH_SCENE:
 		var wall_coords = [
 			Vector3(-9.0, 0.0, -36.0),
 			Vector3(-9.0, 0.0, -42.0),
@@ -243,7 +258,7 @@ func _spawn_world_details() -> void:
 			Vector3(9.0, 0.0, -48.0)
 		]
 		for i in range(wall_coords.size()):
-			var w: Node3D = wall_high_res.instantiate()
+			var w: Node3D = WALL_HIGH_SCENE.instantiate()
 			w.name = "PerimeterWall_%d" % i
 			w.position = wall_coords[i]
 			w.rotation_degrees = Vector3(0, 0, 0)
@@ -251,9 +266,7 @@ func _spawn_world_details() -> void:
 			add_child(w)
 
 	# 10. Промышленные ящики у терминала (box_A, box_B)
-	var box_a_res: PackedScene = load("res://assets/scenes_3d/box_A.tscn")
-	var box_b_res: PackedScene = load("res://assets/scenes_3d/box_B.tscn")
-	if box_a_res and box_b_res:
+	if BOX_A_SCENE and BOX_B_SCENE:
 		var crate_spots = [
 			Vector3(-4.8, 0.0, -28.0),
 			Vector3(-5.2, 0.0, -29.0),
@@ -261,7 +274,7 @@ func _spawn_world_details() -> void:
 			Vector3(5.5, 0.0, -28.8)
 		]
 		for i in range(crate_spots.size()):
-			var bx: Node3D = (box_a_res if i % 2 == 0 else box_b_res).instantiate()
+			var bx: Node3D = (BOX_A_SCENE if i % 2 == 0 else BOX_B_SCENE).instantiate()
 			bx.name = "DecoCrate_%d" % i
 			bx.position = crate_spots[i]
 			bx.scale = Vector3(1.5, 1.5, 1.5)
@@ -314,14 +327,13 @@ func _spawn_world_details() -> void:
 	add_child(neon_light)
 
 	# 12.5. Большой светящийся киберпанк-билборд «ИСТИННАЯ СВЕЖЕСТЬ: КОКА-КОЛЯ»
-	var mat_billboard: Material = load("res://assets/materials/mat_neon_billboard.tres")
-	if mat_billboard:
+	if MAT_BILLBOARD:
 		var bb := MeshInstance3D.new()
 		bb.name = "CyberpunkNeonBillboard"
 		var b_quad := QuadMesh.new()
 		b_quad.size = Vector2(8.0, 4.0)
 		bb.mesh = b_quad
-		bb.material_override = mat_billboard
+		bb.material_override = MAT_BILLBOARD
 		bb.position = Vector3(-8.5, 6.5, 22.0)
 		bb.rotation_degrees = Vector3(0, 90, 0)
 		add_child(bb)
@@ -439,8 +451,7 @@ func _spawn_world_details() -> void:
 		add_child(hyd)
 
 	# 19. Дополнительные NPC-прохожие
-	var npc_s2: PackedScene = load("res://scenes/characters/npc_character.tscn")
-	if npc_s2:
+	if NPC_SCENE:
 		var peds := [
 			{"pos": Vector3(-3.6, 0.0, 35.0), "rot": 150.0, "name": "Житель района"},
 			{"pos": Vector3(3.6, 0.0, 14.0),  "rot": -45.0, "name": "Прохожий"},
@@ -448,7 +459,7 @@ func _spawn_world_details() -> void:
 			{"pos": Vector3(3.6, 0.0, -12.0), "rot": -120.0,"name": "Горожанин"},
 		]
 		for i in range(peds.size()):
-			var ped: Node3D = npc_s2.instantiate()
+			var ped: Node3D = NPC_SCENE.instantiate()
 			ped.name = "Pedestrian_%d" % i
 			ped.set("npc_name", peds[i]["name"])
 			ped.set("is_sasha", false)
@@ -674,13 +685,12 @@ func _setup_complete_panel_buttons() -> void:
 	vbox.add_child(btn_menu)
 
 func _spawn_road_exit_gates() -> void:
-	var gate_script = load("res://scripts/world/road_exit_gate.gd")
-	if not gate_script:
+	if not RoadExitGateScript:
 		return
 
 	# 1. Северный выезд на Скоростное шоссе (за складом №4)
 	var north_gate = Node3D.new()
-	north_gate.set_script(gate_script)
+	north_gate.set_script(RoadExitGateScript)
 	north_gate.name = "ExitGate_CityHighway"
 	north_gate.set("target_district_id", "city_highway")
 	north_gate.set("gate_title", "СКОРОСТНОЕ ШОССЕ")
@@ -690,7 +700,7 @@ func _spawn_road_exit_gates() -> void:
 
 	# 2. Южный переход в Подземный Метрополитен (за гаражом)
 	var south_gate = Node3D.new()
-	south_gate.set_script(gate_script)
+	south_gate.set_script(RoadExitGateScript)
 	south_gate.name = "ExitGate_Metro"
 	south_gate.set("target_district_id", "underground_metro")
 	south_gate.set("gate_title", "ПОДЗЕМНЫЙ МЕТРОПОЛИТЕН")

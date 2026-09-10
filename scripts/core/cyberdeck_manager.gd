@@ -226,7 +226,6 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
 	LogManager.info("CyberdeckManager (КПК и Навигация) инициализирован.", "CORE")
-	show_nav_toast("💡 Нажмите [Tab] или [M] для вызова карты Краснограда и выбора района", 7.0)
 
 func _build_ui() -> void:
 	# 1. Верхний навигационный компас
@@ -256,6 +255,7 @@ func _build_compass_ui() -> void:
 	compass_container.offset_right = 260.0
 	compass_container.offset_top = 10.0
 	compass_container.offset_bottom = 58.0
+	compass_container.visible = false
 	add_child(compass_container)
 
 	var vbox := VBoxContainer.new()
@@ -323,6 +323,7 @@ func _build_hud_hints_ui() -> void:
 	hud_hints_panel.offset_right = -18.0
 	hud_hints_panel.offset_top = -50.0
 	hud_hints_panel.offset_bottom = -14.0
+	hud_hints_panel.visible = false
 	add_child(hud_hints_panel)
 
 	hud_hints_btn = Button.new()
@@ -797,7 +798,12 @@ func _update_compass() -> void:
 		return
 
 	var cam := get_viewport().get_camera_3d()
-	if not cam:
+	var in_world: bool = (cam != null)
+	compass_container.visible = in_world and not is_pda_open
+	if hud_hints_panel:
+		hud_hints_panel.visible = in_world and not is_pda_open
+
+	if not in_world:
 		return
 
 	var fwd := -cam.global_transform.basis.z

@@ -75,6 +75,7 @@ func _ready() -> void:
 	floor_max_angle = deg_to_rad(46.0)
 	capture_mouse(true)
 	if camera:
+		camera.make_current()
 		base_fov = camera.fov
 
 	# Загрузка чувствительности мыши из настроек
