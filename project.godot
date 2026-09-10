@@ -24,6 +24,7 @@ GameManager="*res://scripts/core/game_manager.gd"
 EnvironmentManager="*res://scripts/core/environment_manager.gd"
 VoiceManager="*res://scripts/core/voice_manager.gd"
 CyberdeckManager="*res://scripts/core/cyberdeck_manager.gd"
+ThreatManager="*res://scripts/core/threat_manager.gd"
 
 [display]
 

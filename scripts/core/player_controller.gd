@@ -66,6 +66,9 @@ var was_on_floor: bool = true
 var footstep_distance: float = 0.0
 const FOOTSTEP_INTERVAL: float = 2.2
 
+var radial_wheel: Node = null
+var hud_radar: Node = null
+
 func _ready() -> void:
 	floor_snap_length = 0.35
 	floor_stop_on_slope = true
@@ -108,6 +111,22 @@ func _ready() -> void:
 			cdm.connect("upgrade_purchased", func(_id: String) -> void:
 				apply_cyberdeck_upgrades(cdm.purchased_upgrades)
 			)
+
+	var rw_script = load("res://scripts/ui/weapon_radial_wheel.gd")
+	if rw_script:
+		radial_wheel = CanvasLayer.new()
+		radial_wheel.set_script(rw_script)
+		add_child(radial_wheel)
+		if radial_wheel.has_method("setup"):
+			radial_wheel.call("setup", self, inventory_manager)
+
+	var radar_script = load("res://scripts/ui/hud_radar.gd")
+	if radar_script:
+		hud_radar = CanvasLayer.new()
+		hud_radar.set_script(radar_script)
+		add_child(hud_radar)
+		if hud_radar.has_method("setup"):
+			hud_radar.call("setup", self, camera)
 
 func _on_target_state_changed(state: String) -> void:
 	current_target_state = state
@@ -173,6 +192,20 @@ func set_step_guidance(title: String, detail: String) -> void:
 		am.call("play_sfx", "hint", -4.0)
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.keycode == KEY_Q:
+		if event.pressed and not event.echo:
+			if is_instance_valid(radial_wheel) and radial_wheel.has_method("open_wheel"):
+				radial_wheel.call("open_wheel")
+				return
+		elif not event.pressed:
+			if is_instance_valid(radial_wheel) and radial_wheel.has_method("close_wheel"):
+				radial_wheel.call("close_wheel")
+				return
+
+	var is_wheel_open: bool = is_instance_valid(radial_wheel) and radial_wheel.get("is_wheel_open") == true
+	if is_wheel_open:
+		return
+
 	if event is InputEventMouseMotion and mouse_captured:
 		# Если игрок не вращает удерживаемый предмет правой кнопкой мыши
 		var is_rotating_item := false

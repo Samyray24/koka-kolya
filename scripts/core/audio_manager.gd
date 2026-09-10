@@ -120,6 +120,11 @@ func _generate_sound_library() -> void:
 	sfx_library["ui_pda_open"] = _create_pda_open_sound()
 	sfx_library["ui_pda_close"] = _create_pda_close_sound()
 	sfx_library["upgrade_purchase"] = _create_upgrade_purchase_sound()
+	sfx_library["police_siren"] = _create_police_siren_sound()
+	sfx_library["slow_motion_enter"] = _create_slow_motion_enter_sound()
+	sfx_library["slow_motion_exit"] = _create_slow_motion_exit_sound()
+	sfx_library["cola_drink"] = _create_cola_drink_sound()
+	sfx_library["wanted_level_up"] = _create_wanted_level_up_sound()
 
 func _create_wav(samples: PackedFloat32Array) -> AudioStreamWAV:
 	var wav := AudioStreamWAV.new()
@@ -504,4 +509,80 @@ func _create_upgrade_purchase_sound() -> AudioStreamWAV:
 		var tone := sin(t * TAU * freq) * 0.45 + sin(t * TAU * (freq * 2.0)) * 0.2
 		var env := exp(-fmod(t, 0.1) * 35.0)
 		samples[i] = clampf(tone * env * 0.7, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_police_siren_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.9)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var freq := 720.0 + 220.0 * sin(t * TAU * 2.2)
+		var tone := sin(t * TAU * freq) * 0.5 + sin(t * TAU * (freq * 2.0)) * 0.2
+		var env := 1.0
+		if t < 0.05: env = t / 0.05
+		elif t > 0.85: env = (0.9 - t) / 0.05
+		samples[i] = clampf(tone * env * 0.6, -1.0, 1.0)
+	var wav := _create_wav(samples)
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_begin = 0
+	wav.loop_end = count
+	return wav
+
+func _create_slow_motion_enter_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.42)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var progress := t / 0.42
+		var freq := lerpf(480.0, 65.0, progress * progress)
+		var sub := sin(t * TAU * (freq * 0.5)) * 0.5
+		var mid := sin(t * TAU * freq) * 0.35
+		var env := exp(-progress * 2.5)
+		samples[i] = clampf((sub + mid) * env * 0.75, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_slow_motion_exit_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.35)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var progress := t / 0.35
+		var freq := lerpf(80.0, 560.0, progress * progress)
+		var mid := sin(t * TAU * freq) * 0.45
+		var snap := (randf() * 2.0 - 1.0) * (0.3 if progress > 0.8 else 0.0)
+		var env := sin(progress * PI)
+		samples[i] = clampf((mid + snap) * env * 0.65, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_cola_drink_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.5)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var fizz := (randf() * 2.0 - 1.0) * exp(-t * 18.0) * 0.4
+		var gulp := sin(t * TAU * 180.0) * exp(-fmod(t, 0.15) * 25.0) * 0.35
+		var chime := 0.0
+		if t > 0.25:
+			var t_ch := t - 0.25
+			chime = sin(t_ch * TAU * 1046.5) * 0.25 + sin(t_ch * TAU * 1318.5) * 0.2
+			chime *= exp(-t_ch * 8.0)
+		samples[i] = clampf((fizz + gulp + chime) * 0.7, -1.0, 1.0)
+	return _create_wav(samples)
+
+func _create_wanted_level_up_sound() -> AudioStreamWAV:
+	var count := int(SAMPLE_RATE * 0.48)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	for i in range(count):
+		var t := float(i) / float(SAMPLE_RATE)
+		var f1: float = 440.0
+		var f2: float = 622.25 # Tritone dissonance
+		var pulse := sin(t * TAU * 16.0)
+		var tone := (sin(t * TAU * f1) * 0.5 + sin(t * TAU * f2) * 0.4) * (0.8 + 0.2 * pulse)
+		var env := exp(-t * 4.5)
+		samples[i] = clampf(tone * env * 0.75, -1.0, 1.0)
 	return _create_wav(samples)

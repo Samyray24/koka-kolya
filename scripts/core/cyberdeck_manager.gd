@@ -7,10 +7,13 @@ extends CanvasLayer
 signal pda_opened()
 signal pda_closed()
 signal upgrade_purchased(upgrade_id: String)
+signal contract_started(contract: Dictionary)
+signal contract_completed(contract: Dictionary)
 
 var is_pda_open: bool = false
 var current_tab: int = 0
 var previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
+var active_contract: Dictionary = {}
 
 # База купленных улучшений (сохраняется в профиле игрока)
 var purchased_upgrades: Dictionary = {
@@ -442,6 +445,56 @@ func _build_quests_tab() -> void:
 	obj3.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
 	q_vbox.add_child(obj3)
 
+	# Диспетчер «Красноград Экспресс»
+	var disp_title := Label.new()
+	disp_title.text = "\n  📦 СЛУЖБА СРОЧНОЙ ДОСТАВКИ «КРАСНОГРАД ЭКСПРЕСС»:\n"
+	disp_title.add_theme_font_size_override("font_size", 14)
+	disp_title.add_theme_color_override("font_color", Color(1.0, 0.6, 0.2))
+	list.add_child(disp_title)
+
+	var disp_panel := PanelContainer.new()
+	list.add_child(disp_panel)
+
+	var disp_vbox := VBoxContainer.new()
+	disp_panel.add_child(disp_vbox)
+
+	var contract_info := Label.new()
+	contract_info.name = "ContractInfoLabel"
+	if active_contract.is_empty():
+		contract_info.text = "Свободных контрактов в работе нет. Запросите рейс у диспетчера."
+		contract_info.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	else:
+		contract_info.text = "АКТИВНЫЙ РЕЙС: %s\n%s\nМаршрут: %s → %s | Награда: %d КР" % [
+			active_contract["cargo"], active_contract["desc"], active_contract["from_name"], active_contract["to_name"], active_contract["reward"]
+		]
+		contract_info.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5))
+	contract_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	contract_info.add_theme_font_size_override("font_size", 12)
+	disp_vbox.add_child(contract_info)
+
+	var btn_hbox := HBoxContainer.new()
+	disp_vbox.add_child(btn_hbox)
+
+	var new_contract_btn := Button.new()
+	new_contract_btn.text = " [📦] ВЗЯТЬ СРОЧНЫЙ КОНТРАКТ ДОСТАВКИ "
+	new_contract_btn.pressed.connect(func() -> void:
+		var c := generate_random_contract()
+		contract_info.text = "АКТИВНЫЙ РЕЙС: %s\n%s\nМаршрут: %s → %s | Награда: %d КР" % [
+			c["cargo"], c["desc"], c["from_name"], c["to_name"], c["reward"]
+		]
+		contract_info.add_theme_color_override("font_color", Color(0.2, 1.0, 0.5))
+	)
+	btn_hbox.add_child(new_contract_btn)
+
+	var complete_btn := Button.new()
+	complete_btn.text = " [✓] СДАТЬ ГРУЗ (ЗАВЕРШИТЬ) "
+	complete_btn.pressed.connect(func() -> void:
+		if complete_active_contract():
+			contract_info.text = "Груз успешно доставлен! Заказ закрыт, награда начислена."
+			contract_info.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+	)
+	btn_hbox.add_child(complete_btn)
+
 	var completed_count := 0
 	if has_node("/root/GameManager"):
 		var cm = get_node("/root/GameManager").get("completed_missions")
@@ -692,6 +745,87 @@ func _update_compass() -> void:
 			drone_dist_str = "%d м" % int(d2)
 
 	compass_poi_label.text = "🚗 Фургон: %s   |   🤖 Дрон BUBBLE: %s" % [van_dist_str, drone_dist_str]
+
+const CONTRACT_CARGO_TYPES: Array[Dictionary] = [
+	{
+		"type": "Хрупкий Концентрат",
+		"desc": "Сверхчистый карамельный сироп. Требует осторожной езды без сильных столкновений.",
+		"reward": 650,
+		"threat": 0.0
+	},
+	{
+		"type": "Экспресс-Доставка",
+		"desc": "Срочный заказ для подпольного штаба. Бонус за быстрое прибытие.",
+		"reward": 750,
+		"threat": 15.0
+	},
+	{
+		"type": "Контрабандная Партия",
+		"desc": "Секретный рецепт Кока-Коли! Охота Синдиката обеспечена (+розыск).",
+		"reward": 1200,
+		"threat": 60.0
+	},
+	{
+		"type": "Стандартная Доставка",
+		"desc": "Регулярный рейс с ящиками газировки по торговым точкам.",
+		"reward": 450,
+		"threat": 0.0
+	}
+]
+
+func generate_random_contract() -> Dictionary:
+	var districts: Array[String] = ["old_district", "city_highway", "red_line_plant", "neon_boulevard", "logistics_hub", "underground_metro"]
+	var from_idx := randi() % districts.size()
+	var to_idx := (from_idx + 1 + (randi() % (districts.size() - 1))) % districts.size()
+
+	var cargo_cfg: Dictionary = CONTRACT_CARGO_TYPES[randi() % CONTRACT_CARGO_TYPES.size()]
+	var from_id: String = districts[from_idx]
+	var to_id: String = districts[to_idx]
+
+	var from_name := from_id
+	var to_name := to_id
+	for d in DISTRICT_INTEL:
+		if d["id"] == from_id: from_name = d["name"]
+		if d["id"] == to_id: to_name = d["name"]
+
+	var contract := {
+		"id": "contract_%d" % (Time.get_ticks_msec()),
+		"title": "%s: %s → %s" % [cargo_cfg["type"], from_name, to_name],
+		"cargo": cargo_cfg["type"],
+		"desc": cargo_cfg["desc"],
+		"from_district": from_id,
+		"from_name": from_name,
+		"to_district": to_id,
+		"to_name": to_name,
+		"reward": cargo_cfg["reward"],
+		"threat": cargo_cfg["threat"],
+		"is_completed": false
+	}
+	active_contract = contract
+
+	if cargo_cfg["threat"] > 0.0 and has_node("/root/ThreatManager"):
+		var tm: Node = get_node("/root/ThreatManager")
+		tm.call("report_crime", "Перевозка контрабандного концентрата", cargo_cfg["threat"])
+
+	contract_started.emit(contract)
+	show_radio_banner("ДИСПЕТЧЕР", "Принят заказ: %s (+%d КР)" % [cargo_cfg["type"], cargo_cfg["reward"]])
+	LogManager.info("[КОНТРАКТ]: Взят заказ «%s» (+%d КР)" % [contract["title"], contract["reward"]], "CYBERDECK")
+	return contract
+
+func complete_active_contract() -> bool:
+	if active_contract.is_empty() or active_contract.get("is_completed", false):
+		return false
+	active_contract["is_completed"] = true
+	var reward: int = int(active_contract.get("reward", 500))
+	var gm: Node = get_node_or_null("/root/GameManager")
+	if gm:
+		gm.call("add_credits", reward)
+		gm.call("add_reputation", 20)
+	show_radio_banner("ДИСПЕТЧЕР", "Контракт успешно выполнен! (+%d КР)" % reward)
+	_play_sfx("upgrade_purchase")
+	contract_completed.emit(active_contract)
+	LogManager.info("[КОНТРАКТ]: Контракт выполнен! Начислено %d КР." % reward, "CYBERDECK")
+	return true
 
 func _play_sfx(sfx_name: String) -> void:
 	if has_node("/root/AudioManager"):
