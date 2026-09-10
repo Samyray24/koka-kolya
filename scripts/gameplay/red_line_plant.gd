@@ -508,10 +508,21 @@ func _spawn_plant_world_details() -> void:
 		g.position=gd["p"]; g.rotation_degrees=Vector3(0,gd["r"],0); add_child(g)
 
 	# 5 NPC рабочих
-	var npc_w:PackedScene=load("res://scenes/characters/npc_character.tscn")
+	var npc_w: PackedScene = load("res://scenes/characters/npc_character.tscn")
 	if npc_w:
-		for wp in [Vector3(-15,0,-25), Vector3(12,0,-30), Vector3(-5,0,-40), Vector3(8,0,-45), Vector3(18,0,-35)]:
-			var n:Node3D=npc_w.instantiate(); n.position=wp; n.rotation_degrees=Vector3(0,randf_range(0,360),0); add_child(n)
+		var plant_workers := [
+			{"pos": Vector3(-15,0,-25), "name": "Рабочий смены"},
+			{"pos": Vector3(12,0,-30),  "name": "Оператор розлива"},
+			{"pos": Vector3(-5,0,-40),  "name": "Технолог завода"},
+			{"pos": Vector3(8,0,-45),   "name": "Инженер автоматики"},
+			{"pos": Vector3(18,0,-35),  "name": "Слесарь комплекса"}
+		]
+		for wp in plant_workers:
+			var n: Node3D = npc_w.instantiate()
+			n.set("npc_name", wp["name"])
+			n.set("is_sasha", false)
+			n.position = wp["pos"]; n.rotation_degrees = Vector3(0, randf_range(0, 360), 0)
+			add_child(n)
 
 	# промышленные дымовые трубы (5 CPUParticles3D с серым дымом)
 	for sp in [Vector3(-20,15,-50), Vector3(20,15,-50), Vector3(-15,18,-60), Vector3(15,18,-60), Vector3(0,20,-70)]:

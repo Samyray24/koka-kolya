@@ -86,13 +86,15 @@ func _spawn_world_details() -> void:
 	if city_arch:
 		_apply_city_materials_recursive(city_arch, mat_asphalt, mat_paving, mat_grass, mat_foliage)
 
-	# 1. Спавн 3D-модели связного СашиV (Rogue_Hooded) возле гаража Коли
+	# 1. Спавн 3D-модели связного Саши V (Rogue_Hooded) возле гаража Коли
 	var npc_scene: PackedScene = load("res://scenes/characters/npc_character.tscn")
 	if npc_scene:
 		var sasha: Node3D = npc_scene.instantiate()
 		sasha.name = "SashaV_NPC"
-		sasha.position = Vector3(4.5, 0.0, 46.5)
-		sasha.rotation_degrees = Vector3(0, -60, 0)
+		sasha.set("is_sasha", true)
+		sasha.set("npc_name", "Саша V (Сопротивление)")
+		sasha.position = Vector3(3.5, 0.0, 52.0)
+		sasha.rotation_degrees = Vector3(0, -140, 0)
 		add_child(sasha)
 
 	# 2. Спавн патрульной машины (car_police) на обочине улицы
@@ -440,14 +442,16 @@ func _spawn_world_details() -> void:
 	var npc_s2: PackedScene = load("res://scenes/characters/npc_character.tscn")
 	if npc_s2:
 		var peds := [
-			{"pos": Vector3(-3.0,0,44.0), "rot": 135.0},
-			{"pos": Vector3(3.0,0,32.0),  "rot": -45.0},
-			{"pos": Vector3(-3.2,0,18.0), "rot": 60.0},
-			{"pos": Vector3(3.1,0,7.0),   "rot": -120.0},
+			{"pos": Vector3(-3.6, 0.0, 35.0), "rot": 150.0, "name": "Житель района"},
+			{"pos": Vector3(3.6, 0.0, 14.0),  "rot": -45.0, "name": "Прохожий"},
+			{"pos": Vector3(-3.6, 0.0, 18.0), "rot": 60.0,  "name": "Инженер связи"},
+			{"pos": Vector3(3.6, 0.0, -12.0), "rot": -120.0,"name": "Горожанин"},
 		]
 		for i in range(peds.size()):
 			var ped: Node3D = npc_s2.instantiate()
 			ped.name = "Pedestrian_%d" % i
+			ped.set("npc_name", peds[i]["name"])
+			ped.set("is_sasha", false)
 			ped.position = peds[i]["pos"]
 			ped.rotation_degrees = Vector3(0, peds[i]["rot"], 0)
 			add_child(ped)

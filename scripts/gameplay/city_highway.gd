@@ -482,8 +482,15 @@ func _spawn_highway_world_details() -> void:
 	# 20. Дополнительные NPC у КПП и площади
 	var npc_hw: PackedScene = load("res://scenes/characters/npc_character.tscn")
 	if npc_hw:
-		for nd in [{"p": Vector3(-9.5,0,-2.5),"r":45.0}, {"p":Vector3(5.0,0,-80.0),"r":-30.0}, {"p":Vector3(-5.0,0,-78.0),"r":120.0}]:
+		var hw_peds := [
+			{"p": Vector3(-9.5,0,-2.5),"r":45.0, "name": "Дежурный КПП"},
+			{"p": Vector3(5.0,0,-80.0),"r":-30.0, "name": "Техник трассы"},
+			{"p": Vector3(-5.0,0,-78.0),"r":120.0, "name": "Оператор связи"}
+		]
+		for nd in hw_peds:
 			var n: Node3D = npc_hw.instantiate()
+			n.set("npc_name", nd["name"])
+			n.set("is_sasha", false)
 			n.position = nd["p"]; n.rotation_degrees = Vector3(0, nd["r"], 0)
 			add_child(n)
 

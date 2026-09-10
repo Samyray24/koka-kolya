@@ -268,10 +268,21 @@ func _build_neon_plaza() -> void:
 		var sl2:=Label3D.new(); sl2.text=["КОЛА\n50₽","ЧИПСЫ\n30₽","ВОДА\n20₽"][si]; sl2.font_size=12; sl2.position=Vector3(0,1.6,0.6); stall.add_child(sl2)
 		stall.position=Vector3([-9.5,-9.5,9.5][si],0.0,[60.0,30.0,60.0][si]); add_child(stall)
 	# Дополнительные NPC на бульваре
-	var npc_nb:PackedScene=load("res://scenes/characters/npc_character.tscn")
+	var npc_nb: PackedScene = load("res://scenes/characters/npc_character.tscn")
 	if npc_nb:
-		for nd in [{"p":Vector3(-8.0,0,75.0),"r":30.0},{"p":Vector3(7.0,0,50.0),"r":-45.0},{"p":Vector3(-7.0,0,20.0),"r":90.0},{"p":Vector3(8.0,0,-5.0),"r":-60.0},{"p":Vector3(-6.0,0,-30.0),"r":120.0}]:
-			var n:Node3D=npc_nb.instantiate(); n.position=nd["p"]; n.rotation_degrees=Vector3(0,nd["r"],0); add_child(n)
+		var nb_peds := [
+			{"p": Vector3(-8.0,0,75.0), "r": 30.0,  "name": "Житель Неон-Бульвара"},
+			{"p": Vector3(7.0,0,50.0),  "r": -45.0, "name": "Кибер-турист"},
+			{"p": Vector3(-7.0,0,20.0), "r": 90.0,  "name": "Посетитель Плазы"},
+			{"p": Vector3(8.0,0,-5.0),  "r": -60.0, "name": "Покупатель колы"},
+			{"p": Vector3(-6.0,0,-30.0),"r": 120.0, "name": "Горожанин"}
+		]
+		for nd in nb_peds:
+			var n: Node3D = npc_nb.instantiate()
+			n.set("npc_name", nd["name"])
+			n.set("is_sasha", false)
+			n.position = nd["p"]; n.rotation_degrees = Vector3(0, nd["r"], 0)
+			add_child(n)
 	# Неоновые вывески на небоскрёбах (Label3D)
 	for nd2 in [{"pos":Vector3(-26,28,90),"text":"MEGACORP\nSYNDICATE"},{"pos":Vector3(26,32,90),"text":"NEON\nDREAMS"},{"pos":Vector3(-26,36,40),"text":"KOLA\nCORPORA"},{"pos":Vector3(26,30,40),"text":"MERIDIAN\nTOWER"}]:
 		var sign:=Label3D.new(); sign.text=nd2["text"]; sign.font_size=28

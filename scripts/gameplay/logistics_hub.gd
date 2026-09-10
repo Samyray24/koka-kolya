@@ -252,10 +252,20 @@ func _build_laser_security() -> void:
 		g.position=gd["p"]; g.rotation_degrees=Vector3(0,gd["r"],0); add_child(g)
 
 	# 4 NPC грузчика
-	var npc_h:PackedScene=load("res://scenes/characters/npc_character.tscn")
+	var npc_h: PackedScene = load("res://scenes/characters/npc_character.tscn")
 	if npc_h:
-		for wp in [Vector3(-10,0,30), Vector3(10,0,20), Vector3(-5,0,-5), Vector3(12,0,-25)]:
-			var n:Node3D=npc_h.instantiate(); n.position=wp; n.rotation_degrees=Vector3(0,randf_range(0,360),0); add_child(n)
+		var cargo_workers := [
+			{"pos": Vector3(-10,0,30),  "name": "Грузчик терминала"},
+			{"pos": Vector3(10,0,20),   "name": "Диспетчер склада"},
+			{"pos": Vector3(-5,0,-5),   "name": "Карго-техник"},
+			{"pos": Vector3(12,0,-25),  "name": "Водитель погрузчика"}
+		]
+		for wp in cargo_workers:
+			var n: Node3D = npc_h.instantiate()
+			n.set("npc_name", wp["name"])
+			n.set("is_sasha", false)
+			n.position = wp["pos"]; n.rotation_degrees = Vector3(0, randf_range(0, 360), 0)
+			add_child(n)
 
 	# трубы с дымом
 	for sp in [Vector3(-25,10,-20), Vector3(25,10,-20), Vector3(-15,12,-70), Vector3(15,12,-70)]:
