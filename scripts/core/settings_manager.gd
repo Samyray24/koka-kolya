@@ -17,19 +17,24 @@ var settings: Dictionary = {
 		"fov": 85.0
 	},
 	"graphics": {
+		"preset": "balanced", # performance, balanced, ultra, cyberpunk
 		"msaa_3d": RenderingServer.VIEWPORT_MSAA_2X,
 		"ssao_enabled": true,
 		"glow_enabled": true,
+		"color_filter": 0, # 0: Киберпанк, 1: Нуар, 2: Реализм, 3: Ретро
+		"motion_blur": true,
 		"shadow_quality": 2 # 0: Low, 1: Med, 2: High
 	},
 	"audio": {
 		"master_volume": 0.85,
 		"sfx_volume": 0.9,
 		"music_volume": 0.7,
-		"dialogue_volume": 1.0
+		"radio_volume": 0.85,
+		"dialogue_volume": 1.0,
+		"default_radio_station": 0 # 0: Радио Свободный Коля, 1: Синдикат FM, 2: Неоновый Дрифт
 	},
 	"accessibility": {
-		"camera_shake_scale": 1.0, # 0.0 to 1.0
+		"camera_shake_scale": 1.0, # 0.0 to 1.5
 		"head_bob_scale": 1.0,
 		"subtitle_scale": 1.0,
 		"high_contrast_mode": false,
@@ -38,7 +43,11 @@ var settings: Dictionary = {
 	"controls": {
 		"mouse_sensitivity": 0.0022,
 		"invert_y": false,
-		"head_bob": true
+		"head_bob": true,
+		"vehicle_steering_mode": 1, # 0: Мягкий круиз, 1: Спортивный, 2: Дрифт-мастер
+		"dynamic_vehicle_cam": true,
+		"crosshair_color_index": 0, # 0: Неоновый Cyan, 1: Токсичный Green, 2: Красный Red, 3: Желтый Gold
+		"damage_numbers": true
 	}
 }
 
@@ -113,3 +122,76 @@ func set_val(category: String, key: String, value: Variant) -> void:
 	settings[category][key] = value
 	save_settings()
 	settings_changed.emit(category)
+
+func apply_preset(preset_name: String) -> void:
+	match preset_name:
+		"performance":
+			settings["graphics"]["preset"] = "performance"
+			settings["graphics"]["msaa_3d"] = RenderingServer.VIEWPORT_MSAA_DISABLED
+			settings["graphics"]["ssao_enabled"] = false
+			settings["graphics"]["glow_enabled"] = false
+			settings["graphics"]["shadow_quality"] = 0
+			settings["display"]["max_fps"] = 120
+		"balanced":
+			settings["graphics"]["preset"] = "balanced"
+			settings["graphics"]["msaa_3d"] = RenderingServer.VIEWPORT_MSAA_2X
+			settings["graphics"]["ssao_enabled"] = true
+			settings["graphics"]["glow_enabled"] = true
+			settings["graphics"]["shadow_quality"] = 1
+			settings["display"]["max_fps"] = 60
+		"ultra", "cyberpunk":
+			settings["graphics"]["preset"] = "cyberpunk"
+			settings["graphics"]["msaa_3d"] = RenderingServer.VIEWPORT_MSAA_4X
+			settings["graphics"]["ssao_enabled"] = true
+			settings["graphics"]["glow_enabled"] = true
+			settings["graphics"]["shadow_quality"] = 2
+			settings["display"]["max_fps"] = 144
+	save_settings()
+	apply_all_settings()
+
+func reset_to_defaults() -> void:
+	settings = {
+		"display": {
+			"window_mode": DisplayServer.WINDOW_MODE_WINDOWED,
+			"resolution_width": 1920,
+			"resolution_height": 1080,
+			"vsync_mode": DisplayServer.VSYNC_ENABLED,
+			"max_fps": 60,
+			"fov": 85.0
+		},
+		"graphics": {
+			"preset": "balanced",
+			"msaa_3d": RenderingServer.VIEWPORT_MSAA_2X,
+			"ssao_enabled": true,
+			"glow_enabled": true,
+			"color_filter": 0,
+			"motion_blur": true,
+			"shadow_quality": 2
+		},
+		"audio": {
+			"master_volume": 0.85,
+			"sfx_volume": 0.9,
+			"music_volume": 0.7,
+			"radio_volume": 0.85,
+			"dialogue_volume": 1.0,
+			"default_radio_station": 0
+		},
+		"accessibility": {
+			"camera_shake_scale": 1.0,
+			"head_bob_scale": 1.0,
+			"subtitle_scale": 1.0,
+			"high_contrast_mode": false,
+			"coyote_time_extended": false
+		},
+		"controls": {
+			"mouse_sensitivity": 0.0022,
+			"invert_y": false,
+			"head_bob": true,
+			"vehicle_steering_mode": 1,
+			"dynamic_vehicle_cam": true,
+			"crosshair_color_index": 0,
+			"damage_numbers": true
+		}
+	}
+	save_settings()
+	apply_all_settings()

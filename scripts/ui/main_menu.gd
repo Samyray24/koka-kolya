@@ -108,8 +108,12 @@ func _play_sfx(sound_name: String, vol: float = 0.0) -> void:
 
 func _on_play_pressed() -> void:
 	_play_sfx("ui_click")
-	print("[MENU] Launching First Playable (Old District: Mission 1)...")
-	get_tree().change_scene_to_file("res://scenes/levels/old_district.tscn")
+	print("[MENU] Launching First Playable with Async Loading Screen...")
+	if has_node("/root/GameManager"):
+		var gm = get_node("/root/GameManager")
+		gm.call("change_district", "old_district", true)
+	else:
+		get_tree().change_scene_to_file("res://scenes/ui/loading_screen.tscn")
 
 func _on_districts_pressed() -> void:
 	_play_sfx("ui_click")

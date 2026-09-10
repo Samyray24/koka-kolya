@@ -30,7 +30,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="Center"]
-custom_minimum_size = Vector2(820, 580)
+custom_minimum_size = Vector2(860, 620)
 layout_mode = 2
 
 [node name="Margin" type="MarginContainer" parent="Center/Panel"]
@@ -84,18 +84,49 @@ theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 metadata/_tab_index = 0
 
-[node name="Grid" type="GridContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics"]
+[node name="VBoxGraphics" type="VBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PresetsHBox" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LabelPresets" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/PresetsHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+text = "Быстрые профили:"
+
+[node name="BtnPresetPerf" type="Button" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/PresetsHBox"]
+custom_minimum_size = Vector2(160, 32)
+layout_mode = 2
+text = "⚡ Быстродействие"
+
+[node name="BtnPresetBal" type="Button" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/PresetsHBox"]
+custom_minimum_size = Vector2(140, 32)
+layout_mode = 2
+text = "⚖️ Баланс"
+
+[node name="BtnPresetUltra" type="Button" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/PresetsHBox"]
+custom_minimum_size = Vector2(180, 32)
+layout_mode = 2
+text = "💎 Киберпанк Ультра"
+
+[node name="SepPresets" type="HSeparator" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics"]
+layout_mode = 2
+
+[node name="Grid" type="GridContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics"]
 layout_mode = 2
 theme_override_constants/h_separation = 24
-theme_override_constants/v_separation = 18
+theme_override_constants/v_separation = 12
 columns = 2
 
-[node name="LabelWinMode" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+[node name="LabelWinMode" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
 layout_mode = 2
 text = "Режим окна:"
 
-[node name="OptWindowMode" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
-custom_minimum_size = Vector2(260, 36)
+[node name="OptWindowMode" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
+custom_minimum_size = Vector2(260, 34)
 layout_mode = 2
 item_count = 2
 popup/item_0/text = "Оконный режим"
@@ -103,22 +134,22 @@ popup/item_0/id = 0
 popup/item_1/text = "Полноэкранный"
 popup/item_1/id = 1
 
-[node name="LabelVSync" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+[node name="LabelVSync" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
 layout_mode = 2
 text = "Вертикальная синхронизация (V-Sync):"
 
-[node name="CheckVSync" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+[node name="CheckVSync" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
 layout_mode = 2
 text = "Включено"
 
-[node name="LabelFOV" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+[node name="LabelFOV" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
 layout_mode = 2
 text = "Угол обзора (FOV):"
 
-[node name="HBoxFOV" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+[node name="HBoxFOV" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
 layout_mode = 2
 
-[node name="SliderFOV" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid/HBoxFOV"]
+[node name="SliderFOV" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid/HBoxFOV"]
 custom_minimum_size = Vector2(200, 24)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -126,18 +157,18 @@ min_value = 70.0
 max_value = 105.0
 value = 85.0
 
-[node name="LabelFOVVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid/HBoxFOV"]
+[node name="LabelFOVVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid/HBoxFOV"]
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 text = "85°"
 horizontal_alignment = 2
 
-[node name="LabelMSAA" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
+[node name="LabelMSAA" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
 layout_mode = 2
 text = "Сглаживание (MSAA 3D):"
 
-[node name="OptMSAA" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/Grid"]
-custom_minimum_size = Vector2(260, 36)
+[node name="OptMSAA" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
+custom_minimum_size = Vector2(260, 34)
 layout_mode = 2
 item_count = 3
 popup/item_0/text = "Выключено"
@@ -146,6 +177,31 @@ popup/item_1/text = "MSAA 2X (Рекомендуется)"
 popup/item_1/id = 1
 popup/item_2/text = "MSAA 4X (Максимальное)"
 popup/item_2/id = 2
+
+[node name="LabelColorFilter" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
+layout_mode = 2
+text = "Цветовая гамма (Пост-эффект):"
+
+[node name="OptColorFilter" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
+custom_minimum_size = Vector2(260, 34)
+layout_mode = 2
+item_count = 4
+popup/item_0/text = "Киберпанк (Неоновый)"
+popup/item_0/id = 0
+popup/item_1/text = "Кибер-Нуар (Контраст)"
+popup/item_1/id = 1
+popup/item_2/text = "Реализм (Холодный тон)"
+popup/item_2/id = 2
+popup/item_3/text = "Ретровейв (80-е Сияние)"
+popup/item_3/id = 3
+
+[node name="LabelMotionBlur" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
+layout_mode = 2
+text = "Размытие в движении (Motion Blur):"
+
+[node name="CheckMotionBlur" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabGraphics/VBoxGraphics/Grid"]
+layout_mode = 2
+text = "Включено"
 
 [node name="TabAudio" type="MarginContainer" parent="Center/Panel/Margin/VBox/TabContainer"]
 visible = false
@@ -229,6 +285,42 @@ layout_mode = 2
 text = "70%"
 horizontal_alignment = 2
 
+[node name="LabelRadio" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+text = "Громкость радиостанций:"
+
+[node name="HBoxRadio" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+
+[node name="SliderRadio" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxRadio"]
+custom_minimum_size = Vector2(260, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.05
+value = 0.85
+
+[node name="LabelRadioVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid/HBoxRadio"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "85%"
+horizontal_alignment = 2
+
+[node name="LabelDefaultRadio" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+layout_mode = 2
+text = "Радиостанция по умолчанию:"
+
+[node name="OptDefaultRadio" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox/Grid"]
+custom_minimum_size = Vector2(260, 36)
+layout_mode = 2
+item_count = 3
+popup/item_0/text = "101.4 FM • Эхо Красногограда"
+popup/item_0/id = 0
+popup/item_1/text = "98.2 FM • Радио Сопротивления"
+popup/item_1/id = 1
+popup/item_2/text = "89.0 FM • Неоновый Бит"
+popup/item_2/id = 2
+
 [node name="BtnTestSound" type="Button" parent="Center/Panel/Margin/VBox/TabContainer/TabAudio/VBox"]
 custom_minimum_size = Vector2(200, 36)
 layout_mode = 2
@@ -282,6 +374,76 @@ text = "Инвертировать ось Y (обзор):"
 [node name="CheckInvertY" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
 layout_mode = 2
 text = "Выключено"
+
+[node name="LabelShake" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Тряска экрана (Screen Shake):"
+
+[node name="HBoxShake" type="HBoxContainer" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+
+[node name="SliderShake" type="HSlider" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens/HBoxShake"]
+custom_minimum_size = Vector2(240, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.5
+step = 0.05
+value = 1.0
+
+[node name="LabelShakeVal" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens/HBoxShake"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="LabelSteering" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Режим рулевого управления:"
+
+[node name="OptSteering" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+custom_minimum_size = Vector2(260, 34)
+layout_mode = 2
+item_count = 3
+popup/item_0/text = "Мягкое (Аркадное)"
+popup/item_0/id = 0
+popup/item_1/text = "Спортивное (Точное)"
+popup/item_1/id = 1
+popup/item_2/text = "Дрифт / Экстрим"
+popup/item_2/id = 2
+
+[node name="LabelDynamicCam" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Динамическая камера в авто:"
+
+[node name="CheckDynamicCam" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Включено"
+
+[node name="LabelCrosshair" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Цвет прицела оружия:"
+
+[node name="OptCrosshairColor" type="OptionButton" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+custom_minimum_size = Vector2(260, 34)
+layout_mode = 2
+item_count = 4
+popup/item_0/text = "Бирюзовый (Кибер-неон)"
+popup/item_0/id = 0
+popup/item_1/text = "Ярко-красный"
+popup/item_1/id = 1
+popup/item_2/text = "Золотисто-жёлтый"
+popup/item_2/id = 2
+popup/item_3/text = "Белый классический"
+popup/item_3/id = 3
+
+[node name="LabelDamageNumbers" type="Label" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Цифры урона в бою:"
+
+[node name="CheckDamageNumbers" type="CheckButton" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox/GridSens"]
+layout_mode = 2
+text = "Включено"
 
 [node name="HSeparator" type="HSeparator" parent="Center/Panel/Margin/VBox/TabContainer/TabControls/VBox"]
 layout_mode = 2
@@ -542,13 +704,19 @@ layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 2
 
+[node name="BtnReset" type="Button" parent="Center/Panel/Margin/VBox/BottomHBox"]
+custom_minimum_size = Vector2(190, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.45, 1)
+text = "СБРОСИТЬ НАСТРОЙКИ"
+
 [node name="BtnClose" type="Button" parent="Center/Panel/Margin/VBox/BottomHBox"]
 custom_minimum_size = Vector2(130, 42)
 layout_mode = 2
 text = "ЗАКРЫТЬ"
 
 [node name="BtnApply" type="Button" parent="Center/Panel/Margin/VBox/BottomHBox"]
-custom_minimum_size = Vector2(200, 42)
+custom_minimum_size = Vector2(210, 42)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 1, 0.4, 1)
 text = "СОХРАНИТЬ И ПРИМЕНИТЬ"

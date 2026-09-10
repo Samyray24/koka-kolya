@@ -483,20 +483,6 @@ func _spawn_plant_world_details() -> void:
 	add_child(tower_strobe)
 
 	# AAA РАСШИРЕНИЕ Завод v2.0
-	# дождь над заводом
-	var rp_rain := CPUParticles3D.new()
-	rp_rain.name = "PlantRain"
-	rp_rain.position = Vector3(0, 30.0, 0.0)
-	rp_rain.amount = 800; rp_rain.lifetime = 2.5; rp_rain.preprocess = 1.0
-	rp_rain.direction = Vector3(0.05, -1, 0.05); rp_rain.spread = 5.0
-	rp_rain.gravity = Vector3(0, -12.0, 0)
-	rp_rain.initial_velocity_min = 15.0; rp_rain.initial_velocity_max = 20.0
-	var rp_rm := SphereMesh.new(); rp_rm.radius = 0.015; rp_rm.height = 0.3
-	var rp_rmt := StandardMaterial3D.new()
-	rp_rmt.albedo_color = Color(0.4, 0.5, 0.6, 0.3)
-	rp_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; rp_rmt.roughness = 0.1
-	rp_rm.material = rp_rmt; rp_rain.mesh = rp_rm
-	add_child(rp_rain)
 	
 	# 6 дополнительных небоскрёбов фона
 	var bg_b_mat := StandardMaterial3D.new(); bg_b_mat.albedo_color = Color(0.1, 0.1, 0.15)

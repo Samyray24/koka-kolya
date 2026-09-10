@@ -13,6 +13,8 @@ var reputation: int = 10
 var completed_missions: Array[String] = []
 
 var is_transitioning: bool = false
+var pending_district_id: String = ""
+var pending_district_scene: String = ""
 
 const DISTRICT_SCENES: Dictionary = {
 	"garage": "res://scenes/testlabs/foundation_graybox.tscn",
@@ -46,11 +48,19 @@ func change_district(district_key: String, save_before_transition: bool = true) 
 		sm.call("save_game", 0, {"last_district": district_key})
 
 	current_district = district_key
+	pending_district_id = district_key
+	pending_district_scene = target_scene_path
 	district_changed.emit(district_key)
 
-	var err := get_tree().change_scene_to_file(target_scene_path)
+	var err: Error = OK
+	if district_key == "main_menu" or district_key == "test_hub":
+		err = get_tree().change_scene_to_file(target_scene_path)
+	else:
+		# Плавная загрузка через асинхронный киберпанк экран загрузки
+		err = get_tree().change_scene_to_file("res://scenes/ui/loading_screen.tscn")
+
 	# Сброс флага перехода через один кадр после загрузки
-	get_tree().create_timer(1.0).timeout.connect(func() -> void: is_transitioning = false)
+	get_tree().create_timer(1.2).timeout.connect(func() -> void: is_transitioning = false)
 	return err == OK
 
 func add_credits(amount: int) -> void:

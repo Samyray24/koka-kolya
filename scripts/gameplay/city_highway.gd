@@ -404,23 +404,7 @@ func _spawn_highway_world_details() -> void:
 
 	# ═══ AAA РАСШИРЕНИЕ v2.0 ═══════════════════════════════════════════════
 
-	# 14. Дождь над шоссе
-	var hw_rain := CPUParticles3D.new()
-	hw_rain.name = "HighwayRain"
-	hw_rain.position = Vector3(0, 22.0, 20.0)
-	hw_rain.amount = 500; hw_rain.lifetime = 2.0; hw_rain.preprocess = 1.0
-	hw_rain.direction = Vector3(0.05, -1, 0); hw_rain.spread = 4.0
-	hw_rain.gravity = Vector3(0, -11.0, 0)
-	hw_rain.initial_velocity_min = 14.0; hw_rain.initial_velocity_max = 18.0
-	var hw_rm := SphereMesh.new(); hw_rm.radius = 0.012; hw_rm.height = 0.28
-	var hw_rmt := StandardMaterial3D.new()
-	hw_rmt.albedo_color = Color(0.65, 0.78, 0.92, 0.35)
-	hw_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	hw_rmt.roughness = 0.05
-	hw_rm.material = hw_rmt; hw_rain.mesh = hw_rm
-	add_child(hw_rain)
-
-	# 15. Лужи на шоссе
+	# 14. Лужи на шоссе
 	for pp in [Vector3(-2.0,0.22,45.0), Vector3(3.0,0.22,25.0), Vector3(-1.5,0.22,-18.0), Vector3(2.5,0.22,-50.0)]:
 		var pd := MeshInstance3D.new()
 		var pq := QuadMesh.new(); pq.size = Vector2(2.5, 1.2)

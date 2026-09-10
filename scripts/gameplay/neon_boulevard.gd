@@ -247,20 +247,6 @@ func _build_neon_plaza() -> void:
 		add_child(barrel)
 
 	# AAA РАСШИРЕНИЕ Неон Бульвар v2.0
-	# Дождь неонового бульвара
-	var nb_rain := CPUParticles3D.new()
-	nb_rain.name = "NeonRain"
-	nb_rain.position = Vector3(0, 25.0, 0.0)
-	nb_rain.amount = 600; nb_rain.lifetime = 2.2; nb_rain.preprocess = 1.0
-	nb_rain.direction = Vector3(0.02, -1, 0); nb_rain.spread = 3.0
-	nb_rain.gravity = Vector3(0, -10.0, 0)
-	nb_rain.initial_velocity_min = 13.0; nb_rain.initial_velocity_max = 17.0
-	var nb_rm := SphereMesh.new(); nb_rm.radius = 0.01; nb_rm.height = 0.25
-	var nb_rmt := StandardMaterial3D.new()
-	nb_rmt.albedo_color = Color(0.5, 0.65, 1.0, 0.3)
-	nb_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; nb_rmt.roughness = 0.05
-	nb_rm.material = nb_rmt; nb_rain.mesh = nb_rm
-	add_child(nb_rain)
 	# Неоновые лужи
 	for np in [Vector3(-5.0,0.01,80.0),Vector3(5.0,0.01,50.0),Vector3(-3.0,0.01,20.0),Vector3(4.0,0.01,-10.0),Vector3(-2.0,0.01,-50.0)]:
 		var pd := MeshInstance3D.new()

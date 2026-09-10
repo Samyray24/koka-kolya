@@ -227,20 +227,6 @@ func _build_laser_security() -> void:
 	add_child(exit_trig)
 
 	# AAA РАСШИРЕНИЕ Хаб v2.0
-	# дождь
-	var lh_rain := CPUParticles3D.new()
-	lh_rain.name = "HubRain"
-	lh_rain.position = Vector3(0, 30.0, 0.0)
-	lh_rain.amount = 700; lh_rain.lifetime = 2.5; lh_rain.preprocess = 1.0
-	lh_rain.direction = Vector3(0.1, -1, 0.1); lh_rain.spread = 4.0
-	lh_rain.gravity = Vector3(0, -11.0, 0)
-	lh_rain.initial_velocity_min = 14.0; lh_rain.initial_velocity_max = 18.0
-	var lh_rm := SphereMesh.new(); lh_rm.radius = 0.015; lh_rm.height = 0.3
-	var lh_rmt := StandardMaterial3D.new()
-	lh_rmt.albedo_color = Color(0.45, 0.55, 0.65, 0.35)
-	lh_rmt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; lh_rmt.roughness = 0.1
-	lh_rm.material = lh_rmt; lh_rain.mesh = lh_rm
-	add_child(lh_rain)
 	
 	# небоскрёбы фона
 	var bg_mat := StandardMaterial3D.new(); bg_mat.albedo_color = Color(0.12, 0.12, 0.18)

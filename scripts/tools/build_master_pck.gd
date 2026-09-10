@@ -1,10 +1,19 @@
-﻿extends SceneTree
+extends SceneTree
 
 # KokaKolya - Master PCK Builder using Godot 4 native PCKPacker
 # Packs ALL game scenes, scripts, shaders, materials, audio, models, and 4K PBR textures
 # into a massive standalone distribution package.
 
-func _init():
+var frame: int = 0
+
+func _process(_delta: float) -> bool:
+    frame += 1
+    if frame == 2:
+        _build()
+        return true
+    return false
+
+func _build():
     print('=======================================================================')
     print('>>> KOKAKOLYA — СБОРКА МАСТЕР-ДИСТРИБУТИВА (PCKPacker) <<<')
     print('=======================================================================')
