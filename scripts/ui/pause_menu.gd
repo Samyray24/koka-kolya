@@ -61,6 +61,13 @@ const DISTRICT_LIST: Array[Dictionary] = [
 		"scene": "res://scenes/levels/underground_metro.tscn"
 	},
 	{
+		"id": "citadel_penthouse",
+		"name": "Пентхаус Цитадели (Штаб Синдиката)",
+		"desc": "Вершина цитадели MERIDIAN: серверная, панорамная вертолетная площадка и главный мейнфрейм.",
+		"danger": "★★★",
+		"scene": "res://scenes/levels/citadel_penthouse.tscn"
+	},
+	{
 		"id": "garage",
 		"name": "Гараж Коли (Испытательный Полигон)",
 		"desc": "Стенд физики, настройка управляемости фургона и полигон инструментов.",

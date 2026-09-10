@@ -10,7 +10,7 @@ extends SceneTree
 # 6. Уровни кампании: Наличие кнопок «Следующий район» и дорожных порталов в сценах.
 
 var passed_count: int = 0
-var total_count: int = 6
+var total_count: int = 7
 var frame: int = 0
 
 var cdm: Node = null
@@ -33,6 +33,8 @@ func _process(_delta: float) -> bool:
 		13:
 			_test_6_victory_panel_district_buttons()
 		15:
+			_test_7_gate_auto_transition_and_ejection_protection()
+		17:
 			_finalize()
 			return true
 	return false
@@ -176,45 +178,98 @@ func _test_5_hud_radar_exit_gate_tracking() -> void:
 		print("[FAIL] Test 5: HUDRadar не смог обнаружить группу exit_gate.")
 
 func _test_6_victory_panel_district_buttons() -> void:
-	var old_dist_script = load("res://scripts/gameplay/old_district.gd")
-	if not old_dist_script:
-		print("[FAIL] Test 6: Скрипт old_district.gd не найден.")
-		return
+	# Проверяем все скрипты уровней на наличие методов настройки кнопок победы
+	var level_configs = [
+		{"script": "res://scripts/gameplay/old_district.gd", "method": "_setup_complete_panel_buttons", "panel": "MissionCompletePanel"},
+		{"script": "res://scripts/gameplay/city_highway.gd", "method": "_setup_victory_panel_buttons", "panel": "VictoryPanel"},
+		{"script": "res://scripts/gameplay/neon_boulevard.gd", "method": "_setup_victory_panel_buttons", "panel": "VictoryPanel"},
+		{"script": "res://scripts/gameplay/red_line_plant.gd", "method": "_setup_victory_panel_buttons", "panel": "VictoryPanel"},
+		{"script": "res://scripts/gameplay/logistics_hub.gd", "method": "_setup_victory_panel_buttons", "panel": "VictoryPanel"},
+		{"script": "res://scripts/gameplay/underground_metro.gd", "method": "_setup_victory_panel_buttons", "panel": "VictoryPanel"},
+		{"script": "res://scripts/gameplay/citadel_penthouse.gd", "method": "_setup_victory_panel_buttons", "panel": "VictoryPanel"}
+	]
 
-	var dist = Node3D.new()
-	dist.set_script(old_dist_script)
+	var all_ok: bool = true
+	for cfg in level_configs:
+		var scr = load(cfg["script"])
+		if not scr:
+			all_ok = false
+			print("[FAIL] Test 6: Не удалось загрузить скрипт: %s" % cfg["script"])
+			continue
 
-	var hud = CanvasLayer.new()
-	hud.name = "HUD"
-	dist.add_child(hud)
+		var lvl = Node3D.new()
+		lvl.set_script(scr)
 
-	var panel = PanelContainer.new()
-	panel.name = "MissionCompletePanel"
-	var margin = MarginContainer.new()
-	margin.name = "Margin"
-	panel.add_child(margin)
-	var vbox = VBoxContainer.new()
-	vbox.name = "VBox"
-	margin.add_child(vbox)
-	hud.add_child(panel)
+		var hud = CanvasLayer.new()
+		hud.name = "HUD"
+		lvl.add_child(hud)
 
-	root.add_child(dist)
+		var panel = PanelContainer.new()
+		panel.name = cfg["panel"]
+		var margin = MarginContainer.new()
+		margin.name = "Margin"
+		panel.add_child(margin)
+		var vbox = VBoxContainer.new()
+		vbox.name = "VBox"
+		margin.add_child(vbox)
+		hud.add_child(panel)
 
-	dist.call("_setup_complete_panel_buttons")
+		root.add_child(lvl)
 
-	var btn_next: Node = vbox.get_node_or_null("BtnNextDistrict")
-	var btn_map: Node = vbox.get_node_or_null("BtnOpenMap")
-	var btn_menu: Node = vbox.get_node_or_null("BtnReturnMenu")
+		lvl.call(cfg["method"])
 
-	var has_all_btns: bool = (btn_next != null and btn_map != null and btn_menu != null)
+		var has_next: bool = (vbox.get_node_or_null("BtnNextDistrict") != null)
+		var has_map: bool = (vbox.get_node_or_null("BtnOpenMap") != null)
+		var has_menu: bool = (vbox.get_node_or_null("BtnReturnMenu") != null)
 
-	dist.queue_free()
+		lvl.queue_free()
 
-	if has_all_btns:
-		print("[PASS] Test 6: Панели завершения миссий генерируют кнопки перехода в следующий район, карты и меню.")
+		if not (has_next and has_map and has_menu):
+			all_ok = false
+			print("[FAIL] Test 6: Скрипт %s не создал все кнопки (next=%s, map=%s, menu=%s)" % [cfg["script"], has_next, has_map, has_menu])
+
+	if all_ok:
+		print("[PASS] Test 6: Все 7 районов Краснограда оснащены интерактивными кнопками победы (Следующий район, Карта, Меню).")
 		passed_count += 1
 	else:
-		print("[FAIL] Test 6: Кнопки перехода не созданы (next=%s, map=%s, menu=%s)." % [btn_next != null, btn_map != null, btn_menu != null])
+		print("[FAIL] Test 6: Часть районов не имеет полных кнопок победы.")
+
+func _test_7_gate_auto_transition_and_ejection_protection() -> void:
+	var gate_script = load("res://scripts/world/road_exit_gate.gd")
+	if not gate_script:
+		print("[FAIL] Test 7: Скрипт road_exit_gate.gd не найден.")
+		return
+
+	var gate = Node3D.new()
+	gate.set_script(gate_script)
+	gate.set("target_district_id", "city_highway")
+	gate.set("gate_title", "СКОРОСТНОЕ ШОССЕ")
+	root.add_child(gate)
+
+	var mock_van = Node3D.new()
+	mock_van.add_to_group("vehicle")
+	root.add_child(mock_van)
+
+	# 1. Симуляция въезда в створ ворот
+	gate.call("_on_body_entered", mock_van)
+	var has_meta_flag: bool = mock_van.has_meta("in_exit_gate") and bool(mock_van.get_meta("in_exit_gate"))
+
+	# 2. Симуляция нахождения в створе ворот и авто-срабатывание таймера перехода (0.7 сек)
+	gate.call("_process", 0.7)
+	var is_trans: bool = bool(gate.get("is_transitioning"))
+
+	# 3. Симуляция выезда из ворот
+	gate.call("_on_body_exited", mock_van)
+	var flag_cleared: bool = not (mock_van.has_meta("in_exit_gate") and bool(mock_van.get_meta("in_exit_gate")))
+
+	gate.queue_free()
+	mock_van.queue_free()
+
+	if has_meta_flag and is_trans and flag_cleared:
+		print("[PASS] Test 7: RoadExitGate защищает от катапультирования из фургона (in_exit_gate) и выполняет авто-переход по таймеру зоны.")
+		passed_count += 1
+	else:
+		print("[FAIL] Test 7: Сбой в логике защиты/таймера перехода (flag=%s, trans=%s, cleared=%s)." % [has_meta_flag, is_trans, flag_cleared])
 
 func _finalize() -> void:
 	print("\n=======================================================================")

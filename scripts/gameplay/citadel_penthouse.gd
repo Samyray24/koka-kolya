@@ -47,6 +47,7 @@ func _ready() -> void:
 
 	_create_waypoint_beacon()
 	_spawn_penthouse_visuals()
+	_spawn_road_exit_gates()
 	_start_mission_intro()
 	_update_waypoint_for_stage()
 
@@ -405,9 +406,89 @@ func _on_mission_victory() -> void:
 		waypoint_node.visible = false
 	if victory_panel:
 		victory_panel.visible = true
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		_setup_victory_panel_buttons()
 	if radio_text:
 		radio_text.text = "[СашаV]: Мы сделали это, Коля! Город свободен, Кока-Коля возвращается в каждый дом!"
 	if has_node("/root/AudioManager"):
 		var am: Node = get_node("/root/AudioManager")
 		am.call("play_sfx", "victory", 2.0)
+	if has_node("/root/GameManager"):
+		var gm: Node = get_node("/root/GameManager")
+		gm.call("mark_mission_completed", "mission_citadel_penthouse")
 	mission_completed.emit()
+
+func _setup_victory_panel_buttons() -> void:
+	if not victory_panel:
+		return
+	var vbox = victory_panel.get_node_or_null("Margin/VBox")
+	if not vbox or vbox.has_node("BtnNextDistrict"):
+		return
+
+	var sep := HSeparator.new()
+	vbox.add_child(sep)
+
+	var btn_restart := Button.new()
+	btn_restart.name = "BtnNextDistrict"
+	btn_restart.text = " 🔄 НАЧАТЬ ЗАНОВО: СТАРЫЙ РАЙОН "
+	btn_restart.custom_minimum_size = Vector2(0, 44)
+	btn_restart.add_theme_font_size_override("font_size", 15)
+	btn_restart.add_theme_color_override("font_color", Color(0.2, 1.0, 0.4))
+	btn_restart.pressed.connect(func() -> void:
+		var gm: Node = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("change_district"):
+			gm.call("change_district", "old_district", true)
+		else:
+			get_tree().change_scene_to_file("res://scenes/levels/old_district.tscn")
+	)
+	vbox.add_child(btn_restart)
+
+	var btn_map := Button.new()
+	btn_map.name = "BtnOpenMap"
+	btn_map.text = " 🗺️ КАРТА ГОРОДА (ВЫБОР РАЙОНА) "
+	btn_map.custom_minimum_size = Vector2(0, 38)
+	btn_map.pressed.connect(func() -> void:
+		victory_panel.visible = false
+		var cdm: Node = get_node_or_null("/root/CyberdeckManager")
+		if cdm and cdm.has_method("open_pda"):
+			cdm.call("open_pda")
+	)
+	vbox.add_child(btn_map)
+
+	var btn_menu := Button.new()
+	btn_menu.name = "BtnReturnMenu"
+	btn_menu.text = " 🏠 В ГЛАВНОЕ МЕНЮ "
+	btn_menu.custom_minimum_size = Vector2(0, 38)
+	btn_menu.pressed.connect(func() -> void:
+		var gm: Node = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("change_district"):
+			gm.call("change_district", "main_menu", true)
+		else:
+			get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
+	)
+	vbox.add_child(btn_menu)
+
+func _spawn_road_exit_gates() -> void:
+	var gate_script = load("res://scripts/world/road_exit_gate.gd")
+	if not gate_script:
+		return
+
+	# 1. Воздушный/эвакуационный портал на вертолетной площадке (спуск в Даунтаун)
+	var helipad_gate = Node3D.new()
+	helipad_gate.set_script(gate_script)
+	helipad_gate.name = "ExitGate_NeonBoulevard"
+	helipad_gate.set("target_district_id", "neon_boulevard")
+	helipad_gate.set("gate_title", "НЕОНОВЫЙ БУЛЬВАР")
+	helipad_gate.set("direction_hint", "Скоростной спуск на Неоновый бульвар Даунтауна")
+	helipad_gate.position = Vector3(0, 0, 24)
+	add_child(helipad_gate)
+
+	# 2. Служебный экспресс-лифт в Подземный метрополитен
+	var elevator_gate = Node3D.new()
+	elevator_gate.set_script(gate_script)
+	elevator_gate.name = "ExitGate_Metro"
+	elevator_gate.set("target_district_id", "underground_metro")
+	elevator_gate.set("gate_title", "ПОДЗЕМНЫЙ МЕТРОПОЛИТЕН")
+	elevator_gate.set("direction_hint", "Шахта служебного скоростного лифта в тоннели метро")
+	elevator_gate.position = Vector3(0, 0, -22)
+	add_child(elevator_gate)

@@ -12,6 +12,8 @@ var credits: int = 250
 var reputation: int = 10
 var completed_missions: Array[String] = []
 
+var is_transitioning: bool = false
+
 const DISTRICT_SCENES: Dictionary = {
 	"garage": "res://scenes/testlabs/foundation_graybox.tscn",
 	"old_district": "res://scenes/levels/old_district.tscn",
@@ -20,6 +22,7 @@ const DISTRICT_SCENES: Dictionary = {
 	"neon_boulevard": "res://scenes/levels/neon_boulevard.tscn",
 	"logistics_hub": "res://scenes/levels/logistics_hub.tscn",
 	"underground_metro": "res://scenes/levels/underground_metro.tscn",
+	"citadel_penthouse": "res://scenes/levels/citadel_penthouse.tscn",
 	"test_hub": "res://scenes/testlabs/test_hub.tscn",
 	"main_menu": "res://scenes/ui/main_menu.tscn"
 }
@@ -35,6 +38,8 @@ func change_district(district_key: String, save_before_transition: bool = true) 
 	var target_scene_path: String = DISTRICT_SCENES[district_key]
 	LogManager.info("Переход в район: %s -> %s" % [district_key, target_scene_path], "GAME")
 
+	is_transitioning = true
+
 	# Сохраняем состояние перед переходом
 	if save_before_transition and has_node("/root/SaveManager"):
 		var sm: Node = get_node("/root/SaveManager")
@@ -44,6 +49,8 @@ func change_district(district_key: String, save_before_transition: bool = true) 
 	district_changed.emit(district_key)
 
 	var err := get_tree().change_scene_to_file(target_scene_path)
+	# Сброс флага перехода через один кадр после загрузки
+	get_tree().create_timer(1.0).timeout.connect(func() -> void: is_transitioning = false)
 	return err == OK
 
 func add_credits(amount: int) -> void:

@@ -135,24 +135,14 @@ func _on_target_state_changed(state: String) -> void:
 	match state:
 		"grabbable":
 			crosshair.color = Color(1.0, 0.85, 0.2, 0.95)
-			crosshair.size = Vector2(8, 8)
-			crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(4, 4)
 		"interactable", "vehicle":
 			crosshair.color = Color(0.2, 0.9, 1.0, 0.95)
-			crosshair.size = Vector2(8, 8)
-			crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(4, 4)
 		"cargo_snap":
 			crosshair.color = Color(0.3, 1.0, 0.4, 1.0)
-			crosshair.size = Vector2(10, 10)
-			crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(5, 5)
 		"holding":
 			crosshair.color = Color(1.0, 0.5, 0.2, 0.9)
-			crosshair.size = Vector2(6, 6)
-			crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(3, 3)
 		_:
 			crosshair.color = Color(1, 1, 1, 0.75)
-			crosshair.size = Vector2(4, 4)
-			crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(2, 2)
 
 func _update_interaction_badge(txt: String) -> void:
 	if not interaction_badge:
@@ -380,8 +370,11 @@ func _physics_process(delta: float) -> void:
 			_:
 				base_sz = 4.0
 		var target_sz := base_sz + spread_bonus
-		crosshair.size = Vector2(target_sz, target_sz)
-		crosshair.position = (crosshair.get_viewport_rect().size * 0.5) - Vector2(target_sz * 0.5, target_sz * 0.5)
+		var half_sz := target_sz * 0.5
+		crosshair.offset_left = -half_sz
+		crosshair.offset_top = -half_sz
+		crosshair.offset_right = half_sz
+		crosshair.offset_bottom = half_sz
 
 	# 12. Инерция и покачивание манипулятора (Weapon Sway)
 	if grabber:

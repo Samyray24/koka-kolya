@@ -18,12 +18,23 @@ var trigger_area: Area3D = null
 var is_transitioning: bool = false
 var prompt_label_3d: Label3D = null
 var active_body_in_zone: Node = null
+var zone_timer: float = 0.0
+const AUTO_TRANSITION_DELAY: float = 0.6
 
 func _ready() -> void:
 	add_to_group("exit_gate")
 	_build_visual_arch()
 	_build_trigger_area()
 	set_process_unhandled_input(true)
+	set_process(true)
+
+func _process(delta: float) -> void:
+	if is_transitioning:
+		return
+	if is_instance_valid(active_body_in_zone):
+		zone_timer += delta
+		if zone_timer >= AUTO_TRANSITION_DELAY:
+			execute_transition()
 
 func _build_visual_arch() -> void:
 	# 1. Материалы опор и неона
@@ -125,12 +136,12 @@ func _build_trigger_area() -> void:
 	trigger_area = Area3D.new()
 	trigger_area.name = "ExitTriggerArea"
 	trigger_area.collision_layer = 0
-	trigger_area.collision_mask = 6 # Слой 2 (Player) и Слой 4 (Van)
+	trigger_area.collision_mask = 15 # Слой 1 (World/Rigid), 2 (Player), 4 (Van), 8 (Drone)
 	add_child(trigger_area)
 
 	var col := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = Vector3(gate_width, gate_height, 8.0)
+	box.size = Vector3(gate_width, gate_height, 14.0)
 	col.shape = box
 	col.position = Vector3(0, gate_height * 0.5, 0)
 	trigger_area.add_child(col)
@@ -143,15 +154,19 @@ func _on_body_entered(body: Node) -> void:
 		return
 	if body.is_in_group("player") or body.is_in_group("vehicle"):
 		active_body_in_zone = body
-		LogManager.info("[ДОРОЖНЫЙ ПОРТАЛ]: Игрок приблизился к выезду в район «%s»" % gate_title, "WORLD")
+		zone_timer = 0.0
+		body.set_meta("in_exit_gate", true)
+		LogManager.info("[ДОРОЖНЫЙ ПОРТАЛ]: Объект вошел в зону выезда в район «%s»" % gate_title, "WORLD")
 		if prompt_label_3d:
 			prompt_label_3d.modulate = Color(0.3, 1.0, 0.4)
-			prompt_label_3d.text = ">>> [E] ВЪЕХАТЬ В «%s» <<<" % gate_title.to_upper()
-		_show_hud_toast("🛣️ ВЫЕЗД: Нажмите [E] для перехода в «%s»" % gate_title)
+			prompt_label_3d.text = ">>> [E] ВЪЕХАТЬ В «%s» (ИЛИ ДВИГАЙТЕСЬ ДАЛЬШЕ) <<<" % gate_title.to_upper()
+		_show_hud_toast("🛣️ ВЫЕЗД: «%s» — проезжайте в створ или нажмите [E]" % gate_title)
 
 func _on_body_exited(body: Node) -> void:
 	if body == active_body_in_zone:
+		body.set_meta("in_exit_gate", false)
 		active_body_in_zone = null
+		zone_timer = 0.0
 		if prompt_label_3d:
 			prompt_label_3d.modulate = Color(1.0, 0.88, 0.3)
 			prompt_label_3d.text = "%s\n[ ВЪЕХАТЬ В РАЙОН: НАЖМИТЕ E ИЛИ ПЕРЕСЕКИТЕ ЧЕРТУ ]" % direction_hint

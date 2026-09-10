@@ -555,7 +555,13 @@ func _physics_process(delta: float) -> void:
 	_update_dashboard_ui(throttle, forward_speed, is_handbrake)
 
 	if Input.is_action_just_pressed("interact"):
-		exit_vehicle()
+		if has_meta("in_exit_gate") and bool(get_meta("in_exit_gate")):
+			# В створе ворот перехода [E] не выбрасывает игрока из машины
+			pass
+		elif has_node("/root/GameManager") and bool(get_node("/root/GameManager").get("is_transitioning")):
+			pass
+		else:
+			exit_vehicle()
 
 func _input(event: InputEvent) -> void:
 	if not is_driven:
