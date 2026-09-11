@@ -68,6 +68,7 @@ const FOOTSTEP_INTERVAL: float = 2.2
 
 var radial_wheel: Node = null
 var hud_radar: Node = null
+var hotbar: Node = null
 
 func _ready() -> void:
 	floor_snap_length = 0.35
@@ -100,9 +101,17 @@ func _ready() -> void:
 	if inventory_manager:
 		inventory_manager.call("setup", self, camera, grabber)
 		if inventory_label:
-			inventory_manager.connect("slot_changed", func(slot_idx: int, slot_name: String) -> void:
-				inventory_label.text = "Слот [%d]: %s" % [slot_idx + 1, slot_name]
-			)
+			inventory_label.visible = false
+
+	# Инициализация адаптивного киберпанк-хотбара в HUD
+	var hotbar_script = load("res://scripts/ui/cyberpunk_hotbar.gd")
+	if hotbar_script:
+		var hud_node = get_node_or_null("HUD")
+		if hud_node:
+			hotbar = hotbar_script.new()
+			hud_node.add_child(hotbar)
+			if hotbar.has_method("setup") and inventory_manager:
+				hotbar.call("setup", inventory_manager)
 
 	if has_node("/root/CyberdeckManager"):
 		var cdm: Node = get_node("/root/CyberdeckManager")

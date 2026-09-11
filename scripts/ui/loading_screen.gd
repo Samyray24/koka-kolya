@@ -1,4 +1,4 @@
-﻿class_name LoadingScreen
+class_name LoadingScreen
 extends Control
 
 # LoadingScreen — Киберпанк экран асинхронной загрузки уровней Краснограда
@@ -206,9 +206,14 @@ func _finish_transition(packed_scene: PackedScene) -> void:
 
 	if fade_overlay:
 		var tween := create_tween()
-		tween.tween_property(fade_overlay, "color:a", 1.0, 0.35)
+		tween.tween_property(fade_overlay, "color:a", 1.0, 0.25)
 		tween.tween_callback(func() -> void:
-			get_tree().change_scene_to_packed(packed_scene)
+			_deferred_scene_change(packed_scene)
 		)
 	else:
-		get_tree().change_scene_to_packed(packed_scene)
+		_deferred_scene_change(packed_scene)
+
+func _deferred_scene_change(packed_scene: PackedScene) -> void:
+	await get_tree().process_frame
+	get_tree().change_scene_to_packed(packed_scene)
+
