@@ -23,6 +23,7 @@ var district_modal: Control = null
 var music_player: AudioStreamPlayer = null
 var btn_music_toggle: Button = null
 var btn_fullscreen_toggle: Button = null
+var top_bar: HBoxContainer = null
 
 # Правый тактический терминал
 var terminal_panel: PanelContainer = null
@@ -162,6 +163,7 @@ func _ready() -> void:
 	_setup_main_buttons()
 	_build_tactical_terminal()
 	_build_district_modal()
+	_setup_settings_integration()
 	_select_district(0)
 
 func _process(delta: float) -> void:
@@ -197,7 +199,7 @@ func _setup_music() -> void:
 				music_player.play()
 
 func _setup_top_bar() -> void:
-	var top_bar := HBoxContainer.new()
+	top_bar = HBoxContainer.new()
 	top_bar.name = "TopNavBar"
 	top_bar.anchors_preset = Control.PRESET_TOP_WIDE
 	top_bar.anchor_left = 0.0
@@ -208,6 +210,7 @@ func _setup_top_bar() -> void:
 	top_bar.offset_bottom = 54.0
 	top_bar.add_theme_constant_override("separation", 16)
 	top_bar.mouse_filter = MOUSE_FILTER_IGNORE
+	top_bar.z_index = 2
 	add_child(top_bar)
 
 	var status_badge := Label.new()
@@ -383,7 +386,10 @@ func _build_tactical_terminal() -> void:
 	term_style.corner_radius_bottom_left = 6
 	term_style.corner_radius_bottom_right = 6
 	terminal_panel.add_theme_stylebox_override("panel", term_style)
+	terminal_panel.z_index = 0
+	terminal_panel.z_as_relative = false
 	add_child(terminal_panel)
+	move_child(terminal_panel, 1)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 20)
@@ -633,10 +639,12 @@ func _toggle_fullscreen() -> void:
 	var mode := DisplayServer.window_get_mode()
 	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, false)
 		if btn_fullscreen_toggle:
 			btn_fullscreen_toggle.text = " ⛶ ЭКРАН "
 	else:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, false)
 		if btn_fullscreen_toggle:
 			btn_fullscreen_toggle.text = " 🗗 ОКОННЫЙ "
 
@@ -669,19 +677,33 @@ func _fade_out_music(callback: Callable) -> void:
 
 func _on_districts_pressed() -> void:
 	_play_sfx("ui_click")
-	if district_modal:
-		district_modal.visible = true
+	if settings_menu:
+		settings_menu.visible = false
+	if not district_modal:
+		_build_district_modal()
+	_open_modal(district_modal)
 
 func _build_district_modal() -> void:
+	if district_modal:
+		return
 	district_modal = Control.new()
 	district_modal.name = "DistrictSelectModal"
 	district_modal.anchors_preset = Control.PRESET_FULL_RECT
 	district_modal.visible = false
+	district_modal.z_index = 100
+	district_modal.z_as_relative = false
 	add_child(district_modal)
 
 	var dimmer := ColorRect.new()
 	dimmer.anchors_preset = Control.PRESET_FULL_RECT
 	dimmer.color = Color(0.02, 0.03, 0.06, 0.92)
+	dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
+	dimmer.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			_play_sfx("ui_click")
+			district_modal.visible = false
+			_on_modal_closed()
+	)
 	district_modal.add_child(dimmer)
 
 	var frame := PanelContainer.new()
@@ -710,26 +732,27 @@ func _build_district_modal() -> void:
 	main_vbox.add_theme_constant_override("separation", 10)
 	frame.add_child(main_vbox)
 
-	var top_bar := HBoxContainer.new()
-	main_vbox.add_child(top_bar)
+	var modal_top_bar := HBoxContainer.new()
+	main_vbox.add_child(modal_top_bar)
 
 	var title := Label.new()
 	title.text = " 🗺️ КАРТА КРАСНОГРАДА // ВЫБОР РАЙОНА ДЛЯ СТАРТА"
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(0.2, 0.95, 1.0))
-	top_bar.add_child(title)
+	modal_top_bar.add_child(title)
 
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_bar.add_child(spacer)
+	modal_top_bar.add_child(spacer)
 
 	var close_btn := Button.new()
 	close_btn.text = " [X] Закрыть "
 	close_btn.pressed.connect(func() -> void:
 		_play_sfx("ui_click")
 		district_modal.visible = false
+		_on_modal_closed()
 	)
-	top_bar.add_child(close_btn)
+	modal_top_bar.add_child(close_btn)
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -778,6 +801,7 @@ func _build_district_modal() -> void:
 		var target_scene: String = dist["scene"]
 		travel_btn.pressed.connect(func() -> void:
 			district_modal.visible = false
+			_on_modal_closed()
 			_launch_district(target_id, target_scene)
 		)
 		travel_btn.mouse_entered.connect(func() -> void:
@@ -785,14 +809,73 @@ func _build_district_modal() -> void:
 		)
 		hbox.add_child(travel_btn)
 
+func _setup_settings_integration() -> void:
+	if settings_menu:
+		settings_menu.z_index = 100
+		settings_menu.z_as_relative = false
+		if settings_menu.has_signal("closed"):
+			settings_menu.closed.connect(_on_modal_closed)
+		settings_menu.visibility_changed.connect(func() -> void:
+			if not settings_menu.visible and (district_modal == null or not district_modal.visible):
+				_on_modal_closed()
+		)
+
+func _on_modal_closed() -> void:
+	if terminal_panel:
+		terminal_panel.visible = true
+	if top_bar:
+		top_bar.visible = true
+
+func _open_modal(modal: Control) -> void:
+	if terminal_panel:
+		terminal_panel.visible = false
+	if top_bar:
+		top_bar.visible = false
+	modal.z_index = 100
+	modal.z_as_relative = false
+	modal.move_to_front()
+	modal.visible = true
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and not event.is_echo():
+		if district_modal and district_modal.visible:
+			district_modal.visible = false
+			_on_modal_closed()
+			_play_sfx("ui_click")
+			get_viewport().set_input_as_handled()
+			return
+		if settings_menu and settings_menu.visible:
+			settings_menu.close_menu()
+			_on_modal_closed()
+			get_viewport().set_input_as_handled()
+			return
+
 func _on_settings_pressed() -> void:
 	_play_sfx("ui_click")
+	if district_modal:
+		district_modal.visible = false
+	if terminal_panel:
+		terminal_panel.visible = false
+	if top_bar:
+		top_bar.visible = false
 	if settings_menu:
+		settings_menu.z_index = 100
+		settings_menu.z_as_relative = false
+		settings_menu.move_to_front()
 		settings_menu.open_menu(0)
 
 func _on_guide_pressed() -> void:
 	_play_sfx("ui_click")
+	if district_modal:
+		district_modal.visible = false
+	if terminal_panel:
+		terminal_panel.visible = false
+	if top_bar:
+		top_bar.visible = false
 	if settings_menu:
+		settings_menu.z_index = 100
+		settings_menu.z_as_relative = false
+		settings_menu.move_to_front()
 		settings_menu.open_menu(2)
 
 func _on_testhub_pressed() -> void:

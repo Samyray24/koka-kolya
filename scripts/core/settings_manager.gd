@@ -92,6 +92,7 @@ func apply_display_settings() -> void:
 	var disp: Dictionary = settings["display"]
 	var mode: int = int(disp.get("window_mode", DisplayServer.WINDOW_MODE_WINDOWED))
 	DisplayServer.window_set_mode(mode as DisplayServer.WindowMode)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, false)
 	
 	var vsync: int = int(disp.get("vsync_mode", DisplayServer.VSYNC_ENABLED))
 	DisplayServer.window_set_vsync_mode(vsync as DisplayServer.VSyncMode)

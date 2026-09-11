@@ -95,6 +95,9 @@ const DISTRICT_LIST: Array[Dictionary] = [
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
+	if settings_menu:
+		settings_menu.z_index = 50
+		settings_menu.z_as_relative = false
 
 	_style_panel()
 	_build_tactical_status_card()
@@ -264,7 +267,7 @@ func _apply_cyber_button_styling(btn: Button, is_primary: bool = false) -> void:
 	)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_just_pressed("ui_cancel"):
+	if event.is_action_pressed("ui_cancel") and not event.is_echo():
 		if district_modal and district_modal.visible:
 			district_modal.visible = false
 			return
@@ -354,19 +357,35 @@ func resume_game() -> void:
 
 func _on_districts_pressed() -> void:
 	_play_sfx("ui_click")
-	if district_modal:
-		district_modal.visible = true
+	if settings_menu:
+		settings_menu.visible = false
+	if not district_modal:
+		_build_district_modal()
+	district_modal.z_index = 50
+	district_modal.z_as_relative = false
+	district_modal.move_to_front()
+	district_modal.visible = true
 
 func _build_district_modal() -> void:
+	if district_modal:
+		return
 	district_modal = Control.new()
 	district_modal.name = "DistrictSelectModal"
 	district_modal.anchors_preset = Control.PRESET_FULL_RECT
 	district_modal.visible = false
+	district_modal.z_index = 50
+	district_modal.z_as_relative = false
 	add_child(district_modal)
 
 	var dimmer := ColorRect.new()
 	dimmer.anchors_preset = Control.PRESET_FULL_RECT
 	dimmer.color = Color(0.02, 0.03, 0.06, 0.92)
+	dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
+	dimmer.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			_play_sfx("ui_click")
+			district_modal.visible = false
+	)
 	district_modal.add_child(dimmer)
 
 	var frame := PanelContainer.new()
@@ -478,7 +497,12 @@ func _build_district_modal() -> void:
 
 func _on_settings_pressed() -> void:
 	_play_sfx("ui_click")
+	if district_modal:
+		district_modal.visible = false
 	if settings_menu:
+		settings_menu.z_index = 50
+		settings_menu.z_as_relative = false
+		settings_menu.move_to_front()
 		settings_menu.open_menu(0)
 
 func _on_save_pressed() -> void:

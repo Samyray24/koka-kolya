@@ -51,6 +51,8 @@ signal closed
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	z_index = 50
+	z_as_relative = false
 	if tab_container:
 		tab_container.set_tab_title(0, "🖥️ ГРАФИКА")
 		tab_container.set_tab_title(1, "🔊 ЗВУК")
@@ -287,6 +289,11 @@ func open_menu(tab_idx: int = 0) -> void:
 	_load_current_values()
 	open_tab(tab_idx)
 	_play_sfx("ui_click", -4.0)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if visible and event.is_action_pressed("ui_cancel") and not event.is_echo():
+		close_menu()
+		get_viewport().set_input_as_handled()
 
 func close_menu() -> void:
 	visible = false
