@@ -1,7 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_menu"]
-[ext_resource type="PackedScene" path="res://scenes/ui/settings_menu.tscn" id="2_settings"]
+[ext_resource type="Script" path="res://scripts/ui/cyberpunk_menu_background.gd" id="2_bg"]
+[ext_resource type="PackedScene" path="res://scenes/ui/settings_menu.tscn" id="3_settings"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -12,74 +13,78 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_menu")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="CyberpunkBackground" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.03, 0.05, 0.08, 1)
+mouse_filter = 2
+script = ExtResource("2_bg")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
-offset_right = 480.0
+offset_right = 540.0
 grow_vertical = 2
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 70
-theme_override_constants/margin_bottom = 70
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_bottom = 54
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="GameTitle" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
-theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_colors/font_shadow_color = Color(0.9, 0.1, 0.3, 0.8)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 52
 text = "КОКА-КОЛЯ"
 
 [node name="SubTitle" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.2, 0.28, 1)
-theme_override_font_sizes/font_size = 14
-text = "КРАСНОГРАД 2026 • RED EDITION"
+theme_override_colors/font_color = Color(0.2, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "⚡ КРАСНОГРАД 2026 // РЕЙД ЗА НАСТОЯЩИМ ВКУСОМ"
 
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
 [node name="BtnPlay" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "НАЧАТЬ МИССИЮ: СТАРЫЙ РАЙОН"
+text = "[ 01 ] ▶ НАЧАТЬ КАМПАНИЮ (СТАРЫЙ РАЙОН)"
 
 [node name="BtnDistricts" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "🗺️ ВЫБОР РАЙОНА (КАРТА ГОРОДА)"
+text = "[ 02 ] 🗺️ КАРТА РАЙОНОВ КРАСНОГРАДА"
 
 [node name="BtnSettings" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "РАСШИРЕННЫЕ НАСТРОЙКИ"
+text = "[ 03 ] ⚙️ РАСШИРЕННЫЕ НАСТРОЙКИ"
 
 [node name="BtnGuide" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "УПРАВЛЕНИЕ И КАК ИГРАТЬ"
+text = "[ 04 ] 📖 РУКОВОДСТВО ОПЕРАТИВНИКА"
 
 [node name="BtnTestHub" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "ТЕСТОВЫЙ ХАБ (TEST LABS)"
+text = "[ 05 ] 🧪 ТЕСТОВЫЙ ПОЛИГОН (LABS)"
 
 [node name="BtnQuit" type="Button" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "ВЫХОД"
+text = "[ 06 ] 🚪 ВЫХОД В СИСТЕМУ"
 
 [node name="VersionLabel" type="Label" parent="."]
 layout_mode = 1
@@ -88,16 +93,17 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -360.0
-offset_top = -40.0
-offset_right = -24.0
+offset_left = -460.0
+offset_top = -36.0
+offset_right = -36.0
+offset_bottom = -12.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.4, 0.5, 0.65, 1)
-theme_override_font_sizes/font_size = 12
-text = "v1.0.0 Gold Master • Godot 4.6 + Jolt 3D"
+theme_override_colors/font_color = Color(0.4, 0.6, 0.75, 1)
+theme_override_font_sizes/font_size = 11
+text = "v1.0.0 Gold Master • Godot 4.6.3 + Jolt 3D • 60 FPS Engine"
 horizontal_alignment = 2
 
-[node name="SettingsMenu" parent="." instance=ExtResource("2_settings")]
+[node name="SettingsMenu" parent="." instance=ExtResource("3_settings")]
 visible = false
 layout_mode = 1
